@@ -1,4 +1,5 @@
 import os
+import streamlit as st
 from dotenv import load_dotenv, find_dotenv
 from google import genai
 from google.genai import types
@@ -8,9 +9,12 @@ load_dotenv(find_dotenv(), override=True)
 
 class ResearchEngine:
     def __init__(self):
-        api_key = os.getenv("GEMINI_API_KEY")
+        # Fetch API key from Streamlit Cloud Secrets first, fallback to environment variable
+        api_key = st.secrets.get("GEMINI_API_KEY") if "GEMINI_API_KEY" in st.secrets else os.getenv("GEMINI_API_KEY")
+        
         if not api_key:
-            raise ValueError("GEMINI_API_KEY not found in environment variables.")
+            raise ValueError("GEMINI_API_KEY not found in Streamlit Secrets or environment variables.")
+            
         self.client = genai.Client(api_key=api_key)
 
     def analyze_question(self, query: str) -> StrategicAnalysis:
