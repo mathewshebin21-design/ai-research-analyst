@@ -18,7 +18,6 @@ def generate_pdf_report(analysis: StrategicAnalysis, query: str) -> bytes:
 
     styles = getSampleStyleSheet()
     
-    # Custom Styles
     title_style = ParagraphStyle(
         'DocTitle',
         parent=styles['Heading1'],
@@ -97,23 +96,25 @@ def generate_pdf_report(analysis: StrategicAnalysis, query: str) -> bytes:
     story.append(Spacer(1, 15))
 
     # Key Market Drivers
+    drivers = getattr(analysis, 'key_drivers', getattr(analysis, 'market_drivers', []))
     story.append(Paragraph("Key Market Drivers", heading_style))
-    for driver in analysis.market_drivers:
+    for driver in drivers:
         story.append(Paragraph(f"• {driver}", bullet_style))
     story.append(Spacer(1, 10))
 
-    # Key Risks & Challenges
+    # Key Risks
+    risks = getattr(analysis, 'key_risks', getattr(analysis, 'risks', []))
     story.append(Paragraph("Key Risks & Strategic Challenges", heading_style))
-    for risk in analysis.key_risks:
+    for risk in risks:
         story.append(Paragraph(f"• {risk}", bullet_style))
     story.append(Spacer(1, 10))
 
-    # Strategic Action Plan
+    # Action Plan
+    actions = getattr(analysis, 'action_plan', getattr(analysis, 'opportunities', []))
     story.append(Paragraph("Recommended Action Plan", heading_style))
-    for action in analysis.action_plan:
+    for action in actions:
         story.append(Paragraph(f"• {action}", bullet_style))
 
-    # Build PDF
     doc.build(story)
     buffer.seek(0)
     return buffer.getvalue()

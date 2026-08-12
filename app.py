@@ -20,7 +20,7 @@ if st.button("Run Strategic Analysis", type="primary"):
 
             st.success("Analysis Complete!")
 
-            # Metric / Executive Summary Display
+            # Executive Summary Section
             col1, col2 = st.columns([1, 3])
             with col1:
                 st.metric(label="Recommendation", value=analysis.recommendation)
@@ -34,17 +34,21 @@ if st.button("Run Strategic Analysis", type="primary"):
             c1, c2, c3 = st.columns(3)
             with c1:
                 st.markdown("### Market Drivers")
-                for d in analysis.market_drivers:
+                # Fallback to key_drivers or market_drivers depending on Pydantic definition
+                drivers = getattr(analysis, 'key_drivers', getattr(analysis, 'market_drivers', []))
+                for d in drivers:
                     st.markdown(f"- {d}")
             
             with c2:
                 st.markdown("### Key Risks")
-                for r in analysis.key_risks:
+                risks = getattr(analysis, 'key_risks', getattr(analysis, 'risks', []))
+                for r in risks:
                     st.markdown(f"- {r}")
 
             with c3:
                 st.markdown("### Action Plan")
-                for a in analysis.action_plan:
+                actions = getattr(analysis, 'action_plan', getattr(analysis, 'opportunities', []))
+                for a in actions:
                     st.markdown(f"- {a}")
 
             st.markdown("---")
