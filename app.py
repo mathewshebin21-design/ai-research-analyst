@@ -1,82 +1,63 @@
 import streamlit as st
 from src.research import ResearchEngine
+from src.pdf_generator import generate_pdf_report
 
 st.set_page_config(page_title="AI Research Analyst", page_icon="📈", layout="wide")
 
 st.title("📈 AI Research Analyst")
-st.subheader("Automated Market Intelligence & Strategic Assessment Platform")
+st.caption("Automated Market Intelligence & Strategic Assessment Platform")
 
 query = st.text_input(
     "Enter a strategic business question:",
-    placeholder="e.g., Should a UK fashion company launch a premium technical outdoor-streetwear collection in 2027?"
+    value="Should a UK fashion company launch a premium technical outdoor-streetwear collection in 2027?"
 )
 
 if st.button("Run Strategic Analysis", type="primary"):
-    if not query.strip():
-        st.warning("Please enter a valid research question.")
-    else:
-        with st.spinner("Analyzing market dynamics, competition, and economics..."):
-            try:
-                engine = ResearchEngine()
-                result = engine.analyze_question(query)
+    with st.spinner("Analyzing opportunity with Gemini..."):
+        try:
+            engine = ResearchEngine()
+            analysis = engine.analyze_question(query)
 
-                st.divider()
+            st.success("Analysis Complete!")
 
-                col1, col2 = st.columns([1, 2])
-                with col1:
-                    st.metric(
-                        label="Overall Opportunity Score",
-                        value=f"{result.matrix.overall_opportunity_score} / 100"
-                    )
+            # Metric / Executive Summary Display
+            col1, col2 = st.columns([1, 3])
+            with col1:
+                st.metric(label="Recommendation", value=analysis.recommendation)
+            with col2:
+                st.subheader("Executive Summary")
+                st.write(analysis.executive_summary)
 
-                    if result.recommendation == "ENTER":
-                        st.success(f"### Recommendation: {result.recommendation}")
-                    elif result.recommendation == "DO NOT ENTER":
-                        st.error(f"### Recommendation: {result.recommendation}")
-                    else:
-                        st.warning(f"### Recommendation: {result.recommendation}")
+            st.markdown("---")
 
-                with col2:
-                    st.markdown("### Executive Summary")
-                    st.write(result.executive_summary)
+            # Structured Breakdown
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                st.markdown("### Market Drivers")
+                for d in analysis.market_drivers:
+                    st.markdown(f"- {d}")
+            
+            with c2:
+                st.markdown("### Key Risks")
+                for r in analysis.key_risks:
+                    st.markdown(f"- {r}")
 
-                st.divider()
+            with c3:
+                st.markdown("### Action Plan")
+                for a in analysis.action_plan:
+                    st.markdown(f"- {a}")
 
-                st.markdown("### 📊 Market Factor Breakdown")
-                matrix_data = {
-                    "Factor": [
-                        "Market Attractiveness",
-                        "Customer Demand",
-                        "Competitive Intensity",
-                        "Pricing Opportunity",
-                        "Entry Difficulty"
-                    ],
-                    "Score (0-100)": [
-                        result.matrix.market_attractiveness,
-                        result.matrix.customer_demand,
-                        result.matrix.competitive_intensity,
-                        result.matrix.pricing_opportunity,
-                        result.matrix.entry_difficulty
-                    ]
-                }
-                st.table(matrix_data)
+            st.markdown("---")
 
-                col3, col4 = st.columns(2)
-                with col3:
-                    st.markdown("### 🎯 Strategic Opportunity")
-                    st.info(result.strategic_opportunity)
+            # PDF Download Button
+            pdf_bytes = generate_pdf_report(analysis, query)
+            st.download_button(
+                label="📄 Download Strategic Report (PDF)",
+                data=pdf_bytes,
+                file_name="Strategic_Market_Assessment.pdf",
+                mime="application/pdf",
+                use_container_width=True
+            )
 
-                    st.markdown("### 💡 Key Opportunities")
-                    for opp in result.opportunities:
-                        st.markdown(f"- {opp}")
-
-                with col4:
-                    st.markdown("### 🛠️ Suggested Strategy")
-                    st.write(result.suggested_strategy)
-
-                    st.markdown("### ⚠️ Key Risks")
-                    for risk in result.key_risks:
-                        st.markdown(f"- {risk}")
-
-            except Exception as e:
-                st.error(f"An error occurred during research: {str(e)}")
+        except Exception as e:
+            st.error(f"An error occurred during research: {e}")
