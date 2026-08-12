@@ -9,7 +9,6 @@ load_dotenv(find_dotenv(), override=True)
 
 class ResearchEngine:
     def __init__(self):
-        # Fetch key from Streamlit Cloud secrets first, fallback to .env
         raw_key = None
         if "GEMINI_API_KEY" in st.secrets:
             raw_key = st.secrets["GEMINI_API_KEY"]
@@ -22,10 +21,8 @@ class ResearchEngine:
         api_key = str(raw_key).strip().strip('"').strip("'")
         self.client = genai.Client(api_key=api_key)
         
-        # Dynamically discover active models on your key
+        # Dynamically discover active models
         all_models = [m.name.replace("models/", "") for m in self.client.models.list()]
-        
-        # Priority fallback order for active models
         preferred = ["gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash"]
         self.selected_model = None
         
@@ -35,18 +32,17 @@ class ResearchEngine:
                 break
                 
         if not self.selected_model:
-            # Fallback to first available model if preferred ones are not found
             self.selected_model = all_models[0] if all_models else "gemini-3.6-flash"
 
     def analyze_question(self, query: str) -> StrategicAnalysis:
         system_prompt = (
             "You are an elite Senior Strategy Consultant and Market Intelligence Analyst. "
-            "Analyze business opportunities with extreme rigor. "
+            "Analyze business opportunities with extreme rigor using current real-time market data. "
             "CRITICAL: The 'recommendation' field MUST strictly be one of: "
             "'ENTER', 'DO NOT ENTER', or 'CONDUCT FURTHER RESEARCH'."
         )
 
-        user_prompt = f"Conduct a full strategic market assessment for the following inquiry:\n\n'{query}'"
+        user_prompt = f"Conduct a full strategic market assessment for the following inquiry based on live market conditions:\n\n'{query}'"
 
         response = self.client.models.generate_content(
             model=self.selected_model,
@@ -54,6 +50,8 @@ class ResearchEngine:
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 response_schema=StrategicAnalysis,
+                # Enable Google Search Grounding for live web data
+                tools=[{"google_search": {}}],
             ),
         )
 
