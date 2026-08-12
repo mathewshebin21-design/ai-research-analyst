@@ -9,27 +9,33 @@ load_dotenv(find_dotenv(), override=True)
 
 class ResearchEngine:
     def __init__(self):
-        # Fetch API key from Streamlit Cloud Secrets first, fallback to environment variable
-        api_key = st.secrets.get("GEMINI_API_KEY") if "GEMINI_API_KEY" in st.secrets else os.getenv("GEMINI_API_KEY")
-        
-        if not api_key:
-            raise ValueError("GEMINI_API_KEY not found in Streamlit Secrets or environment variables.")
+        # Read key from Streamlit Cloud Secrets first, fallback to .env
+        raw_key = None
+        if "GEMINI_API_KEY" in st.secrets:
+            raw_key = st.secrets["GEMINI_API_KEY"]
+        else:
+            raw_key = os.getenv("GEMINI_API_KEY")
+            
+        if not raw_key:
+            raise ValueError("GEMINI_API_KEY missing in Streamlit Secrets and environment variables.")
+
+        # Clean hidden spaces, newlines, and quotes
+        api_key = str(raw_key).strip().strip('"').strip("'")
             
         self.client = genai.Client(api_key=api_key)
 
     def analyze_question(self, query: str) -> StrategicAnalysis:
         system_prompt = (
             "You are an elite Senior Strategy Consultant and Market Intelligence Analyst. "
-            "Your job is to analyze business opportunities with extreme rigor, providing structured, "
-            "data-informed, and objective recommendations. "
-            "CRITICAL: The 'recommendation' field in your JSON output MUST strictly be one of these exact strings: "
+            "Analyze business opportunities with extreme rigor. "
+            "CRITICAL: The 'recommendation' field MUST strictly be one of: "
             "'ENTER', 'DO NOT ENTER', or 'CONDUCT FURTHER RESEARCH'."
         )
 
         user_prompt = f"Conduct a full strategic market assessment for the following inquiry:\n\n'{query}'"
 
         response = self.client.models.generate_content(
-            model="gemini-3.6-flash",
+            model="gemini-2.5-flash",
             contents=f"{system_prompt}\n\n{user_prompt}",
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
