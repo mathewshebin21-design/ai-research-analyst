@@ -9,7 +9,7 @@ load_dotenv(find_dotenv(), override=True)
 
 class ResearchEngine:
     def __init__(self):
-        # Read key from Streamlit Cloud Secrets first, fallback to .env
+        # Fetch key from Streamlit Cloud secrets first, fallback to .env
         raw_key = None
         if "GEMINI_API_KEY" in st.secrets:
             raw_key = st.secrets["GEMINI_API_KEY"]
@@ -19,10 +19,24 @@ class ResearchEngine:
         if not raw_key:
             raise ValueError("GEMINI_API_KEY missing in Streamlit Secrets and environment variables.")
 
-        # Clean hidden spaces, newlines, and quotes
         api_key = str(raw_key).strip().strip('"').strip("'")
-            
         self.client = genai.Client(api_key=api_key)
+        
+        # Dynamically discover active models on your key
+        all_models = [m.name.replace("models/", "") for m in self.client.models.list()]
+        
+        # Priority fallback order for active models
+        preferred = ["gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash"]
+        self.selected_model = None
+        
+        for model_name in preferred:
+            if model_name in all_models:
+                self.selected_model = model_name
+                break
+                
+        if not self.selected_model:
+            # Fallback to first available model if preferred ones are not found
+            self.selected_model = all_models[0] if all_models else "gemini-3.6-flash"
 
     def analyze_question(self, query: str) -> StrategicAnalysis:
         system_prompt = (
@@ -35,7 +49,7 @@ class ResearchEngine:
         user_prompt = f"Conduct a full strategic market assessment for the following inquiry:\n\n'{query}'"
 
         response = self.client.models.generate_content(
-            model="gemini-2.5-flash",
+            model=self.selected_model,
             contents=f"{system_prompt}\n\n{user_prompt}",
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
