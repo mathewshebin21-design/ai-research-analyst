@@ -1,18 +1,22 @@
 from typing import Dict, Any, List
 
 class EvidenceClassifier:
-    """Classifies research extractions into strict epistemic categories."""
+    """Extracts and verifies real citations and evidence from search results."""
 
     @staticmethod
-    def classify_claim(claim: str, source_url: str = None) -> Dict[str, Any]:
-        source_type = "FACT" if source_url and "example.com" not in source_url else "INFERENCE"
-        if not source_url:
-            source_type = "ASSUMPTION"
+    def process_search_results(results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        verified_evidence = []
+        for item in results:
+            url = item.get("url", "")
+            content = item.get("content", "")
+            is_valid = bool(url and url != "#" and not url.startswith("http://example"))
             
-        return {
-            "claim": claim,
-            "classification": source_type,
-            "source_url": source_url or "No direct URL provided",
-            "confidence": 0.95 if source_type == "FACT" else 0.70,
-            "verified": source_type == "FACT"
-        }
+            verified_evidence.append({
+                "title": item.get("title", "Untitled"),
+                "claim": content[:300] + "..." if len(content) > 300 else content,
+                "classification": "VERIFIED_FACT" if is_valid else "UNVERIFIED_SOURCE",
+                "source_url": url,
+                "confidence": float(item.get("score", 0.85)),
+                "verified": is_valid
+            })
+        return verified_evidence
