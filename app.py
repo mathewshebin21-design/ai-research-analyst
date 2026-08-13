@@ -7,15 +7,29 @@ from pdf_generator import PDFExporter
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
-st.title("🚀 AI Research & Intelligence Hub (v6.3)")
-st.write("Modular market research with custom analysis checklists, dynamic Plotly visualizations, multi-document comparison, and PDF export.")
+st.title("🚀 AI Research & Intelligence Hub (v6.4)")
+st.write("Modular market research with expanded expert personas, custom checklists, dynamic Plotly visualizations, and multi-document RAG.")
 
 tab1, tab2 = st.tabs(["📊 Modular Market Research", "📁 Multi-Document RAG & Summarizer"])
 
 with tab1:
     st.header("Customizable Market Intelligence Engine")
     query = st.text_input("Enter research topic or market sector:", "Electric Vehicle Battery Recycling and Supply Chain Innovations")
-    persona = st.selectbox("Select Analyst Persona:", ["Senior Venture Capitalist", "Tech Industry Analyst", "Global Supply Chain Expert"])
+    
+    # Expanded Analyst Personas including the new additions
+    persona = st.selectbox(
+        "Select Analyst Persona:", 
+        [
+            "Senior Venture Capitalist", 
+            "Tech Industry Analyst", 
+            "Global Supply Chain Expert",
+            "Chief Technology Officer (CTO)",
+            "ESG & Sustainability Director",
+            "Macroeconomic Strategist",
+            "Growth Marketing & Brand Director",
+            "Cybersecurity & Compliance Officer"
+        ]
+    )
     
     st.markdown("### 📋 Select Required Analysis Modules:")
     col_cb1, col_cb2, col_cb3, col_cb4 = st.columns(4)
@@ -41,7 +55,7 @@ with tab1:
         if not selected_sections:
             st.warning("Please select at least one analysis module.")
         else:
-            with st.spinner("Compiling custom research modules..."):
+            with st.spinner(f"Compiling custom research modules from the perspective of a {persona}..."):
                 try:
                     engine = ResearchEngine()
                     report = engine.generate_report(query, persona, selected_sections)
