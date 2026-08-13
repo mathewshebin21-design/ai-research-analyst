@@ -1,9 +1,11 @@
 import streamlit as st
 import os
+import pandas as pd
 from planner import AIResearchPlanner
 from tavily_search import WebSearchModule
 from rag import AdvancedRAGEngine
 from scoring import StrategicScorer
+from financials import FinancialScenarioModeler
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
@@ -105,14 +107,14 @@ if app_mode == "v2: Modular Market Research":
         mod_swot = st.checkbox("SWOT Analysis", value=True)
     with col2:
         mod_competitors = st.checkbox("Key Competitors", value=True)
-        mod_financial = st.checkbox("Financial Projections", value=True)
+        mod_financial = st.checkbox("Financial Projections & Scenarios", value=True)
     with col3:
         mod_strategy = st.checkbox("Strategic Recommendations", value=True)
     with col4:
         mod_chart = st.checkbox("Interactive Plotly Charts", value=True)
         
     if st.button("🚀 Generate Custom Intelligence Report", type="primary"):
-        st.success(f"Executing multi-agent research plan and decision scoring under persona: **{persona}**...")
+        st.success(f"Executing multi-agent research plan and financial scenario modeling under persona: **{persona}**...")
         
         if research_topic and research_topic not in st.session_state.chat_history:
             st.session_state.chat_history.insert(0, research_topic)
@@ -165,8 +167,19 @@ if app_mode == "v2: Modular Market Research":
                 st.write("- Initial capital constraints (INR 180,000 baseline)\n- High customer acquisition costs in EU markets\n- Regulatory compliance overhead")
                 
         if mod_financial:
-            st.markdown("### 💰 Financial Projections")
-            st.metric(label="Estimated Initial Outlay", value="INR 180,000 (Bootstrap Capital)")
+            st.markdown("### 💰 Financial Scenarios & What-If Modeler")
+            col_f1, col_f2 = st.columns(2)
+            with col_f1:
+                cap_input = st.number_input("Initial Capital (INR)", value=180000.0, step=10000.0)
+            with col_f2:
+                growth_input = st.slider("Annual Growth Driver (%)", min_value=5.0, max_value=50.0, value=25.0, step=1.0) / 100.0
+                
+            scenarios = FinancialScenarioModeler.calculate_scenarios(cap_input, growth_input)
+            df_scenarios = pd.DataFrame(scenarios).set_index("Timeline")
+            
+            st.markdown("**Projected Valuation Across Scenarios (INR):**")
+            st.dataframe(df_scenarios, use_container_width=True)
+            st.line_chart(df_scenarios)
             
         if mod_chart:
             st.markdown("### 📈 Interactive Growth Trajectory")
@@ -203,13 +216,11 @@ elif app_mode == "MBA Strategic Decision Hub":
         st.write("- **Core Leverage:** High agility co-owned retail setup.")
         st.write("- **Strategic Focus:** Capitalizing on digital direct-to-consumer growth channels.")
         
-        st.markdown("### 💰 Financial Return Modeling")
-        st.metric(label="Starting Capital Principal", value="INR 180,000")
-        chart_dict = {
-            "Timeline": ["Initial", "Year 1", "Year 2", "Year 3"],
-            "Valuation (INR)": [180000, 216000, 259200, 311000]
-        }
-        st.bar_chart(chart_dict, x="Timeline", y="Valuation (INR)")
+        st.markdown("### 💰 Financial Return Modeling & Scenarios")
+        mba_scenarios = FinancialScenarioModeler.calculate_scenarios(180000.0, 0.25)
+        df_mba = pd.DataFrame(mba_scenarios).set_index("Timeline")
+        st.dataframe(df_mba, use_container_width=True)
+        st.bar_chart(df_mba)
         
         st.markdown("### ⚠️ Regulatory & Risk Audit")
         st.write("- **Compliance:** Active verification of GST and entity governance.")
