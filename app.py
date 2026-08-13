@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from src.research import ResearchEngine
@@ -11,7 +12,7 @@ st.caption("Automated Market Intelligence & Strategic Assessment Platform")
 
 # Initialize history and current selection in session state
 if "history" not in st.session_state:
-    st.session_state.history = []  # List of dicts: {"query": ..., "analysis": ...}
+    st.session_state.history = []
 if "current_index" not in st.session_state:
     st.session_state.current_index = None
 
@@ -19,7 +20,6 @@ if "current_index" not in st.session_state:
 st.sidebar.title("📂 Assessment History")
 
 if st.session_state.history:
-    # Create descriptive labels for past queries
     history_options = {f"{i+1}. {item['query'][:40]}...": i for i, item in enumerate(st.session_state.history)}
     selected_label = st.sidebar.selectbox("Select Past Report:", options=list(history_options.keys()))
     
@@ -45,7 +45,6 @@ if st.button("Run Strategic Analysis", type="primary"):
             engine = ResearchEngine()
             analysis_result = engine.analyze_question(query)
             
-            # Save to history list
             new_entry = {"query": query, "analysis": analysis_result}
             st.session_state.history.append(new_entry)
             st.session_state.current_index = len(st.session_state.history) - 1
@@ -113,6 +112,26 @@ if st.session_state.current_index is not None and st.session_state.history:
         ))
         fig_gauge.update_layout(margin=dict(t=30, b=10, l=20, r=20), height=250)
         st.plotly_chart(fig_gauge, use_container_width=True)
+
+    st.markdown("---")
+
+    # Competitor Matrix Table Section
+    st.markdown("### 🏢 Competitive Landscape Matrix")
+    if hasattr(analysis, 'competitors') and analysis.competitors:
+        comp_data = [
+            {
+                "Competitor": c.name,
+                "Positioning": c.positioning,
+                "Pricing Tier": c.pricing_tier,
+                "Strengths": c.strengths,
+                "Weaknesses": c.weaknesses
+            }
+            for c in analysis.competitors
+        ]
+        comp_df = pd.DataFrame(comp_data)
+        st.dataframe(comp_df, use_container_width=True, hide_index=True)
+    else:
+        st.info("No competitor data available for this report.")
 
     st.markdown("---")
 

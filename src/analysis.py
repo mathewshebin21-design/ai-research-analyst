@@ -1,21 +1,17 @@
 from pydantic import BaseModel, Field
-from typing import List, Literal
+from typing import List
 
-class OpportunityMatrix(BaseModel):
-    market_attractiveness: int = Field(description="Score from 0-100 indicating market growth and size dynamics")
-    customer_demand: int = Field(description="Score from 0-100 evaluating willingness to pay and demand trend")
-    competitive_intensity: int = Field(description="Score from 0-100 (Higher means highly saturated/competitive)")
-    pricing_opportunity: int = Field(description="Score from 0-100 reflecting margin potential and pricing power")
-    entry_difficulty: int = Field(description="Score from 0-100 evaluating capital and regulatory barriers")
-    overall_opportunity_score: int = Field(description="Calculated overall strategic suitability score from 0-100")
+class Competitor(BaseModel):
+    name: str = Field(description="Name of the competitor brand or company")
+    positioning: str = Field(description="Market positioning or core focus")
+    pricing_tier: str = Field(description="Price tier (e.g., Budget, Mid-range, Premium, Luxury)")
+    strengths: str = Field(description="Key strengths of this competitor")
+    weaknesses: str = Field(description="Vulnerabilities or gaps in their offering")
 
 class StrategicAnalysis(BaseModel):
-    executive_summary: str = Field(description="High-level briefing summarizing the core findings")
-    recommendation: Literal["ENTER", "DO NOT ENTER", "CONDUCT FURTHER RESEARCH"] = Field(
-        description="Clear strategic decision verdict"
-    )
-    strategic_opportunity: str = Field(description="Primary competitive gap or positioning sweet spot")
-    key_risks: List[str] = Field(description="Top 3-5 operational, financial, or strategic risks")
-    opportunities: List[str] = Field(description="Top 3-5 growth levers or market gaps")
-    suggested_strategy: str = Field(description="Actionable go-to-market execution plan")
-    matrix: OpportunityMatrix
+    recommendation: str = Field(description="Strictly 'ENTER', 'DO NOT ENTER', or 'CONDUCT FURTHER RESEARCH'")
+    executive_summary: str = Field(description="Summary of the strategic opportunity")
+    key_drivers: List[str] = Field(description="Key market growth drivers")
+    key_risks: List[str] = Field(description="Key risks and challenges")
+    action_plan: List[str] = Field(description="Recommended execution steps")
+    competitors: List[Competitor] = Field(description="List of top 3-4 active competitors in this market segment")
