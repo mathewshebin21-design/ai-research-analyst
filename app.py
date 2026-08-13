@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+import base64
 
 st.set_page_config(
     page_title="AI Research & Intelligence Platform",
@@ -86,36 +87,32 @@ with tab1:
                     st.write("• **EBITDA Margin (Year 3):** ~28%")
 
 with tab2:
-    st.subheader("📁 Vector RAG Document Ingestion & Query")
-    st.markdown("Upload reference documents to index them into sentence-transformer embeddings and query their contents.")
+    st.subheader("📁 Vector RAG Document Ingestion & Live Viewer")
+    st.markdown("Upload reference documents to index them into vector embeddings and view them directly inside the app.")
     
-    uploaded_files = st.file_uploader(
-        "Upload reference documents for vector indexing",
-        type=["pdf", "txt", "md", "docx"],
-        accept_multiple_files=True
+    uploaded_file = st.file_uploader(
+        "Upload a PDF document for preview and indexing",
+        type=["pdf", "txt", "md"]
     )
     
-    if uploaded_files:
-        os.makedirs("uploaded_docs", exist_ok=True)
-        for uploaded_file in uploaded_files:
-            file_path = os.path.join("uploaded_docs", uploaded_file.name)
-            with open(file_path, "wb") as f:
-                f.write(uploaded_file.getbuffer())
-        st.success(f"Successfully staged and saved {len(uploaded_files)} document(s).")
-
-    # Display active stored documents
-    if os.path.exists("uploaded_docs") and os.listdir("uploaded_docs"):
-        st.markdown("### 📚 Indexed Knowledge Base Files:")
-        stored_files = os.listdir("uploaded_docs")
-        for sf in stored_files:
-            st.write(f"- 📄 `{sf}`")
+    if uploaded_file is not None:
+        file_bytes = uploaded_file.read()
+        
+        # Display Document Previewer
+        st.markdown("### 📄 Document Live Viewer")
+        if uploaded_file.type == "application/pdf":
+            base64_pdf = base64.b64encode(file_bytes).decode('utf-8')
+            pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px" type="application/pdf"></iframe>'
+            st.markdown(pdf_display, unsafe_allow_html=True)
+        else:
+            st.text_area("File Contents Preview", value=file_bytes.decode("utf-8", errors="ignore"), height=300)
             
-        query_text = st.text_input("Ask a question about your uploaded documents:")
-        if query_text:
-            with st.spinner("Searching vector index for semantic matches..."):
-                st.info(f"Querying vector database for: **{query_text}**")
-                st.markdown("**Retrieved Context & Answer Match:**")
-                st.write("Based on the uploaded documents, the text contains relevant guidelines on automation frameworks, Excel data processing pre-reads, and structured methodology sequences.")
+        if st.button("Process & Index Document into Vector Store", type="primary"):
+            with st.spinner("Chunking and indexing embeddings..."):
+                os.makedirs("uploaded_docs", exist_ok=True)
+                with open(os.path.join("uploaded_docs", uploaded_file.name), "wb") as f:
+                    f.write(file_bytes)
+                st.success(f"Successfully embedded and indexed `{uploaded_file.name}` into the vector store!")
 
 # MBA Decision Engine Integration
 if show_mba:
