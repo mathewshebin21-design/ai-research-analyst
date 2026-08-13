@@ -6,6 +6,9 @@ from src.analysis import StrategicAnalysis
 
 class ResearchEngine:
     def __init__(self):
+        # Force disable Vertex AI mode so the SDK correctly uses the AI Studio API key
+        os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "false"
+        
         api_key = (
             st.secrets.get("GEMINI_API_KEY") or 
             st.secrets.get("GOOGLE_API_KEY") or 
@@ -27,7 +30,6 @@ class ResearchEngine:
         Provide a structured, rigorous assessment including an executive summary, clear recommendation, key market drivers, key risks, a detailed action plan, a 4-year market size trend projection, a SWOT analysis, and a competitive landscape matrix.
         """
 
-        # Using direct model generation with structured JSON schema output (omitting search tool to prevent OAuth requirement)
         response = self.client.models.generate_content(
             model='gemini-2.5-flash',
             contents=prompt,
