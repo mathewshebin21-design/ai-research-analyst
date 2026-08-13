@@ -3,6 +3,7 @@ import os
 from planner import AIResearchPlanner
 from tavily_search import WebSearchModule
 from rag import AdvancedRAGEngine
+from scoring import StrategicScorer
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
@@ -111,18 +112,29 @@ if app_mode == "v2: Modular Market Research":
         mod_chart = st.checkbox("Interactive Plotly Charts", value=True)
         
     if st.button("🚀 Generate Custom Intelligence Report", type="primary"):
-        st.success(f"Executing multi-agent research plan and evidence retrieval under persona: **{persona}**...")
+        st.success(f"Executing multi-agent research plan and decision scoring under persona: **{persona}**...")
         
         if research_topic and research_topic not in st.session_state.chat_history:
             st.session_state.chat_history.insert(0, research_topic)
             
         st.markdown("---")
-        st.subheader("Executive Summary & Traceable Evidence")
+        st.subheader("Executive Summary & Strategic Decision Intelligence")
         st.info(f"Analyzing strategic viability for: *'{research_topic}'*")
+        
+        # Display Quantitative Scoring Dials
+        scores = StrategicScorer.calculate_scores(research_topic)
+        st.markdown("### 📊 Quantitative Strategic Decision Scores")
+        sc1, sc2, sc3, sc4, sc5, sc6 = st.columns(6)
+        sc1.metric("Attractiveness", f"{scores['market_attractiveness']}/100")
+        sc2.metric("Opportunity", f"{scores['opportunity_score']}/100")
+        sc3.metric("Competition", f"{scores['competitive_intensity']}/100")
+        sc4.metric("Difficulty", f"{scores['execution_difficulty']}/100")
+        sc5.metric("Risk Score", f"{scores['risk_score']}/100")
+        sc6.metric("Confidence", f"{scores['confidence_rating']}/100")
         
         # Display Traceable Evidence Model
         evidence_list = AdvancedRAGEngine.query_evidence_sources(research_topic)
-        with st.expander("🔍 Traceable Evidence & Source Attribution Model", expanded=True):
+        with st.expander("🔍 Traceable Evidence & Source Attribution Model", expanded=False):
             for idx, ev in enumerate(evidence_list, 1):
                 st.markdown(f"**Source {idx}: [{ev['title']}]({ev['url']})**")
                 st.caption(f"Publisher: {ev['publisher']} | Published: {ev['publication_date']} | Retrieved: {ev['retrieved_date']} | Relevance: {ev['relevance']}")
@@ -133,23 +145,24 @@ if app_mode == "v2: Modular Market Research":
             st.write("European consumer demand for sustainable footwear and apparel is growing at a 12.4% CAGR.")
             
         if mod_competitors:
-            st.markdown("### 🏢 Key Competitors")
+            st.markdown("### 🏢 Competitor Intelligence Matrix")
             st.markdown("""
-            | Competitor | Market Focus | Estimated Share | Digital Presence |
-            | :--- | :--- | :--- | :--- |
-            | **EcoWear Ltd** | Sustainable Apparel | 28% | High |
-            | **GreenStep** | Footwear Niche | 19% | Moderate |
+            | Competitor | Market Focus | Estimated Share | Digital Presence | Competitive Advantage |
+            | :--- | :--- | :--- | :--- | :--- |
+            | **EcoWear Ltd** | Sustainable Apparel | 28% | High | Established European distribution |
+            | **GreenStep** | Footwear Niche | 19% | Moderate | Proprietary eco-soles |
+            | **Your Venture** | D2C Eco-Fashion | Emerging | High (Agile) | Co-owned agile bootstrap model (INR 180k capital) |
             """)
             
         if mod_swot:
-            st.markdown("### 🔍 SWOT Analysis")
+            st.markdown("### 🔍 SWOT Intelligence Matrix")
             sc1, sc2 = st.columns(2)
             with sc1:
                 st.markdown("**Strengths & Opportunities**")
-                st.write("- High consumer pull for eco-friendly goods\n- Agile direct-to-consumer digital infrastructure")
+                st.write("- High consumer pull for eco-friendly goods\n- Agile direct-to-consumer digital infrastructure\n- Low overhead bootstrap execution")
             with sc2:
                 st.markdown("**Weaknesses & Threats**")
-                st.write("- Initial capital constraints\n- High customer acquisition costs in EU markets")
+                st.write("- Initial capital constraints (INR 180,000 baseline)\n- High customer acquisition costs in EU markets\n- Regulatory compliance overhead")
                 
         if mod_financial:
             st.markdown("### 💰 Financial Projections")
