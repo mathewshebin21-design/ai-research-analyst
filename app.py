@@ -9,12 +9,31 @@ st.set_page_config(page_title="AI Research Analyst", page_icon="📈", layout="w
 st.title("📈 AI Research Analyst")
 st.caption("Automated Market Intelligence & Strategic Assessment Platform")
 
-# Initialize session state
-if "analysis" not in st.session_state:
-    st.session_state.analysis = None
-if "last_query" not in st.session_state:
-    st.session_state.last_query = ""
+# Initialize history and current selection in session state
+if "history" not in st.session_state:
+    st.session_state.history = []  # List of dicts: {"query": ..., "analysis": ...}
+if "current_index" not in st.session_state:
+    st.session_state.current_index = None
 
+# --- Sidebar for Past Reports ---
+st.sidebar.title("📂 Assessment History")
+
+if st.session_state.history:
+    # Create descriptive labels for past queries
+    history_options = {f"{i+1}. {item['query'][:40]}...": i for i, item in enumerate(st.session_state.history)}
+    selected_label = st.sidebar.selectbox("Select Past Report:", options=list(history_options.keys()))
+    
+    if selected_label:
+        st.session_state.current_index = history_options[selected_label]
+    
+    if st.sidebar.button("Clear History"):
+        st.session_state.history = []
+        st.session_state.current_index = None
+        st.rerun()
+else:
+    st.sidebar.info("No past reports yet. Run an analysis to save history!")
+
+# --- Main Query Interface ---
 query = st.text_input(
     "Enter a strategic business question:",
     value="Should a UK fashion company launch a premium technical outdoor-streetwear collection in 2027?"
@@ -24,18 +43,25 @@ if st.button("Run Strategic Analysis", type="primary"):
     with st.spinner("Analyzing opportunity with Gemini..."):
         try:
             engine = ResearchEngine()
-            st.session_state.analysis = engine.analyze_question(query)
-            st.session_state.last_query = query
+            analysis_result = engine.analyze_question(query)
+            
+            # Save to history list
+            new_entry = {"query": query, "analysis": analysis_result}
+            st.session_state.history.append(new_entry)
+            st.session_state.current_index = len(st.session_state.history) - 1
+            
             st.success("Analysis Complete!")
         except Exception as e:
             st.error(f"An error occurred during research: {e}")
 
-# Display results if available
-if st.session_state.analysis is not None:
-    analysis = st.session_state.analysis
-    saved_query = st.session_state.last_query
+# --- Display Results for Current Selection ---
+if st.session_state.current_index is not None and st.session_state.history:
+    current_item = st.session_state.history[st.session_state.current_index]
+    analysis = current_item["analysis"]
+    saved_query = current_item["query"]
 
     st.markdown("---")
+    st.info(f"Viewing Report for: **{saved_query}**")
 
     # Executive Summary & Recommendation Card
     col1, col2 = st.columns([1, 3])
@@ -47,7 +73,7 @@ if st.session_state.analysis is not None:
 
     st.markdown("---")
 
-    # Interactive Charts Section using Plotly
+    # Interactive Charts Section
     chart_col1, chart_col2 = st.columns(2)
 
     with chart_col1:
@@ -69,7 +95,6 @@ if st.session_state.analysis is not None:
 
     with chart_col2:
         st.markdown("### Assessment Confidence Gauge")
-        # Example dynamic confidence gauge based on recommendation weight
         conf_val = 88 if "ENTER" in analysis.recommendation.upper() else 65
         
         fig_gauge = go.Figure(go.Indicator(
