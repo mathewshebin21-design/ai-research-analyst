@@ -1,8 +1,7 @@
 streamlit
 google-genai
-supabase
 pydantic
-tavily-python
+plotly
+pandas
 pypdf
 reportlab
-plotly
