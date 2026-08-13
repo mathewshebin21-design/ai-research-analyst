@@ -15,17 +15,15 @@ if "history" not in st.session_state:
     st.session_state.history = []
 if "current_index" not in st.session_state:
     st.session_state.current_index = None
-    # --- Sidebar ---
+
+# --- Sidebar for Configuration & Past Reports ---
 st.sidebar.title("⚙️ Configuration")
 persona = st.sidebar.selectbox(
     "Choose Analytical Persona:",
     ["Senior Strategy Consultant", "Aggressive Venture Capitalist", "Conservative Risk Officer", "Bootstrapped Founder"]
 )
 
-# ... update your button call to include the persona:
-# engine.analyze_question(query, persona=persona)
-
-# --- Sidebar for Past Reports ---
+st.sidebar.markdown("---")
 st.sidebar.title("📂 Assessment History")
 
 if st.session_state.history:
@@ -56,7 +54,7 @@ if st.button("Run Strategic Analysis", type="primary"):
         with st.spinner("Analyzing opportunity with Gemini..."):
             try:
                 engine = ResearchEngine()
-                analysis_result = engine.analyze_question(query)
+                analysis_result = engine.analyze_question(query, persona=persona)
                 
                 new_entry = {"query": query, "analysis": analysis_result}
                 st.session_state.history.append(new_entry)
@@ -126,9 +124,51 @@ if st.session_state.current_index is not None and st.session_state.history:
         fig_gauge.update_layout(margin=dict(t=30, b=10, l=20, r=20), height=250)
         st.plotly_chart(fig_gauge, use_container_width=True)
 
+    # Market Trends Chart Section
     st.markdown("---")
+    st.markdown("### 📈 Market Size Projections & Trend Analysis")
+    if hasattr(analysis, 'market_trends') and analysis.market_trends:
+        trend_data = [{"Year": str(t.year), "Market Size ($B)": t.market_size_billion_usd} for t in analysis.market_trends]
+        trend_df = pd.DataFrame(trend_data)
+        
+        fig_trend = px.line(
+            trend_df,
+            x="Year",
+            y="Market Size ($B)",
+            markers=True,
+            title="Market Valuation Growth Trajectory",
+            color_discrete_sequence=["#2563EB"]
+        )
+        fig_trend.update_layout(margin=dict(t=30, b=10, l=10, r=10), height=300)
+        st.plotly_chart(fig_trend, use_container_width=True)
+    else:
+        st.info("No market trend timeline available for this report.")
+
+    # SWOT Analysis Section
+    st.markdown("---")
+    st.markdown("### 🎯 SWOT Analysis")
+    if hasattr(analysis, 'swot') and analysis.swot:
+        swot = analysis.swot
+        col_a, col_b = st.columns(2)
+        
+        with col_a:
+            with st.container(border=True):
+                st.markdown("#### ✅ Strengths")
+                for item in swot.strengths: st.markdown(f"• {item}")
+            with st.container(border=True):
+                st.markdown("#### ⚠️ Weaknesses")
+                for item in swot.weaknesses: st.markdown(f"• {item}")
+                
+        with col_b:
+            with st.container(border=True):
+                st.markdown("#### 🚀 Opportunities")
+                for item in swot.opportunities: st.markdown(f"• {item}")
+            with st.container(border=True):
+                st.markdown("#### 🛑 Threats")
+                for item in swot.threats: st.markdown(f"• {item}")
 
     # Competitor Matrix Table Section
+    st.markdown("---")
     st.markdown("### 🏢 Competitive Landscape Matrix")
     if hasattr(analysis, 'competitors') and analysis.competitors:
         comp_data = [
@@ -179,22 +219,3 @@ if st.session_state.current_index is not None and st.session_state.history:
         )
     except Exception as pdf_err:
         st.error(f"Failed to generate PDF: {pdf_err}")
-        # Market Trends Chart Section
-    st.markdown("---")
-    st.markdown("### 📈 Market Size Projections & Trend Analysis")
-    if hasattr(analysis, 'market_trends') and analysis.market_trends:
-        trend_data = [{"Year": str(t.year), "Market Size ($B)": t.market_size_billion_usd} for t in analysis.market_trends]
-        trend_df = pd.DataFrame(trend_data)
-        
-        fig_trend = px.line(
-            trend_df,
-            x="Year",
-            y="Market Size ($B)",
-            markers=True,
-            title="Market Valuation Growth Trajectory",
-            color_discrete_sequence=["#2563EB"]
-        )
-        fig_trend.update_layout(margin=dict(t=30, b=10, l=10, r=10), height=300)
-        st.plotly_chart(fig_trend, use_container_width=True)
-    else:
-        st.info("No market trend timeline available for this report.")
