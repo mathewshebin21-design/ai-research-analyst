@@ -4,7 +4,7 @@ import os
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
 st.title("🚀 AI Research & Intelligence Hub")
-st.markdown("Enterprise modular market intelligence paired with advanced vector-indexed multi-document RAG.")
+st.markdown("Enterprise modular market intelligence paired with advanced vector-indexed multi-document RAG and MBA Strategic Decision Frameworks.")
 
 # Sidebar Controls & Personas
 st.sidebar.header("Executive Configuration")
@@ -22,10 +22,10 @@ persona = st.sidebar.selectbox(
 st.sidebar.markdown(f"**Active Persona:** `{persona}`")
 st.sidebar.success("System Status: Operational")
 
-# Top-level radio or tabs mimicking v2/v4 selection
+# Navigation Modes
 app_mode = st.radio(
     "Navigation Mode", 
-    ["v2: Modular Market Research", "v4: Advanced Multi-Doc Vector RAG"],
+    ["v2: Modular Market Research", "MBA Strategic Decision Hub", "v4: Advanced Multi-Doc Vector RAG"],
     horizontal=True,
     label_visibility="collapsed"
 )
@@ -98,6 +98,39 @@ if app_mode == "v2: Modular Market Research":
             st.markdown("### 🎯 Strategic Recommendations")
             st.write("1. **Phase Rollout:** Launch initial pilot collections online to validate product-market fit before expanding physical inventory.")
             st.write("2. **Supply Chain:** Secure transparent vendor compliance to align with European eco-label regulations.")
+
+elif app_mode == "MBA Strategic Decision Hub":
+    st.header("🎓 MBA Strategic Decision Framework & Financial Modeler")
+    st.markdown("Advanced quantitative analysis and strategic positioning tools based on executive frameworks.")
+    
+    col_m1, col_m2 = st.columns(2)
+    with col_m1:
+        initial_capital = st.number_input("Initial Capital Allocation (INR):", value=180000)
+    with col_m2:
+        annual_growth = st.slider("Projected Annual Growth Rate (%)", 5, 50, 20)
+        
+    if st.button("Run MBA Financial Simulation"):
+        st.success("Executing multi-year valuation forecast...")
+        
+        # Calculation logic
+        years = 3
+        projections = []
+        val = initial_capital
+        for y in range(1, years + 1):
+            val *= (1 + annual_growth / 100)
+            projections.append((f"Year {y}", int(val)))
+            
+        st.metric(label="Starting Capital Principal", value=f"INR {initial_capital:,}")
+        
+        chart_dict = {
+            "Timeline": ["Initial"] + [p[0] for p in projections],
+            "Valuation (INR)": [initial_capital] + [p[1] for p in projections]
+        }
+        st.bar_chart(chart_dict, x="Timeline", y="Valuation (INR)")
+        
+        st.markdown("### 🏛️ Strategic Decision Breakdown")
+        st.write("- **Capital Efficiency:** High return potential on initial bootstrap capital.")
+        st.write("- **Risk Horizon:** Monitor operating cash burn during early quarters.")
 
 else:
     st.header("Advanced Multi-Document Vector RAG Engine")
