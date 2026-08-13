@@ -25,7 +25,7 @@ st.sidebar.markdown("---")
 st.sidebar.title("📂 Assessment History")
 
 if st.session_state.history:
-    history_options = {f"{i+1}. {item['query'][:40]}...": i for i, item in enumerate(st.session_state.history)}
+    history_options = {f"{i+1}. {item["query"][:40]}...": i for i, item in enumerate(st.session_state.history)}
     selected_label = st.sidebar.selectbox("Select Past Report:", options=list(history_options.keys()))
     if selected_label:
         st.session_state.current_index = history_options[selected_label]
@@ -77,9 +77,9 @@ if st.session_state.current_index is not None and st.session_state.history:
     chart_col1, chart_col2 = st.columns(2)
     with chart_col1:
         st.markdown("### Strategic Breakdown Count")
-        drivers_count = len(getattr(analysis, 'key_drivers', getattr(analysis, 'market_drivers', [])))
-        risks_count = len(getattr(analysis, 'key_risks', getattr(analysis, 'risks', [])))
-        actions_count = len(getattr(analysis, 'action_plan', getattr(analysis, 'opportunities', [])))
+        drivers_count = len(getattr(analysis, "key_drivers", getattr(analysis, "market_drivers", [])))
+        risks_count = len(getattr(analysis, "key_risks", getattr(analysis, "risks", [])))
+        actions_count = len(getattr(analysis, "action_plan", getattr(analysis, "opportunities", [])))
 
         fig_bar = px.bar(
             x=["Drivers", "Risks", "Action Steps"],
@@ -98,14 +98,14 @@ if st.session_state.current_index is not None and st.session_state.history:
         fig_gauge = go.Figure(go.Indicator(
             mode="gauge+number",
             value=conf_val,
-            title={'text': "Strategic Confidence Score"},
+            title={"text": "Strategic Confidence Score"},
             gauge={
-                'axis': {'range': [0, 100]},
-                'bar': {'color': "#2563EB"},
-                'steps': [
-                    {'range': [0, 50], 'color': "#FEE2E2"},
-                    {'range': [50, 75], 'color': "#FEF3C7"},
-                    {'range': [75, 100], 'color': "#DCFCE7"}
+                "axis": {"range": [0, 100]},
+                "bar": {"color": "#2563EB"},
+                "steps": [
+                    {"range": [0, 50], "color": "#FEE2E2"},
+                    {"range": [50, 75], "color": "#FEF3C7"},
+                    {"range": [75, 100], "color": "#DCFCE7"}
                 ],
             }
         ))
@@ -114,7 +114,7 @@ if st.session_state.current_index is not None and st.session_state.history:
 
     st.markdown("---")
     st.markdown("### 📈 Market Size Projections & Trend Analysis")
-    if hasattr(analysis, 'market_trends') and analysis.market_trends:
+    if hasattr(analysis, "market_trends") and analysis.market_trends:
         trend_data = [{"Year": str(t.year), "Market Size ($B)": t.market_size_billion_usd} for t in analysis.market_trends]
         trend_df = pd.DataFrame(trend_data)
         fig_trend = px.line(trend_df, x="Year", y="Market Size ($B)", markers=True, title="Market Valuation Growth Trajectory", color_discrete_sequence=["#2563EB"])
@@ -125,7 +125,7 @@ if st.session_state.current_index is not None and st.session_state.history:
 
     st.markdown("---")
     st.markdown("### 🎯 SWOT Analysis")
-    if hasattr(analysis, 'swot') and analysis.swot:
+    if hasattr(analysis, "swot") and analysis.swot:
         swot = analysis.swot
         col_a, col_b = st.columns(2)
         with col_a:
@@ -145,7 +145,7 @@ if st.session_state.current_index is not None and st.session_state.history:
 
     st.markdown("---")
     st.markdown("### 🏢 Competitive Landscape Matrix")
-    if hasattr(analysis, 'competitors') and analysis.competitors:
+    if hasattr(analysis, "competitors") and analysis.competitors:
         comp_data = [{"Competitor": c.name, "Positioning": c.positioning, "Pricing Tier": c.pricing_tier, "Strengths": c.strengths, "Weaknesses": c.weaknesses} for c in analysis.competitors]
         comp_df = pd.DataFrame(comp_data)
         st.dataframe(comp_df, use_container_width=True, hide_index=True)
@@ -156,15 +156,15 @@ if st.session_state.current_index is not None and st.session_state.history:
     c1, c2, c3 = st.columns(3)
     with c1:
         st.markdown("### Market Drivers")
-        for d in getattr(analysis, 'key_drivers', getattr(analysis, 'market_drivers', [])):
+        for d in getattr(analysis, "key_drivers", getattr(analysis, "market_drivers", [])):
             st.markdown(f"- {d}")
     with c2:
         st.markdown("### Key Risks")
-        for r in getattr(analysis, 'key_risks', getattr(analysis, 'risks', [])):
+        for r in getattr(analysis, "key_risks", getattr(analysis, "risks", [])):
             st.markdown(f"- {r}")
     with c3:
         st.markdown("### Action Plan")
-        for a in getattr(analysis, 'action_plan', getattr(analysis, 'opportunities', [])):
+        for a in getattr(analysis, "action_plan", getattr(analysis, "opportunities", [])):
             st.markdown(f"- {a}")
 
     st.markdown("---")
