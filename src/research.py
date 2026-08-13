@@ -19,6 +19,7 @@ class ResearchEngine:
         Provide a structured, rigorous assessment including an executive summary, clear recommendation, key market drivers, key risks, a detailed action plan, a 4-year market size trend projection, a SWOT analysis, and a competitive landscape matrix.
         """
 
+        # Enable Google Search tool grounding for real-time market data retrieval
         response = self.client.models.generate_content(
             model='gemini-3.5-flash',
             contents=prompt,
@@ -26,7 +27,9 @@ class ResearchEngine:
                 response_mime_type="application/json",
                 response_schema=StrategicAnalysis,
                 temperature=0.2,
+                tools=[types.Tool(google_search=types.GoogleSearch())],
             ),
         )
 
-        return response.parsed   
+        return response.parsed
+    
