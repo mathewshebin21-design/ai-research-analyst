@@ -1,27 +1,31 @@
+import logging
+from typing import Dict, Any
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 class FinancialScenarioModeler:
-    """Calculates financial projections under base, optimistic, and conservative growth scenarios."""
-    
+    """Performs deterministic financial projections and multi-variable what-if scenario analysis."""
+
     @staticmethod
-    def calculate_scenarios(initial_capital: float, growth_rate: float, years: int = 3) -> dict:
-        scenarios = {"Base": [], "Optimistic": [], "Conservative": [], "Timeline": []}
+    def calculate_scenario(
+        base_revenue: float,
+        price_change_pct: float = 0.0,
+        volume_change_pct: float = 0.0,
+        cogs_pct: float = 0.40,
+        opex: float = 50000.0
+    ) -> Dict[str, Any]:
+        adjusted_revenue = base_revenue * (1 + price_change_pct / 100.0) * (1 + volume_change_pct / 100.0)
+        cogs = adjusted_revenue * cogs_pct
+        gross_profit = adjusted_revenue - cogs
+        gross_margin = (gross_profit / adjusted_revenue) if adjusted_revenue > 0 else 0.0
+        ebitda = gross_profit - opex
         
-        base_val = initial_capital
-        opt_val = initial_capital
-        cons_val = initial_capital
-        
-        for yr in range(years + 1):
-            scenarios["Timeline"].append(f"Year {yr}")
-            if yr == 0:
-                scenarios["Base"].append(initial_capital)
-                scenarios["Optimistic"].append(initial_capital)
-                scenarios["Conservative"].append(initial_capital)
-            else:
-                base_val *= (1 + growth_rate)
-                opt_val *= (1 + growth_rate * 1.5)
-                cons_val *= (1 + growth_rate * 0.5)
-                
-                scenarios["Base"].append(round(base_val, 2))
-                scenarios["Optimistic"].append(round(opt_val, 2))
-                scenarios["Conservative"].append(round(cons_val, 2))
-                
-        return scenarios
+        return {
+            "adjusted_revenue": round(adjusted_revenue, 2),
+            "cogs": round(cogs, 2),
+            "gross_profit": round(gross_profit, 2),
+            "gross_margin_pct": round(gross_margin * 100, 2),
+            "ebitda": round(ebitda, 2),
+            "status": "Successfully calculated scenario projection"
+        }
