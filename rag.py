@@ -14,7 +14,7 @@ class DocumentRAGEngine:
         if not gemini_key:
             raise ValueError("GEMINI_API_KEY is missing from secrets.")
         if not supabase_url or not supabase_key:
-            raise ValueError("SUPABASE_URL or SUPABASE_KEY is missing from secrets.")
+            raise ValueError("SUPABASE_URL or SUPABASE_KEY is missing from Streamlit secrets. Please check your app settings.")
 
         self.client = genai.Client(api_key=gemini_key)
         self.supabase: Client = create_client(supabase_url, supabase_key)
@@ -36,12 +36,13 @@ class DocumentRAGEngine:
         return chunks
 
     def store_document_vectors(self, file_name: str, chunks: list[str]):
-        # Delete old vectors for this file if re-uploaded
-        self.supabase.table("document_vectors").delete().eq("file_name", file_name).execute()
+        try:
+            self.supabase.table("document_vectors").delete().eq("file_name", file_name).execute()
+        except Exception as e:
+            raise ConnectionError(f"Failed to connect to Supabase. Verify your URL and API key. Details: {e}")
 
         records = []
         for index, chunk in enumerate(chunks):
-            # Generate vector embedding for chunk using Gemini
             emb_res = self.client.models.embed_content(
                 model="text-embedding-004",
                 contents=chunk
@@ -55,18 +56,15 @@ class DocumentRAGEngine:
                 "embedding": embedding_vector
             })
 
-        # Insert batch into Supabase
         self.supabase.table("document_vectors").insert(records).execute()
 
     def query_document(self, file_name: str, chat_history: list, question: str) -> str:
-        # 1. Embed current query
         q_emb_res = self.client.models.embed_content(
             model="text-embedding-004",
             contents=question
         )
         query_vector = q_emb_res.embeddings[0].values
 
-        # 2. Vector search in Supabase using match_document_vectors function
         search_res = self.supabase.rpc(
             "match_document_vectors",
             {
@@ -80,7 +78,6 @@ class DocumentRAGEngine:
         retrieved_chunks = [item["content"] for item in search_res.data] if search_res.data else []
         retrieved_context = "\n---\n".join(retrieved_chunks)
 
-        # 3. Format chat history
         formatted_history = ""
         for message in chat_history:
             role = "User" if message["role"] == "user" else "Assistant"
