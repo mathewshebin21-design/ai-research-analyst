@@ -15,8 +15,8 @@ class ResearchEngine:
             raise ValueError("API Key not found in Streamlit secrets or environment variables.")
         
         genai.configure(api_key=api_key)
-        # Using the standard developer model configuration
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        # Using gemini-2.5-flash which is widely available for standard developer keys
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
 
     def analyze_question(self, query: str, persona: str = "Senior Strategy Consultant") -> StrategicAnalysis:
         prompt = f"""
