@@ -1,12 +1,13 @@
 import os
+import streamlit as st
 from google import genai
 from google.genai import types
 from src.analysis import StrategicAnalysis
 
 class ResearchEngine:
     def __init__(self):
-        # Initialize the Gemini client using the environment API key
-        api_key = os.environ.get("GEMINI_API_KEY")
+        # Retrieve API key from Streamlit secrets or environment variables
+        api_key = st.secrets.get("GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY"))
         self.client = genai.Client(api_key=api_key)
 
     def analyze_question(self, query: str, persona: str = "Senior Strategy Consultant") -> StrategicAnalysis:
@@ -19,9 +20,8 @@ class ResearchEngine:
         Provide a structured, rigorous assessment including an executive summary, clear recommendation, key market drivers, key risks, a detailed action plan, a 4-year market size trend projection, a SWOT analysis, and a competitive landscape matrix.
         """
 
-        # Enable Google Search tool grounding for real-time market data retrieval
         response = self.client.models.generate_content(
-            model='gemini-3.5-flash',
+            model='gemini-2.5-flash',
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
@@ -32,4 +32,3 @@ class ResearchEngine:
         )
 
         return response.parsed
-    
