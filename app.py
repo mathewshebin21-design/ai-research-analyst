@@ -3,7 +3,7 @@ import os
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
-# Custom CSS for UI styling
+# Custom CSS for styling
 st.markdown("""
 <style>
     .stButton>button {
@@ -17,7 +17,7 @@ st.markdown("""
 st.title("🚀 AI Research & Intelligence Hub")
 st.markdown("Enterprise modular market intelligence paired with advanced vector-indexed multi-document RAG and MBA Strategic Decision Frameworks.")
 
-# Sidebar - Expanded Executive Configuration & MBA Checkboxes
+# Sidebar - Expanded Executive Configuration
 st.sidebar.markdown("### 🎛️ Executive Control Center")
 persona_category = st.sidebar.radio("Select Persona Domain:", ["Financial & Strategy", "Technical & Supply Chain", "Executive Leadership"])
 
@@ -38,14 +38,7 @@ else:
     )
 
 st.sidebar.markdown(f"**Active Persona:** `{persona}`")
-st.sidebar.markdown("---")
-
-# MBA Strategic Decision Hub Checkboxes on Sidebar
-st.sidebar.markdown("### 🎓 MBA Strategic Decision Hub")
-enable_mba_hub = st.sidebar.checkbox("Enable MBA Decision Hub", value=True)
-mba_swot_check = st.sidebar.checkbox("Include SWOT & Positioning", value=True)
-mba_financial_check = st.sidebar.checkbox("Include Capital & ROI Modeling", value=True)
-mba_risk_check = st.sidebar.checkbox("Include Regulatory & Risk Audit", value=True)
+st.sidebar.success("System Status: Operational")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🕒 Recent Chat & History")
@@ -59,9 +52,7 @@ if "chat_history" not in st.session_state:
 for past_chat in st.session_state.chat_history:
     st.sidebar.caption(f"📁 {past_chat}")
 
-st.sidebar.success("System Status: Operational")
-
-# Navigation Tabs
+# Navigation Toggle Bar (matching v2/MBA/v4 style)
 app_mode = st.radio(
     "Navigation Mode", 
     ["v2: Modular Market Research", "MBA Strategic Decision Hub", "v4: Advanced Multi-Doc Vector RAG"],
@@ -94,7 +85,6 @@ if app_mode == "v2: Modular Market Research":
     if st.button("🚀 Generate Custom Intelligence Report", type="primary"):
         st.success(f"Generating comprehensive intelligence report for persona: **{persona}**...")
         
-        # Save query to history
         if research_topic not in st.session_state.chat_history:
             st.session_state.chat_history.insert(0, f"Query: {research_topic[:40]}...")
             
@@ -144,7 +134,7 @@ if app_mode == "v2: Modular Market Research":
 
 elif app_mode == "MBA Strategic Decision Hub":
     st.header("🎓 MBA Strategic Decision Framework & Financial Modeler")
-    st.markdown("Advanced quantitative analysis and strategic positioning driven by sidebar controls.")
+    st.markdown("Advanced quantitative analysis and strategic positioning driven by executive toggle navigation.")
     
     # Default persistent query box
     mba_query = st.text_input(
@@ -155,27 +145,21 @@ elif app_mode == "MBA Strategic Decision Hub":
     if st.button("🚀 Run MBA Strategic Simulation & Analysis", type="primary"):
         st.success(f"Executing MBA simulation under persona **{persona}** for query: *'{mba_query}'*")
         
-        if enable_mba_hub:
-            if mba_swot_check:
-                st.markdown("### 🏛️ Strategic Positioning & SWOT")
-                st.write("- **Core Leverage:** High agility co-owned retail setup.")
-                st.write("- **Strategic Focus:** Capitalizing on digital direct-to-consumer growth channels.")
-                
-            if mba_financial_check:
-                st.markdown("### 💰 Financial Return Modeling")
-                st.metric(label="Starting Capital Principal", value="INR 180,000")
-                chart_dict = {
-                    "Timeline": ["Initial", "Year 1", "Year 2", "Year 3"],
-                    "Valuation (INR)": [180000, 216000, 259200, 311000]
-                }
-                st.bar_chart(chart_dict, x="Timeline", y="Valuation (INR)")
-                
-            if mba_risk_check:
-                st.markdown("### ⚠️ Regulatory & Risk Audit")
-                st.write("- **Compliance:** Active verification of GST and entity governance.")
-                st.write("- **Mitigation:** Maintain lean cash reserves to buffer against supply chain volatility.")
-        else:
-            st.warning("MBA Strategic Hub is currently disabled via the sidebar checkbox.")
+        st.markdown("### 🏛️ Strategic Positioning & SWOT")
+        st.write("- **Core Leverage:** High agility co-owned retail setup.")
+        st.write("- **Strategic Focus:** Capitalizing on digital direct-to-consumer growth channels.")
+        
+        st.markdown("### 💰 Financial Return Modeling")
+        st.metric(label="Starting Capital Principal", value="INR 180,000")
+        chart_dict = {
+            "Timeline": ["Initial", "Year 1", "Year 2", "Year 3"],
+            "Valuation (INR)": [180000, 216000, 259200, 311000]
+        }
+        st.bar_chart(chart_dict, x="Timeline", y="Valuation (INR)")
+        
+        st.markdown("### ⚠️ Regulatory & Risk Audit")
+        st.write("- **Compliance:** Active verification of GST and entity governance.")
+        st.write("- **Mitigation:** Maintain lean cash reserves to buffer against supply chain volatility.")
 
 else:
     st.header("Advanced Multi-Document Vector RAG Engine")
