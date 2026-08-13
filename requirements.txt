@@ -5,4 +5,4 @@ pydantic
 tavily-python
 pypdf
 reportlab
-vecs
+plotly
