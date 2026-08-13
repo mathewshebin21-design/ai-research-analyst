@@ -8,17 +8,17 @@ from pdf_generator import PDFExporter
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
 st.title("🚀 AI Research & Intelligence Hub (v6)")
-st.write("Real-time market research with dynamic Plotly visualizations, multi-document comparison, automated summaries, and PDF export using Gemini 3.5 Flash.")
+st.write("Real-time market research with SWOT Analysis, dynamic Plotly visualizations, multi-document comparison, automated summaries, and PDF export.")
 
-tab1, tab2 = st.tabs(["📊 Market Research & Visualizations", "📁 Multi-Document RAG & Summarizer"])
+tab1, tab2 = st.tabs(["📊 Market Research & SWOT", "📁 Multi-Document RAG & Summarizer"])
 
 with tab1:
-    st.header("Real-Time Market Research Engine")
+    st.header("Real-Time Market Research & SWOT Analysis")
     query = st.text_input("Enter research topic or market sector:", "Electric Vehicle Battery Recycling and Supply Chain Innovations")
     persona = st.selectbox("Select Analyst Persona:", ["Senior Venture Capitalist", "Tech Industry Analyst", "Global Supply Chain Expert"])
     
-    if st.button("Generate Research Report & Charts"):
-        with st.spinner("Analyzing live web intelligence and generating analytics..."):
+    if st.button("Generate Comprehensive Report & SWOT"):
+        with st.spinner("Analyzing market intelligence and compiling SWOT analysis..."):
             try:
                 engine = ResearchEngine()
                 report = engine.generate_report(query, persona)
@@ -32,10 +32,6 @@ with tab1:
                     st.subheader("Market Size & Trends")
                     st.write(report.market_size_and_trends)
                     
-                    st.subheader("Key Competitors")
-                    for comp in report.key_competitors:
-                        st.markdown(f"- {comp}")
-                        
                 with col2:
                     st.subheader("Interactive Growth Projections")
                     chart_data = pd.DataFrame({
@@ -44,21 +40,40 @@ with tab1:
                     })
                     fig = px.bar(chart_data, x="Year", y="Market Value ($B)", title=f"Market Projection: {query}", color="Market Value ($B)", template="plotly_dark")
                     st.plotly_chart(fig, use_container_width=True)
+
+                st.markdown("---")
+                st.subheader("SWOT Matrix Analysis")
+                s_col, w_col = st.columns(2)
+                with s_col:
+                    st.markdown("### 🟢 Strengths")
+                    for item in report.swot_strengths:
+                        st.markdown(f"- {item}")
+                    st.markdown("### 🔵 Opportunities")
+                    for item in report.swot_opportunities:
+                        st.markdown(f"- {item}")
+                with w_col:
+                    st.markdown("### 🟠 Weaknesses")
+                    for item in report.swot_weaknesses:
+                        st.markdown(f"- {item}")
+                    st.markdown("### 🔴 Threats")
+                    for item in report.swot_threats:
+                        st.markdown(f"- {item}")
+
+                st.markdown("---")
+                st.subheader("Key Competitors")
+                for comp in report.key_competitors:
+                    st.markdown(f"- {comp}")
                     
                 st.subheader("Strategic Recommendations")
                 for rec in report.strategic_recommendations:
                     st.markdown(f"- {rec}")
-                    
-                st.subheader("Verified Citations")
-                for citation in report.citations:
-                    st.markdown(f"- [{citation.source_title}]({citation.url})")
 
                 content = [
                     {"header": "Executive Summary", "body": report.executive_summary},
                     {"header": "Market Size & Trends", "body": report.market_size_and_trends}
                 ]
-                pdf_file = PDFExporter.generate_report_pdf(f"Research Report: {query}", content)
-                st.download_button("Download Report as PDF", pdf_file, file_name="research_report.pdf", mime="application/pdf")
+                pdf_file = PDFExporter.generate_report_pdf(f"Comprehensive Research Report: {query}", content)
+                st.download_button("Download Full Report as PDF", pdf_file, file_name="comprehensive_research_report.pdf", mime="application/pdf")
 
             except Exception as e:
                 st.error(f"An error occurred: {e}")
