@@ -1,10 +1,9 @@
 streamlit
-google-genai
-pydantic
-plotly
 pandas
-pypdf
 reportlab
+langchain
+langchain-community
 faiss-cpu
-sentence-transformers
-supabase
+transformers
+torch
+yfinance
