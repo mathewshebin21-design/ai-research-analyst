@@ -29,3 +29,6 @@ class AdvancedRAGPipeline:
                 "verified_source": True
             })
         return results
+
+# Alias for compatibility with app.py imports
+AdvancedRAGEngine = AdvancedRAGPipeline
