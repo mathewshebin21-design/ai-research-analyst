@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+from planner import AIResearchPlanner
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
@@ -14,9 +15,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("🚀 AI Research & Intelligence Hub")
-st.markdown("Enterprise modular market intelligence paired with advanced vector-indexed multi-document RAG and MBA Strategic Decision Frameworks.")
+st.markdown("Automated Market Intelligence & Strategic Decision Support Platform (MBA & AI Multi-Agent Architecture).")
 
-# Initialize session state for chat history and selected prompt
+# Initialize session state
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = [
         "Should we launch an eco-friendly direct-to-consumer premium footwear and apparel brand in the European market?",
@@ -27,7 +28,7 @@ if "chat_history" not in st.session_state:
 if "active_query" not in st.session_state:
     st.session_state.active_query = st.session_state.chat_history[0]
 
-# Sidebar - Expanded Executive Configuration & Interactive History
+# Sidebar - Executive Control Center & Interactive History
 st.sidebar.markdown("### 🎛️ Executive Control Center")
 persona_category = st.sidebar.radio("Select Persona Domain:", ["Financial & Strategy", "Technical & Supply Chain", "Executive Leadership"])
 
@@ -52,7 +53,7 @@ st.sidebar.success("System Status: Operational")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🕒 Interactive Chat & History")
-st.sidebar.caption("Click any past query to reload it into the active workspace:")
+st.sidebar.caption("Click any past query to reload it:")
 
 for i, past_query in enumerate(st.session_state.chat_history):
     display_label = past_query[:38] + "..." if len(past_query) > 38 else past_query
@@ -65,7 +66,7 @@ if st.sidebar.button("🗑️ Clear History"):
     st.session_state.active_query = ""
     st.rerun()
 
-# Navbar Selection using radio button styled as a horizontal navigation bar
+# Top Navigation Bar
 app_mode = st.radio(
     "Navigation Bar", 
     ["v2: Modular Market Research", "MBA Strategic Decision Hub", "v4: Advanced Multi-Doc Vector RAG"],
@@ -76,7 +77,7 @@ app_mode = st.radio(
 st.markdown("---")
 
 if app_mode == "v2: Modular Market Research":
-    st.header("Customizable Market Intelligence Engine")
+    st.header("Customizable Market Intelligence & AI Research Planner")
     
     research_topic = st.text_input(
         "Ask a strategic research question or enter market sector:",
@@ -85,6 +86,15 @@ if app_mode == "v2: Modular Market Research":
     
     if research_topic != st.session_state.active_query:
         st.session_state.active_query = research_topic
+    
+    # Automated AI Research Planner preview
+    if research_topic:
+        with st.expander("🧠 AI Research Planner Decomposition", expanded=True):
+            plan = AIResearchPlanner.generate_plan(research_topic)
+            st.write(f"**Objective:** {plan['objective']}")
+            st.markdown("**Decomposed Research Tasks:**")
+            for task in plan["research_tasks"]:
+                st.markdown(f"- `[{task['category']}]` {task['task']}")
     
     st.markdown("### 📋 Select Required Analysis Modules:")
     col1, col2, col3, col4 = st.columns(4)
@@ -100,13 +110,13 @@ if app_mode == "v2: Modular Market Research":
         mod_chart = st.checkbox("Interactive Plotly Charts", value=True)
         
     if st.button("🚀 Generate Custom Intelligence Report", type="primary"):
-        st.success(f"Generating comprehensive intelligence report for persona: **{persona}**...")
+        st.success(f"Executing multi-agent research plan under persona: **{persona}**...")
         
         if research_topic and research_topic not in st.session_state.chat_history:
             st.session_state.chat_history.insert(0, research_topic)
             
         st.markdown("---")
-        st.subheader("Executive Summary")
+        st.subheader("Executive Summary & Research Findings")
         st.info(f"Analyzing strategic viability for: *'{research_topic}'*")
         
         if mod_trend:
@@ -134,7 +144,7 @@ if app_mode == "v2: Modular Market Research":
                 
         if mod_financial:
             st.markdown("### 💰 Financial Projections")
-            st.metric(label="Estimated Initial Outlay", value="INR 180,000 (Initial Capital)")
+            st.metric(label="Estimated Initial Outlay", value="INR 180,000 (Bootstrap Capital)")
             
         if mod_chart:
             st.markdown("### 📈 Interactive Growth Trajectory")
