@@ -2,6 +2,7 @@ import streamlit as st
 import os
 from planner import AIResearchPlanner
 from tavily_search import WebSearchModule
+from rag import AdvancedRAGEngine
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
@@ -88,7 +89,6 @@ if app_mode == "v2: Modular Market Research":
     if research_topic != st.session_state.active_query:
         st.session_state.active_query = research_topic
     
-    # Automated AI Research Planner preview
     if research_topic:
         with st.expander("🧠 AI Research Planner Decomposition", expanded=True):
             plan = AIResearchPlanner.generate_plan(research_topic)
@@ -111,25 +111,26 @@ if app_mode == "v2: Modular Market Research":
         mod_chart = st.checkbox("Interactive Plotly Charts", value=True)
         
     if st.button("🚀 Generate Custom Intelligence Report", type="primary"):
-        st.success(f"Executing multi-agent research plan and live web retrieval under persona: **{persona}**...")
+        st.success(f"Executing multi-agent research plan and evidence retrieval under persona: **{persona}**...")
         
         if research_topic and research_topic not in st.session_state.chat_history:
             st.session_state.chat_history.insert(0, research_topic)
             
         st.markdown("---")
-        st.subheader("Executive Summary & Research Findings")
+        st.subheader("Executive Summary & Traceable Evidence")
         st.info(f"Analyzing strategic viability for: *'{research_topic}'*")
         
-        # Pull live/simulated web search results
-        search_results = WebSearchModule.search_market_data(research_topic)
-        with st.expander("🌐 Live Web Research & Evidence Sources Retrieved", expanded=False):
-            for res in search_results:
-                st.markdown(f"**[{res['publisher']}]({res['url']})** - {res['title']}")
-                st.caption(res['snippet'])
+        # Display Traceable Evidence Model
+        evidence_list = AdvancedRAGEngine.query_evidence_sources(research_topic)
+        with st.expander("🔍 Traceable Evidence & Source Attribution Model", expanded=True):
+            for idx, ev in enumerate(evidence_list, 1):
+                st.markdown(f"**Source {idx}: [{ev['title']}]({ev['url']})**")
+                st.caption(f"Publisher: {ev['publisher']} | Published: {ev['publication_date']} | Retrieved: {ev['retrieved_date']} | Relevance: {ev['relevance']}")
+                st.info(f"**Supported Claim:** {ev['claim_supported']}")
         
         if mod_trend:
             st.markdown("### 📊 Market Size & Trends")
-            st.write("The target segment shows expanding demand for sustainable materials, with a projected compound annual growth rate (CAGR) of 12.4% over the next 5 years.")
+            st.write("European consumer demand for sustainable footwear and apparel is growing at a 12.4% CAGR.")
             
         if mod_competitors:
             st.markdown("### 🏢 Key Competitors")
@@ -164,7 +165,7 @@ if app_mode == "v2: Modular Market Research":
             
         if mod_strategy:
             st.markdown("### 🎯 Strategic Recommendations")
-            st.write("1. **Phase Rollout:** Launch initial pilot collections online to validate product-market fit before expanding physical inventory.")
+            st.write("1. **Phase Rollout:** Cross-border D2C retail requires strict adherence to eco-label certifications and digital tax transparency.")
             st.write("2. **Supply Chain:** Secure transparent vendor compliance to align with European eco-label regulations.")
 
 elif app_mode == "MBA Strategic Decision Hub":
@@ -202,7 +203,7 @@ elif app_mode == "MBA Strategic Decision Hub":
         st.write("- **Mitigation:** Maintain lean cash reserves to buffer against supply chain volatility.")
 
 else:
-    st.header("Advanced Multi-Document Vector RAG Engine")
+    st.header("Advanced Multi-Document Vector RAG Engine & Evidence Inspector")
     
     uploaded_file = st.file_uploader("Upload PDF documents for multi-doc RAG indexing", type=["pdf"])
 
@@ -236,8 +237,8 @@ else:
     if rag_prompt:
         if "vector_store" in st.session_state:
             docs_found = st.session_state.vector_store.similarity_search(rag_prompt, k=3)
-            st.markdown("### RAG Search Results:")
+            st.markdown("### Multi-Document RAG Evidence Results:")
             for i, d in enumerate(docs_found):
-                st.info(f"**Context {i+1}:**\n{d.page_content}")
+                st.info(f"**Evidence Chunk {i+1} (Source: {d.metadata.get('source', 'Uploaded PDF')})**:\n{d.page_content}")
         else:
             st.warning("Please upload and index a PDF first.")
