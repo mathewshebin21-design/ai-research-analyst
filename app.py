@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 from src.research import ResearchEngine
 from src.pdf_generator import generate_pdf_report
 
+
 st.set_page_config(page_title="AI Research Analyst", page_icon="📈", layout="wide")
 
 st.title("📈 AI Research Analyst")
