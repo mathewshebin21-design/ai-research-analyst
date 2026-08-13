@@ -227,3 +227,24 @@ with tab2:
                     st.markdown(answer)
                     st.session_state.vector_messages.append({"role": "assistant", "content": answer})
             st.rerun()
+
+# --- MBA Strategic Decision Engine Integration ---
+try:
+    from src.decision_engine import render_decision_dashboard
+    st.sidebar.markdown("---")
+    if st.sidebar.checkbox("Show MBA Decision Hub"):
+        render_decision_dashboard()
+except ImportError:
+    pass
+
+# --- Force Render MBA Decision Hub ---
+try:
+    from src.decision_engine import render_decision_dashboard
+    import streamlit as st
+    st.sidebar.markdown("---")
+    st.sidebar.header("🎯 Executive Controls")
+    if st.sidebar.checkbox("Show MBA Decision Hub", value=True):
+        render_decision_dashboard()
+except Exception as e:
+    import streamlit as st
+    st.sidebar.error(f"Error loading decision engine: {e}")
