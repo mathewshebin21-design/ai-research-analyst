@@ -7,76 +7,100 @@ from pdf_generator import PDFExporter
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
-st.title("🚀 AI Research & Intelligence Hub (v6)")
-st.write("Real-time market research with SWOT Analysis, dynamic Plotly visualizations, multi-document comparison, automated summaries, and PDF export.")
+st.title("🚀 AI Research & Intelligence Hub (v6.3)")
+st.write("Modular market research with custom analysis checklists, dynamic Plotly visualizations, multi-document comparison, and PDF export.")
 
-tab1, tab2 = st.tabs(["📊 Market Research & SWOT", "📁 Multi-Document RAG & Summarizer"])
+tab1, tab2 = st.tabs(["📊 Modular Market Research", "📁 Multi-Document RAG & Summarizer"])
 
 with tab1:
-    st.header("Real-Time Market Research & SWOT Analysis")
+    st.header("Customizable Market Intelligence Engine")
     query = st.text_input("Enter research topic or market sector:", "Electric Vehicle Battery Recycling and Supply Chain Innovations")
     persona = st.selectbox("Select Analyst Persona:", ["Senior Venture Capitalist", "Tech Industry Analyst", "Global Supply Chain Expert"])
     
-    if st.button("Generate Comprehensive Report & SWOT"):
-        with st.spinner("Analyzing market intelligence and compiling SWOT analysis..."):
-            try:
-                engine = ResearchEngine()
-                report = engine.generate_report(query, persona)
-                
-                col1, col2 = st.columns([1, 1])
-                
-                with col1:
+    st.markdown("### 📋 Select Required Analysis Modules:")
+    col_cb1, col_cb2, col_cb3, col_cb4 = st.columns(4)
+    with col_cb1:
+        include_market = st.checkbox("Market Size & Trends", value=True)
+        include_swot = st.checkbox("SWOT Analysis", value=True)
+    with col_cb2:
+        include_competitors = st.checkbox("Key Competitors", value=True)
+        include_financials = st.checkbox("Financial Projections", value=True)
+    with col_cb3:
+        include_recommendations = st.checkbox("Strategic Recommendations", value=True)
+    with col_cb4:
+        include_charts = st.checkbox("Interactive Plotly Charts", value=True)
+
+    if st.button("Generate Custom Intelligence Report"):
+        selected_sections = []
+        if include_market: selected_sections.append("Market Size and Trends")
+        if include_swot: selected_sections.append("SWOT Analysis")
+        if include_competitors: selected_sections.append("Key Competitors")
+        if include_financials: selected_sections.append("Financial Projections")
+        if include_recommendations: selected_sections.append("Strategic Recommendations")
+
+        if not selected_sections:
+            st.warning("Please select at least one analysis module.")
+        else:
+            with st.spinner("Compiling custom research modules..."):
+                try:
+                    engine = ResearchEngine()
+                    report = engine.generate_report(query, persona, selected_sections)
+                    
                     st.subheader("Executive Summary")
                     st.write(report.executive_summary)
                     
-                    st.subheader("Market Size & Trends")
-                    st.write(report.market_size_and_trends)
+                    col_main1, col_main2 = st.columns([1, 1])
                     
-                with col2:
-                    st.subheader("Interactive Growth Projections")
-                    chart_data = pd.DataFrame({
-                        "Year": ["2024", "2025", "2026 (Est.)", "2027 (Proj.)", "2028 (Proj.)"],
-                        "Market Value ($B)": [120, 165, 220, 290, 380]
-                    })
-                    fig = px.bar(chart_data, x="Year", y="Market Value ($B)", title=f"Market Projection: {query}", color="Market Value ($B)", template="plotly_dark")
-                    st.plotly_chart(fig, use_container_width=True)
+                    with col_main1:
+                        if include_market and report.market_size_and_trends:
+                            st.subheader("Market Size & Trends")
+                            st.write(report.market_size_and_trends)
+                            
+                        if include_competitors and report.key_competitors:
+                            st.subheader("Key Competitors")
+                            for comp in report.key_competitors:
+                                st.markdown(f"- {comp}")
+                                
+                    with col_main2:
+                        if include_charts:
+                            st.subheader("Interactive Growth Projections")
+                            chart_data = pd.DataFrame({
+                                "Year": ["2024", "2025", "2026 (Est.)", "2027 (Proj.)", "2028 (Proj.)"],
+                                "Market Value ($B)": [120, 165, 220, 290, 380]
+                            })
+                            fig = px.bar(chart_data, x="Year", y="Market Value ($B)", title=f"Market Projection: {query}", color="Market Value ($B)", template="plotly_dark")
+                            st.plotly_chart(fig, use_container_width=True)
 
-                st.markdown("---")
-                st.subheader("SWOT Matrix Analysis")
-                s_col, w_col = st.columns(2)
-                with s_col:
-                    st.markdown("### 🟢 Strengths")
-                    for item in report.swot_strengths:
-                        st.markdown(f"- {item}")
-                    st.markdown("### 🔵 Opportunities")
-                    for item in report.swot_opportunities:
-                        st.markdown(f"- {item}")
-                with w_col:
-                    st.markdown("### 🟠 Weaknesses")
-                    for item in report.swot_weaknesses:
-                        st.markdown(f"- {item}")
-                    st.markdown("### 🔴 Threats")
-                    for item in report.swot_threats:
-                        st.markdown(f"- {item}")
+                    if include_swot and report.swot_strengths:
+                        st.markdown("---")
+                        st.subheader("SWOT Matrix Analysis")
+                        s_col, w_col = st.columns(2)
+                        with s_col:
+                            st.markdown("### 🟢 Strengths")
+                            for item in report.swot_strengths: st.markdown(f"- {item}")
+                            st.markdown("### 🔵 Opportunities")
+                            for item in report.swot_opportunities: st.markdown(f"- {item}")
+                        with w_col:
+                            st.markdown("### 🟠 Weaknesses")
+                            for item in report.swot_weaknesses: st.markdown(f"- {item}")
+                            st.markdown("### 🔴 Threats")
+                            for item in report.swot_threats: st.markdown(f"- {item}")
 
-                st.markdown("---")
-                st.subheader("Key Competitors")
-                for comp in report.key_competitors:
-                    st.markdown(f"- {comp}")
-                    
-                st.subheader("Strategic Recommendations")
-                for rec in report.strategic_recommendations:
-                    st.markdown(f"- {rec}")
+                    if include_recommendations and report.strategic_recommendations:
+                        st.markdown("---")
+                        st.subheader("Strategic Recommendations")
+                        for rec in report.strategic_recommendations:
+                            st.markdown(f"- {rec}")
 
-                content = [
-                    {"header": "Executive Summary", "body": report.executive_summary},
-                    {"header": "Market Size & Trends", "body": report.market_size_and_trends}
-                ]
-                pdf_file = PDFExporter.generate_report_pdf(f"Comprehensive Research Report: {query}", content)
-                st.download_button("Download Full Report as PDF", pdf_file, file_name="comprehensive_research_report.pdf", mime="application/pdf")
+                    content = [{"header": "Executive Summary", "body": report.executive_summary}]
+                    if include_market and report.market_size_and_trends:
+                        content.append({"header": "Market Size & Trends", "body": report.market_size_and_trends})
+                        
+                    pdf_file = PDFExporter.generate_report_pdf(f"Custom Research Report: {query}", content)
+                    st.download_button("Download Custom Report as PDF", pdf_file, file_name="custom_research_report.pdf", mime="application/pdf")
 
-            except Exception as e:
-                st.error(f"An error occurred: {e}")
+                except Exception as e:
+                    st.error(f"An error occurred: {e}")
 
 with tab2:
     st.header("Multi-Document RAG & Automated Summarizer")
