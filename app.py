@@ -1,11 +1,12 @@
 import streamlit as st
 from src.research import ResearchEngine
 from rag import DocumentRAGEngine
+from pdf_generator import PDFExporter
 
 st.set_page_config(page_title="AI Research & Document Intelligence Hub", layout="wide")
 
 st.title("🚀 AI Research & Document Intelligence Hub (v4)")
-st.write("Seamlessly generate real-time market research reports and query your documents with conversational memory.")
+st.write("Seamlessly generate real-time market research reports and query your documents with conversational memory and PDF export.")
 
 tab1, tab2 = st.tabs(["📊 v2.0 Market Research Analyst", "📁 v4 Document RAG with Memory"])
 
@@ -37,6 +38,15 @@ with tab1:
                 st.subheader("Verified Citations")
                 for citation in report.citations:
                     st.markdown(f"- [{citation.source_title}]({citation.url})")
+
+                # PDF Export for Research Report
+                content = [
+                    {"header": "Executive Summary", "body": report.executive_summary},
+                    {"header": "Market Size & Trends", "body": report.market_size_and_trends}
+                ]
+                pdf_file = PDFExporter.generate_report_pdf(f"Research Report: {query}", content)
+                st.download_button("Download Report as PDF", pdf_file, file_name="research_report.pdf", mime="application/pdf")
+
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
@@ -47,7 +57,7 @@ with tab2:
     if uploaded_file is not None:
         rag_engine = DocumentRAGEngine()
         
-        # Cache extracted text in session state so it doesn't re-extract on every chat turn
+        # Cache extracted text in session state
         if "doc_text" not in st.session_state or st.session_state.get("current_file") != uploaded_file.name:
             with st.spinner("Extracting text from document..."):
                 st.session_state.doc_text = rag_engine.extract_text_from_pdf(uploaded_file)
@@ -59,14 +69,13 @@ with tab2:
         if "messages" not in st.session_state:
             st.session_state.messages = []
 
-        # Display chat messages from history on app rerun
+        # Display chat messages from history
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
         # Accept user input
         if user_question := st.chat_input("Ask a follow-up question about your document..."):
-            # Add user message to chat history
             st.session_state.messages.append({"role": "user", "content": user_question})
             with st.chat_message("user"):
                 st.markdown(user_question)
@@ -81,3 +90,9 @@ with tab2:
                     )
                     st.markdown(answer)
                     st.session_state.messages.append({"role": "assistant", "content": answer})
+
+        # Export Chat History Button
+        if st.session_state.messages:
+            chat_content = [{"header": f"{m['role'].capitalize()}", "body": m['content']} for m in st.session_state.messages]
+            pdf_file = PDFExporter.generate_report_pdf("Document Analysis Chat History", chat_content)
+            st.download_button("Export Chat History as PDF", pdf_file, file_name="chat_history.pdf", mime="application/pdf")
