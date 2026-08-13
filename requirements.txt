@@ -3,3 +3,5 @@ google-genai
 supabase
 pydantic
 tavily-python
+pypdf
+reportlab
