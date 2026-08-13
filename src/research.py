@@ -6,7 +6,6 @@ from src.analysis import StrategicAnalysis
 
 class ResearchEngine:
     def __init__(self):
-        # Fallback across multiple key formats to guarantee pickup from Streamlit secrets
         api_key = (
             st.secrets.get("GEMINI_API_KEY") or 
             st.secrets.get("GOOGLE_API_KEY") or 
@@ -16,7 +15,6 @@ class ResearchEngine:
         if not api_key:
             raise ValueError("API Key not found in Streamlit secrets or environment variables.")
         
-        # Explicitly initialize client with the developer API key
         self.client = genai.Client(api_key=api_key)
 
     def analyze_question(self, query: str, persona: str = "Senior Strategy Consultant") -> StrategicAnalysis:
@@ -29,6 +27,7 @@ class ResearchEngine:
         Provide a structured, rigorous assessment including an executive summary, clear recommendation, key market drivers, key risks, a detailed action plan, a 4-year market size trend projection, a SWOT analysis, and a competitive landscape matrix.
         """
 
+        # Using direct model generation with structured JSON schema output (omitting search tool to prevent OAuth requirement)
         response = self.client.models.generate_content(
             model='gemini-2.5-flash',
             contents=prompt,
@@ -36,7 +35,6 @@ class ResearchEngine:
                 response_mime_type="application/json",
                 response_schema=StrategicAnalysis,
                 temperature=0.2,
-                tools=[types.Tool(google_search=types.GoogleSearch())],
             ),
         )
 
