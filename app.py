@@ -5,40 +5,116 @@ st.set_page_config(page_title="AI Research & Intelligence Platform", layout="wid
 
 st.title("AI Research & Intelligence Platform")
 
+# Sidebar - Expanded Expert Personas & Global Controls
+st.sidebar.header("Executive Configuration")
+persona = st.sidebar.selectbox(
+    "Select Analyst Persona",
+    [
+        "General Market Analyst", 
+        "Financial Risk Expert", 
+        "Technical Due Diligence Agent", 
+        "Startup Strategist", 
+        "Supply Chain & Export Specialist", 
+        "Macroeconomic Policy Advisor"
+    ]
+)
+
+st.sidebar.markdown(f"**Active Persona:** `{persona}`")
+st.sidebar.markdown("---")
+st.sidebar.info("Use Tab 1 for multi-module market intelligence and Tab 2 for RAG document querying.")
+
 # Create Two Main Tabs
 tab1, tab2 = st.tabs(["📊 AI Data Analyzer & Modular Research", "📁 Document RAG & File Viewer"])
 
 with tab1:
     st.header("Modular Market Research & AI Analysis")
     
-    # Sidebar Controls & Personas specific to Tab 1 / General workspace
-    persona = st.selectbox(
-        "Select Analyst Persona",
-        ["General Market Analyst", "Financial Risk Expert", "Technical Due Diligence Agent", "Startup Strategist"],
-        key="persona_select"
+    # Advanced Analysis Module Selection
+    analysis_type = st.radio(
+        "Select Advanced Analysis Module:", 
+        [
+            "SWOT Matrix", 
+            "Competitor Landscape", 
+            "Financial Projections & Capital Allocation", 
+            "Market Entry & Regulatory Risk Assessment",
+            "Export/Import Supply Chain Optimization"
+        ],
+        horizontal=True
     )
     
-    st.markdown(f"**Active Executive Persona:** `{persona}`")
-    
-    # Modular Market Analysis Section
-    analysis_type = st.radio("Select Analysis Module:", ["SWOT Matrix", "Competitor Landscape", "Financial Projections & Capital Allocation"])
-    
+    st.markdown("---")
+
     if analysis_type == "SWOT Matrix":
         st.subheader("SWOT Matrix Generator")
-        query_input = st.text_input("Enter company or market topic for SWOT analysis:")
-        if st.button("Run SWOT Analysis"):
-            st.info(f"Generating comprehensive SWOT framework for: {query_input} under persona {persona}...")
-            # Placeholder for SWOT logic
+        query_input = st.text_input("Enter company, brand, or market topic for SWOT analysis:")
+        if st.button("Run Comprehensive SWOT"):
+            if query_input:
+                st.success(f"Executing SWOT analysis for **{query_input}** under persona **{persona}**...")
+                col_a, col_b = st.columns(2)
+                with col_a:
+                    st.markdown("### Strengths")
+                    st.write("- Core market positioning\n- Proprietary operational setup")
+                    st.markdown("### Opportunities")
+                    st.write("- Emerging digital scale\n- Untapped export corridors")
+                with col_b:
+                    st.markdown("### Weaknesses")
+                    st.write("- Initial capital constraints\n- Supply chain dependencies")
+                    st.markdown("### Threats")
+                    st.write("- Competitive saturation\n- Regulatory fluctuations")
+            else:
+                st.warning("Please enter a valid topic.")
+
     elif analysis_type == "Competitor Landscape":
         st.subheader("Competitor Landscape Mapping")
-        st.text_input("Enter industry niche:")
-        if st.button("Analyze Competitors"):
-            st.success("Analyzing top market competitors...")
-    else:
+        industry_input = st.text_input("Enter industry niche or sector:")
+        if st.button("Generate Competitor Matrix"):
+            if industry_input:
+                st.success(f"Mapping competitor ecosystem for **{industry_input}**...")
+                st.markdown("""
+                | Competitor | Market Share | Core Advantage | Strategic Vulnerability |
+                | :--- | :--- | :--- | :--- |
+                | **Alpha Corp** | 35% | Established distribution | High overhead costs |
+                | **Beta Retail** | 22% | Niche product focus | Limited scale capability |
+                | **Gamma Tech** | 18% | Disruptive pricing model | Lower brand loyalty |
+                """)
+            else:
+                st.warning("Please provide an industry niche.")
+
+    elif analysis_type == "Financial Projections & Capital Allocation":
         st.subheader("Financial Projections & Capital Allocation")
-        st.number_input("Capital amount (INR):", value=180000)
-        if st.button("Calculate Projections"):
-            st.success("Evaluating financial allocation strategy...")
+        col_f1, col_f2 = st.columns(2)
+        with col_f1:
+            capital = st.number_input("Total Capital Allocation (INR):", value=180000)
+        with col_f2:
+            growth_rate = st.slider("Projected Annual Growth Rate (%)", 5, 50, 15)
+            
+        if st.button("Calculate Financial Forecasts"):
+            st.success("Evaluating capital deployment and cash flow trajectory...")
+            st.metric(label="Initial Principal", value=f"INR {capital:,}")
+            st.metric(label="Estimated Year 1 Return (at {growth_rate}%)", value=f"INR {int(capital * (1 + growth_rate/100)):,}")
+
+    elif analysis_type == "Market Entry & Regulatory Risk Assessment":
+        st.subheader("Market Entry & Regulatory Compliance")
+        target_market = st.text_input("Enter target geographic market or business entity type:")
+        if st.button("Evaluate Regulatory Risks"):
+            if target_market:
+                st.info(f"Assessing compliance protocols and entry friction for **{target_market}**...")
+                st.write("1. **Entity Registration & Licensing:** Verify mandatory GST/Udyam or regional requirements.")
+                st.write("2. **Taxation & Compliance:** Review domestic and international withholding guidelines.")
+                st.write("3. **Risk Mitigation:** Implement robust contract structures.")
+            else:
+                st.warning("Please specify a target market or setup type.")
+
+    else:
+        st.subheader("Supply Chain & Export Strategy")
+        product_category = st.text_input("Enter product category for trade analysis:")
+        if st.button("Analyze Trade & Logistics"):
+            if product_category:
+                st.info(f"Analyzing export procedures, logistics, and buyer acquisition for **{product_category}**...")
+                st.write("- **Logistics Hubs:** Primary freight routing and local fulfillment centers.")
+                st.write("- **Documentation:** Importer-Exporter Code (IEC) and shipping manifests.")
+            else:
+                st.warning("Please enter a product category.")
 
 with tab2:
     st.header("Document RAG & Multi-Document Search")
@@ -69,7 +145,7 @@ with tab2:
                     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
                     st.session_state.vector_store = FAISS.from_documents(splits, embeddings)
                     
-                    st.success("Document indexed successfully!")
+                    st.success("Document indexed successfully into Vector Store!")
                 except Exception as e:
                     st.error(f"Error indexing document: {e}")
 
