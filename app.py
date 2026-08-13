@@ -7,8 +7,8 @@ from pdf_generator import PDFExporter
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
-st.title("🚀 AI Research & Intelligence Hub (v6.4)")
-st.write("Modular market research with expanded expert personas, custom checklists, dynamic Plotly visualizations, and multi-document RAG.")
+st.title("🚀 AI Research & Intelligence Hub (v6.5)")
+st.write("Modular market research with expert personas, custom checklists, dynamic charts, and multi-document RAG with smart follow-up suggestions.")
 
 tab1, tab2 = st.tabs(["📊 Modular Market Research", "📁 Multi-Document RAG & Summarizer"])
 
@@ -16,7 +16,6 @@ with tab1:
     st.header("Customizable Market Intelligence Engine")
     query = st.text_input("Enter research topic or market sector:", "Electric Vehicle Battery Recycling and Supply Chain Innovations")
     
-    # Expanded Analyst Personas including the new additions
     persona = st.selectbox(
         "Select Analyst Persona:", 
         [
@@ -137,6 +136,12 @@ with tab2:
                 
                 summary_prompt = f"Provide a concise executive summary and list 3 key takeaways from these documents:\n{combined_text[:10000]}"
                 st.session_state.auto_summary = rag_engine.query_document(combined_text, [], summary_prompt)
+                
+                # Generate dynamic follow-up suggestions based on documents
+                followup_prompt = f"Based on these documents, suggest 3 short, high-value follow-up questions a user could ask. Return them as a comma-separated list of strings without numbers:\n{combined_text[:5000]}"
+                followups_raw = rag_engine.query_document(combined_text, [], followup_prompt)
+                st.session_state.suggested_followups = [f.strip() for f in followups_raw.split(",") if f.strip()][:3]
+                
                 st.success(f"Successfully loaded and summarized {len(uploaded_files)} documents!")
 
         if "auto_summary" in st.session_state:
@@ -149,6 +154,27 @@ with tab2:
         for message in st.session_state.multi_messages:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
+
+        # Display suggested follow-up question buttons if available
+        if "suggested_followups" in st.session_state and st.session_state.suggested_followups:
+            st.markdown("**💡 Suggested Follow-up Questions:**")
+            cols = st.columns(len(st.session_state.suggested_followups))
+            for idx, suggestion in enumerate(st.session_state.suggested_followups):
+                with cols[idx]:
+                    if st.button(suggestion, key=f"followup_btn_{idx}_{suggestion[:10]}"):
+                        st.session_state.multi_messages.append({"role": "user", "content": suggestion})
+                        with st.chat_message("user"):
+                            st.markdown(suggestion)
+                        with st.chat_message("assistant"):
+                            with st.spinner("Analyzing across all uploaded documents..."):
+                                answer = rag_engine.query_document(
+                                    st.session_state.multi_doc_text, 
+                                    st.session_state.multi_messages[:-1], 
+                                    suggestion
+                                )
+                                st.markdown(answer)
+                                st.session_state.multi_messages.append({"role": "assistant", "content": answer})
+                        st.rerun()
 
         if user_question := st.chat_input("Ask a question or compare documents..."):
             st.session_state.multi_messages.append({"role": "user", "content": user_question})
@@ -164,6 +190,7 @@ with tab2:
                     )
                     st.markdown(answer)
                     st.session_state.multi_messages.append({"role": "assistant", "content": answer})
+            st.rerun()
 
         if st.session_state.multi_messages:
             chat_content = [{"header": f"{m['role'].capitalize()}", "body": m['content']} for m in st.session_state.multi_messages]
