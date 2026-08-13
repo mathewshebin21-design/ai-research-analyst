@@ -1,8 +1,6 @@
 streamlit
 google-genai
-python-dotenv
-pydantic
+pandas
+plotly
 reportlab
-plotlysupabase==2.31.0
-supabase-auth==2.31.0
-supabase-functions==2.31.0
+pydantic
