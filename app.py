@@ -55,7 +55,6 @@ st.sidebar.markdown("### 🕒 Interactive Chat & History")
 st.sidebar.caption("Click any past query to reload it into the active workspace:")
 
 for i, past_query in enumerate(st.session_state.chat_history):
-    # Truncate display text if too long
     display_label = past_query[:38] + "..." if len(past_query) > 38 else past_query
     if st.sidebar.button(f"📁 {display_label}", key=f"history_btn_{i}"):
         st.session_state.active_query = past_query
@@ -66,24 +65,24 @@ if st.sidebar.button("🗑️ Clear History"):
     st.session_state.active_query = ""
     st.rerun()
 
-# Navigation Toggle Bar
+# Navbar Selection using radio button styled as a horizontal navigation bar
 app_mode = st.radio(
-    "Navigation Mode", 
+    "Navigation Bar", 
     ["v2: Modular Market Research", "MBA Strategic Decision Hub", "v4: Advanced Multi-Doc Vector RAG"],
     horizontal=True,
     label_visibility="collapsed"
 )
 
+st.markdown("---")
+
 if app_mode == "v2: Modular Market Research":
     st.header("Customizable Market Intelligence Engine")
     
-    # Persistent query box bound to session state
     research_topic = st.text_input(
         "Ask a strategic research question or enter market sector:",
         value=st.session_state.active_query
     )
     
-    # Update active query state if modified
     if research_topic != st.session_state.active_query:
         st.session_state.active_query = research_topic
     
@@ -103,7 +102,6 @@ if app_mode == "v2: Modular Market Research":
     if st.button("🚀 Generate Custom Intelligence Report", type="primary"):
         st.success(f"Generating comprehensive intelligence report for persona: **{persona}**...")
         
-        # Save query to history if new
         if research_topic and research_topic not in st.session_state.chat_history:
             st.session_state.chat_history.insert(0, research_topic)
             
@@ -153,7 +151,7 @@ if app_mode == "v2: Modular Market Research":
 
 elif app_mode == "MBA Strategic Decision Hub":
     st.header("🎓 MBA Strategic Decision Framework & Financial Modeler")
-    st.markdown("Advanced quantitative analysis and strategic positioning driven by executive toggle navigation.")
+    st.markdown("Advanced quantitative analysis and strategic positioning driven by navbar selection.")
     
     mba_query = st.text_input(
         "Ask a strategic business or financial question:",
