@@ -8,6 +8,7 @@ from scoring import StrategicScorer
 from financials import FinancialScenarioModeler
 from recommendations import StrategicRecommendationEngine
 from pdf_export import PDFReportGenerator
+from api_integration import LiveMarketAPI
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
@@ -57,6 +58,13 @@ else:
 
 st.sidebar.markdown(f"**Active Persona:** `{persona}`")
 st.sidebar.success("System Status: Operational")
+
+# Live External API Widget in Sidebar
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🌐 Live External Market Ticker")
+selected_ticker = st.sidebar.selectbox("Select Asset / Competitor Ticker:", ["EURINR=X", "NKE", "ADDYY", "UAA"])
+live_rate = LiveMarketAPI.get_exchange_rate("EUR", "INR")
+st.sidebar.metric(label="Live EUR/INR Exchange Rate", value=f"₹{live_rate:.2f}")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🕒 Interactive Chat & Research History")
@@ -116,7 +124,7 @@ if app_mode == "v2: Modular Market Research":
         mod_chart = st.checkbox("Interactive Plotly Charts", value=True)
         
     if st.button("🚀 Generate Custom Intelligence Report", type="primary"):
-        st.success(f"Executing multi-agent research plan and PDF report generation under persona: **{persona}**...")
+        st.success(f"Executing multi-agent research plan and live external API calls under persona: **{persona}**...")
         
         if research_topic and research_topic not in st.session_state.chat_history:
             st.session_state.chat_history.insert(0, research_topic)
@@ -184,12 +192,18 @@ if app_mode == "v2: Modular Market Research":
             st.line_chart(df_scenarios)
             
         if mod_chart:
-            st.markdown("### 📈 Interactive Growth Trajectory")
-            chart_data = {
-                "Quarter": ["Q1", "Q2", "Q3", "Q4", "Year 2"],
-                "Projected Revenue (INR)": [180000, 200000, 230000, 280000, 360000]
-            }
-            st.line_chart(chart_data, x="Quarter", y="Projected Revenue (INR)")
+            st.markdown("### 📈 Live External Market Data Feed (via API)")
+            stock_df = LiveMarketAPI.get_stock_data(selected_ticker, period="1mo")
+            if not stock_df.empty:
+                st.caption(f"Displaying live historical closing prices for `{selected_ticker}` over the past month:")
+                st.line_chart(stock_df['Close'])
+            else:
+                st.warning("Could not retrieve live ticker data at this moment. Showing static chart fallback.")
+                chart_data = {
+                    "Quarter": ["Q1", "Q2", "Q3", "Q4", "Year 2"],
+                    "Projected Revenue (INR)": [180000, 200000, 230000, 280000, 360000]
+                }
+                st.line_chart(chart_data, x="Quarter", y="Projected Revenue (INR)")
             
         if mod_strategy:
             st.markdown("### 🎯 Strategic Recommendation Engine & Verdict")
