@@ -1,7 +1,7 @@
-import os
-from tavily_search import search_market_intelligence
+from tavily_search import WebSearchModule
 
-if __name__ == "__main__":
-    results = search_market_intelligence("Electric vehicle battery recycling trends 2026")
-    for r in results:
-        print(f"- {r.get('title')}: {r.get('url')}")
+def test_search():
+    results = WebSearchModule.search_market_data("AI Market")
+    assert isinstance(results, list)
+    assert len(results) > 0
+    assert "title" in results[0]
