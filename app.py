@@ -7,28 +7,11 @@ from pdf_generator import PDFExporter
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
-# Sidebar Configuration with Safe Theme Styling
+# Sidebar Configuration using Native Streamlit Layout
 with st.sidebar:
     st.title("⚙️ Hub Configuration")
+    st.info("Theme is managed via native configuration for optimal compatibility.")
     
-    theme_selection = st.radio("App Theme", ["Modern Dark", "Professional Light"])
-    
-    # Clean, high-contrast theme injection ensuring text remains readable
-    if theme_selection == "Modern Dark":
-        st.markdown("""
-            <style>
-            .stApp, [data-testid="stSidebar"] { background-color: #0E1117 !important; color: #FFFFFF !important; }
-            .stTextInput input, .stSelectbox div[data-baseweb="select"] { color: #FFFFFF !important; background-color: #262730 !important; }
-            </style>
-            """, unsafe_allow_html=True)
-    else:
-        st.markdown("""
-            <style>
-            .stApp, [data-testid="stSidebar"] { background-color: #FFFFFF !important; color: #111111 !important; }
-            .stTextInput input, .stSelectbox div[data-baseweb="select"] { color: #111111 !important; background-color: #F0F2F6 !important; }
-            </style>
-            """, unsafe_allow_html=True)
-            
     st.divider()
     
     persona = st.selectbox(
@@ -48,8 +31,8 @@ with st.sidebar:
     st.divider()
     st.success("System Status: Operational")
 
-st.title("🚀 AI Research & Intelligence Hub (v6.10)")
-st.write("Enterprise modular market intelligence with high-contrast UI, simulation fail-safe, expert personas, and multi-document RAG.")
+st.title("🚀 AI Research & Intelligence Hub")
+st.write("Enterprise modular market intelligence with native theme support, simulation fail-safe, expert personas, and multi-document RAG.")
 
 tab1, tab2 = st.tabs(["📊 Modular Market Research", "📁 Multi-Document RAG & Summarizer"])
 
@@ -108,7 +91,7 @@ with tab1:
                                 "Year": ["2024", "2025", "2026 (Est.)", "2027 (Proj.)", "2028 (Proj.)"],
                                 "Market Value ($B)": [120, 165, 220, 290, 380]
                             })
-                            fig = px.bar(chart_data, x="Year", y="Market Value ($B)", title=f"Market Projection: {query}", color="Market Value ($B)", template="plotly_dark" if theme_selection == "Modern Dark" else "plotly_white")
+                            fig = px.bar(chart_data, x="Year", y="Market Value ($B)", title=f"Market Projection: {query}", color="Market Value ($B)", template="plotly_dark")
                             st.plotly_chart(fig, use_container_width=True)
 
                     if include_swot and report.swot_strengths:
