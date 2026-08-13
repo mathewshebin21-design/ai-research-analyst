@@ -6,8 +6,8 @@ from src.analysis import StrategicAnalysis
 
 class ResearchEngine:
     def __init__(self):
-        # Retrieve API key from Streamlit secrets or environment variables
         api_key = st.secrets.get("GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY"))
+        # Explicitly initialize the client for the Gemini Developer API key usage
         self.client = genai.Client(api_key=api_key)
 
     def analyze_question(self, query: str, persona: str = "Senior Strategy Consultant") -> StrategicAnalysis:
