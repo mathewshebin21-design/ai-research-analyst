@@ -103,14 +103,20 @@ elif app_mode == "MBA Strategic Decision Hub":
     st.header("🎓 MBA Strategic Decision Framework & Financial Modeler")
     st.markdown("Advanced quantitative analysis and strategic positioning tools based on executive frameworks.")
     
+    # Query Box for Custom MBA Questions
+    mba_query = st.text_input(
+        "Ask a strategic business or financial question:",
+        value="What is the optimal capital allocation strategy for scaling our bootstrap fashion brand?"
+    )
+    
     col_m1, col_m2 = st.columns(2)
     with col_m1:
         initial_capital = st.number_input("Initial Capital Allocation (INR):", value=180000)
     with col_m2:
         annual_growth = st.slider("Projected Annual Growth Rate (%)", 5, 50, 20)
         
-    if st.button("Run MBA Financial Simulation"):
-        st.success("Executing multi-year valuation forecast...")
+    if st.button("Run MBA Financial Simulation & Query Analysis"):
+        st.success(f"Executing simulation under persona **{persona}** for query: *'{mba_query}'*")
         
         # Calculation logic
         years = 3
@@ -129,8 +135,9 @@ elif app_mode == "MBA Strategic Decision Hub":
         st.bar_chart(chart_dict, x="Timeline", y="Valuation (INR)")
         
         st.markdown("### 🏛️ Strategic Decision Breakdown")
-        st.write("- **Capital Efficiency:** High return potential on initial bootstrap capital.")
-        st.write("- **Risk Horizon:** Monitor operating cash burn during early quarters.")
+        st.write(f"- **Query Evaluation:** Addressing *'{mba_query}'* through disciplined capital efficiency.")
+        st.write("- **Capital Returns:** High ROI trajectory relative to initial bootstrap capital.")
+        st.write("- **Risk Horizon:** Maintain conservative burn rates during early inventory cycles.")
 
 else:
     st.header("Advanced Multi-Document Vector RAG Engine")
