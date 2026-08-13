@@ -1,7 +1,5 @@
 streamlit
-google-generativeai
-pandas
-plotly
-reportlab
-pydantic
+google-genai
 supabase
+pydantic
+tavily-python
