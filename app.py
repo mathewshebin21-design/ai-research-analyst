@@ -36,22 +36,26 @@ else:
 # --- Main Query Interface ---
 query = st.text_input(
     "Enter a strategic business question:",
-    value="Should a UK fashion company launch a premium technical outdoor-streetwear collection in 2027?"
+    value="",
+    placeholder="e.g., Should a UK fashion company launch a premium technical outdoor-streetwear collection in 2027?"
 )
 
 if st.button("Run Strategic Analysis", type="primary"):
-    with st.spinner("Analyzing opportunity with Gemini..."):
-        try:
-            engine = ResearchEngine()
-            analysis_result = engine.analyze_question(query)
-            
-            new_entry = {"query": query, "analysis": analysis_result}
-            st.session_state.history.append(new_entry)
-            st.session_state.current_index = len(st.session_state.history) - 1
-            
-            st.success("Analysis Complete!")
-        except Exception as e:
-            st.error(f"An error occurred during research: {e}")
+    if not query.strip():
+        st.warning("Please enter a valid strategic business question.")
+    else:
+        with st.spinner("Analyzing opportunity with Gemini..."):
+            try:
+                engine = ResearchEngine()
+                analysis_result = engine.analyze_question(query)
+                
+                new_entry = {"query": query, "analysis": analysis_result}
+                st.session_state.history.append(new_entry)
+                st.session_state.current_index = len(st.session_state.history) - 1
+                
+                st.success("Analysis Complete!")
+            except Exception as e:
+                st.error(f"An error occurred during research: {e}")
 
 # --- Display Results for Current Selection ---
 if st.session_state.current_index is not None and st.session_state.history:
