@@ -15,7 +15,7 @@ class ResearchEngine:
             raise ValueError("API Key not found in Streamlit secrets or environment variables.")
         
         genai.configure(api_key=api_key)
-        # Using gemini-3.5-flash for high-efficiency multimodal reasoning
+        # Using gemini-3.5-flash for high-performance reasoning and structured outputs
         self.model = genai.GenerativeModel('gemini-3.5-flash')
 
     def analyze_question(self, query: str, persona: str = "Senior Strategy Consultant") -> StrategicAnalysis:
