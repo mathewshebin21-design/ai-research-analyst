@@ -15,6 +15,15 @@ if "history" not in st.session_state:
     st.session_state.history = []
 if "current_index" not in st.session_state:
     st.session_state.current_index = None
+    # --- Sidebar ---
+st.sidebar.title("⚙️ Configuration")
+persona = st.sidebar.selectbox(
+    "Choose Analytical Persona:",
+    ["Senior Strategy Consultant", "Aggressive Venture Capitalist", "Conservative Risk Officer", "Bootstrapped Founder"]
+)
+
+# ... update your button call to include the persona:
+# engine.analyze_question(query, persona=persona)
 
 # --- Sidebar for Past Reports ---
 st.sidebar.title("📂 Assessment History")
