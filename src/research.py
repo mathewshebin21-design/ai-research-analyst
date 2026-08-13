@@ -44,6 +44,7 @@ class ResearchEngine:
                     time.sleep(sleep_time)
                     continue
                 elif "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
-                    raise RuntimeError("API rate limit exceeded (429). Please wait about 30 seconds for your quota window to reset, then try again.")
+                    # Fallback to gemini-3.6-flash or gemini-3.1-flash-lite if available, or throw helpful message
+                    raise RuntimeError("API rate limit exceeded (429). Free tier allows ~10 requests per minute with Google Search grounding. Please wait 30 seconds for the window to reset.")
                 else:
                     raise e
