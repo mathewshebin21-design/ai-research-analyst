@@ -4,16 +4,10 @@ import pandas as pd
 from src.research import ResearchEngine
 from rag import DocumentRAGEngine
 from pdf_generator import PDFExporter
-from auth import login_form
 
 st.set_page_config(page_title="AI Research Hub", layout="wide")
 
-if "user" not in st.session_state:
-    login_form()
-    st.stop()
-
 st.title("🚀 AI Research & Intelligence Hub (v6)")
-st.sidebar.write(f"Logged in as: {st.session_state.user.email}")
 
 tab1, tab2 = st.tabs(["📊 Market Research & Visualization", "📁 Multi-Document RAG"])
 
