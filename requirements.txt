@@ -3,4 +3,6 @@ google-genai
 python-dotenv
 pydantic
 reportlab
-plotly
+plotlysupabase==2.31.0
+supabase-auth==2.31.0
+supabase-functions==2.31.0

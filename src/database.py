@@ -1,60 +1,54 @@
-import sqlite3
+import os
+import json
+from supabase import create_client, Client
 from src.analysis import StrategicAnalysis
 
-DB_NAME = "reports.db"
+def get_supabase_client() -> Client:
+    url = os.environ.get("SUPABASE_URL")
+    key = os.environ.get("SUPABASE_KEY")
+    if not url or not key:
+        raise ValueError("Supabase credentials not found in environment variables.")
+    return create_client(url, key)
 
 def init_db():
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS reports (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            query TEXT,
-            persona TEXT,
-            analysis_json TEXT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    conn.commit()
-    conn.close()
+    # Cloud tables are managed directly in Supabase Postgres schema
+    pass
 
 def save_report(query: str, persona: str, analysis_obj: StrategicAnalysis):
-    init_db()
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    analysis_json = analysis_obj.model_dump_json()
-    cursor.execute(
-        "INSERT INTO reports (query, persona, analysis_json) VALUES (?, ?, ?)",
-        (query, persona, analysis_json)
-    )
-    conn.commit()
-    conn.close()
-
-def load_reports():
-    init_db()
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, query, persona, analysis_json, timestamp FROM reports ORDER BY timestamp DESC")
-    rows = cursor.fetchall()
-    conn.close()
-    
-    # Reconstruct history items with parsed Pydantic objects
-    history = []
-    for row in rows:
-        report_id, query, persona, analysis_json, timestamp = row
-        analysis_obj = StrategicAnalysis.model_validate_json(analysis_json)
-        history.append({
+    try:
+        supabase = get_supabase_client()
+        analysis_json = analysis_obj.model_dump_json()
+        supabase.table("reports").insert({
             "query": query,
             "persona": persona,
-            "analysis": analysis_obj,
-            "timestamp": timestamp
-        })
-    return history
+            "analysis_json": analysis_json
+        }).execute()
+    except Exception as e:
+        print(f"Cloud DB save error (falling back/logging): {e}")
+
+def load_reports():
+    try:
+        supabase = get_supabase_client()
+        response = supabase.table("reports").select("*").order("timestamp", desc=True).execute()
+        rows = response.data
+        
+        history = []
+        for row in rows:
+            analysis_obj = StrategicAnalysis.model_validate_json(row["analysis_json"])
+            history.append({
+                "query": row["query"],
+                "persona": row["persona"],
+                "analysis": analysis_obj,
+                "timestamp": row["timestamp"]
+            })
+        return history
+    except Exception as e:
+        print(f"Cloud DB load error: {e}")
+        return []
 
 def clear_reports():
-    init_db()
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM reports")
-    conn.commit()
-    conn.close()
+    try:
+        supabase = get_supabase_client()
+        supabase.table("reports").delete().neq("id", 0).execute()
+    except Exception as e:
+        print(f"Cloud DB clear error: {e}")
