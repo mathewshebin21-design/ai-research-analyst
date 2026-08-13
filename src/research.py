@@ -6,8 +6,17 @@ from src.analysis import StrategicAnalysis
 
 class ResearchEngine:
     def __init__(self):
-        api_key = st.secrets.get("GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY"))
-        # Explicitly initialize the client for the Gemini Developer API key usage
+        # Fallback across multiple key formats to guarantee pickup from Streamlit secrets
+        api_key = (
+            st.secrets.get("GEMINI_API_KEY") or 
+            st.secrets.get("GOOGLE_API_KEY") or 
+            os.environ.get("GEMINI_API_KEY") or 
+            os.environ.get("GOOGLE_API_KEY")
+        )
+        if not api_key:
+            raise ValueError("API Key not found in Streamlit secrets or environment variables.")
+        
+        # Explicitly initialize client with the developer API key
         self.client = genai.Client(api_key=api_key)
 
     def analyze_question(self, query: str, persona: str = "Senior Strategy Consultant") -> StrategicAnalysis:
