@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 from planner import AIResearchPlanner
+from tavily_search import WebSearchModule
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
@@ -110,7 +111,7 @@ if app_mode == "v2: Modular Market Research":
         mod_chart = st.checkbox("Interactive Plotly Charts", value=True)
         
     if st.button("🚀 Generate Custom Intelligence Report", type="primary"):
-        st.success(f"Executing multi-agent research plan under persona: **{persona}**...")
+        st.success(f"Executing multi-agent research plan and live web retrieval under persona: **{persona}**...")
         
         if research_topic and research_topic not in st.session_state.chat_history:
             st.session_state.chat_history.insert(0, research_topic)
@@ -118,6 +119,13 @@ if app_mode == "v2: Modular Market Research":
         st.markdown("---")
         st.subheader("Executive Summary & Research Findings")
         st.info(f"Analyzing strategic viability for: *'{research_topic}'*")
+        
+        # Pull live/simulated web search results
+        search_results = WebSearchModule.search_market_data(research_topic)
+        with st.expander("🌐 Live Web Research & Evidence Sources Retrieved", expanded=False):
+            for res in search_results:
+                st.markdown(f"**[{res['publisher']}]({res['url']})** - {res['title']}")
+                st.caption(res['snippet'])
         
         if mod_trend:
             st.markdown("### 📊 Market Size & Trends")
