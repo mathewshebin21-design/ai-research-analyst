@@ -3,7 +3,6 @@ import os
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
-# Custom CSS for styling
 st.markdown("""
 <style>
     .stButton>button {
@@ -17,7 +16,18 @@ st.markdown("""
 st.title("🚀 AI Research & Intelligence Hub")
 st.markdown("Enterprise modular market intelligence paired with advanced vector-indexed multi-document RAG and MBA Strategic Decision Frameworks.")
 
-# Sidebar - Expanded Executive Configuration
+# Initialize session state for chat history and selected prompt
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = [
+        "Should we launch an eco-friendly direct-to-consumer premium footwear and apparel brand in the European market?",
+        "What is the optimal capital allocation strategy for scaling our bootstrap fashion brand?",
+        "Export compliance and trade regulations for international apparel retail"
+    ]
+
+if "active_query" not in st.session_state:
+    st.session_state.active_query = st.session_state.chat_history[0]
+
+# Sidebar - Expanded Executive Configuration & Interactive History
 st.sidebar.markdown("### 🎛️ Executive Control Center")
 persona_category = st.sidebar.radio("Select Persona Domain:", ["Financial & Strategy", "Technical & Supply Chain", "Executive Leadership"])
 
@@ -41,18 +51,22 @@ st.sidebar.markdown(f"**Active Persona:** `{persona}`")
 st.sidebar.success("System Status: Operational")
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 🕒 Recent Chat & History")
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = [
-        "Query: Scaling footwear startup in EU",
-        "Query: INR 180k capital allocation strategy",
-        "Query: Export compliance for eco-retail"
-    ]
+st.sidebar.markdown("### 🕒 Interactive Chat & History")
+st.sidebar.caption("Click any past query to reload it into the active workspace:")
 
-for past_chat in st.session_state.chat_history:
-    st.sidebar.caption(f"📁 {past_chat}")
+for i, past_query in enumerate(st.session_state.chat_history):
+    # Truncate display text if too long
+    display_label = past_query[:38] + "..." if len(past_query) > 38 else past_query
+    if st.sidebar.button(f"📁 {display_label}", key=f"history_btn_{i}"):
+        st.session_state.active_query = past_query
+        st.rerun()
 
-# Navigation Toggle Bar (matching v2/MBA/v4 style)
+if st.sidebar.button("🗑️ Clear History"):
+    st.session_state.chat_history = []
+    st.session_state.active_query = ""
+    st.rerun()
+
+# Navigation Toggle Bar
 app_mode = st.radio(
     "Navigation Mode", 
     ["v2: Modular Market Research", "MBA Strategic Decision Hub", "v4: Advanced Multi-Doc Vector RAG"],
@@ -63,11 +77,15 @@ app_mode = st.radio(
 if app_mode == "v2: Modular Market Research":
     st.header("Customizable Market Intelligence Engine")
     
-    # Default persistent query box
+    # Persistent query box bound to session state
     research_topic = st.text_input(
         "Ask a strategic research question or enter market sector:",
-        value="Should we launch an eco-friendly direct-to-consumer premium footwear and apparel brand in the European market?"
+        value=st.session_state.active_query
     )
+    
+    # Update active query state if modified
+    if research_topic != st.session_state.active_query:
+        st.session_state.active_query = research_topic
     
     st.markdown("### 📋 Select Required Analysis Modules:")
     col1, col2, col3, col4 = st.columns(4)
@@ -85,8 +103,9 @@ if app_mode == "v2: Modular Market Research":
     if st.button("🚀 Generate Custom Intelligence Report", type="primary"):
         st.success(f"Generating comprehensive intelligence report for persona: **{persona}**...")
         
-        if research_topic not in st.session_state.chat_history:
-            st.session_state.chat_history.insert(0, f"Query: {research_topic[:40]}...")
+        # Save query to history if new
+        if research_topic and research_topic not in st.session_state.chat_history:
+            st.session_state.chat_history.insert(0, research_topic)
             
         st.markdown("---")
         st.subheader("Executive Summary")
@@ -136,15 +155,20 @@ elif app_mode == "MBA Strategic Decision Hub":
     st.header("🎓 MBA Strategic Decision Framework & Financial Modeler")
     st.markdown("Advanced quantitative analysis and strategic positioning driven by executive toggle navigation.")
     
-    # Default persistent query box
     mba_query = st.text_input(
         "Ask a strategic business or financial question:",
-        value="What is the optimal capital allocation strategy for scaling our bootstrap fashion brand?"
+        value=st.session_state.active_query
     )
+    
+    if mba_query != st.session_state.active_query:
+        st.session_state.active_query = mba_query
     
     if st.button("🚀 Run MBA Strategic Simulation & Analysis", type="primary"):
         st.success(f"Executing MBA simulation under persona **{persona}** for query: *'{mba_query}'*")
         
+        if mba_query and mba_query not in st.session_state.chat_history:
+            st.session_state.chat_history.insert(0, mba_query)
+            
         st.markdown("### 🏛️ Strategic Positioning & SWOT")
         st.write("- **Core Leverage:** High agility co-owned retail setup.")
         st.write("- **Strategic Focus:** Capitalizing on digital direct-to-consumer growth channels.")
