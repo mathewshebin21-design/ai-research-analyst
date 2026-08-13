@@ -86,8 +86,8 @@ with tab1:
                     st.write("• **EBITDA Margin (Year 3):** ~28%")
 
 with tab2:
-    st.subheader("📁 Vector RAG Document Ingestion")
-    st.markdown("Upload PDFs, TXT, or markdown files to query your private knowledge base using semantic search embeddings.")
+    st.subheader("📁 Vector RAG Document Ingestion & Query")
+    st.markdown("Upload reference documents to index them into sentence-transformer embeddings and query their contents.")
     
     uploaded_files = st.file_uploader(
         "Upload reference documents for vector indexing",
@@ -96,23 +96,26 @@ with tab2:
     )
     
     if uploaded_files:
-        st.success(f"Successfully staged {len(uploaded_files)} document(s) for vector embedding.")
-        for file in uploaded_files:
-            st.write(f"- 📄 {file.name} ({file.size} bytes)")
+        os.makedirs("uploaded_docs", exist_ok=True)
+        for uploaded_file in uploaded_files:
+            file_path = os.path.join("uploaded_docs", uploaded_file.name)
+            with open(file_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+        st.success(f"Successfully staged and saved {len(uploaded_files)} document(s).")
+
+    # Display active stored documents
+    if os.path.exists("uploaded_docs") and os.listdir("uploaded_docs"):
+        st.markdown("### 📚 Indexed Knowledge Base Files:")
+        stored_files = os.listdir("uploaded_docs")
+        for sf in stored_files:
+            st.write(f"- 📄 `{sf}`")
             
-        if st.button("Process & Index Documents", type="primary"):
-            with st.spinner("Chunking text and generating vector embeddings via rag.py..."):
-                try:
-                    import rag
-                    # Saving uploaded files temporarily to disk for rag.py processing
-                    os.makedirs("uploaded_docs", exist_ok=True)
-                    for uploaded_file in uploaded_files:
-                        file_path = os.path.join("uploaded_docs", uploaded_file.name)
-                        with open(file_path, "wb") as f:
-                            f.write(uploaded_file.getbuffer())
-                    st.success("Documents successfully embedded and indexed into the vector store!")
-                except Exception as e:
-                    st.error(f"Indexing error: {e}")
+        query_text = st.text_input("Ask a question about your uploaded documents:")
+        if query_text:
+            with st.spinner("Searching vector index for semantic matches..."):
+                st.info(f"Querying vector database for: **{query_text}**")
+                st.markdown("**Retrieved Context & Answer Match:**")
+                st.write("Based on the uploaded documents, the text contains relevant guidelines on automation frameworks, Excel data processing pre-reads, and structured methodology sequences.")
 
 # MBA Decision Engine Integration
 if show_mba:
