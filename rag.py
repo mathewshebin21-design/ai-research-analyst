@@ -3,81 +3,58 @@ import streamlit as st
 from google import genai
 from google.genai import types
 from pypdf import PdfReader
-from supabase import create_client, Client
 
 class DocumentRAGEngine:
     def __init__(self):
         gemini_key = st.secrets.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
-        supabase_url = st.secrets.get("SUPABASE_URL") or os.environ.get("SUPABASE_URL")
-        supabase_key = st.secrets.get("SUPABASE_KEY") or os.environ.get("SUPABASE_KEY")
-
         if not gemini_key:
             raise ValueError("GEMINI_API_KEY is missing from secrets.")
-        if not supabase_url or not supabase_key:
-            raise ValueError("SUPABASE_URL or SUPABASE_KEY is missing from Streamlit secrets. Please check your app settings.")
-
         self.client = genai.Client(api_key=gemini_key)
-        self.supabase: Client = create_client(supabase_url, supabase_key)
+        
+        # Optional Supabase setup
+        self.supabase = None
+        supabase_url = st.secrets.get("SUPABASE_URL") or os.environ.get("SUPABASE_URL")
+        supabase_key = st.secrets.get("SUPABASE_KEY") or os.environ.get("SUPABASE_KEY")
+        
+        if supabase_url and supabase_key:
+            try:
+                from supabase import create_client
+                self.supabase = create_client(supabase_url, supabase_key)
+            except Exception:
+                self.supabase = None
 
-    def extract_and_chunk_pdf(self, uploaded_file, chunk_size=1000, overlap=100) -> list[str]:
+    def extract_text_from_pdf(self, uploaded_file) -> str:
         reader = PdfReader(uploaded_file)
-        full_text = ""
+        text = ""
         for page in reader.pages:
             extracted = page.extract_text()
             if extracted:
-                full_text += extracted + "\n"
-
-        chunks = []
-        start = 0
-        while start < len(full_text):
-            end = start + chunk_size
-            chunks.append(full_text[start:end])
-            start += (chunk_size - overlap)
-        return chunks
+                text += extracted + "\n"
+        return text
 
     def store_document_vectors(self, file_name: str, chunks: list[str]):
+        if not self.supabase:
+            return  # Skip vector db storage if Supabase isn't configured, use local memory
         try:
             self.supabase.table("document_vectors").delete().eq("file_name", file_name).execute()
-        except Exception as e:
-            raise ConnectionError(f"Failed to connect to Supabase. Verify your URL and API key. Details: {e}")
+            records = []
+            for index, chunk in enumerate(chunks):
+                emb_res = self.client.models.embed_content(
+                    model="text-embedding-004",
+                    contents=chunk
+                )
+                embedding_vector = emb_res.embeddings[0].values
+                records.append({
+                    "file_name": file_name,
+                    "chunk_index": index,
+                    "content": chunk,
+                    "embedding": embedding_vector
+                })
+            self.supabase.table("document_vectors").insert(records).execute()
+        except Exception:
+            pass # Fall back safely if network call fails
 
-        records = []
-        for index, chunk in enumerate(chunks):
-            emb_res = self.client.models.embed_content(
-                model="text-embedding-004",
-                contents=chunk
-            )
-            embedding_vector = emb_res.embeddings[0].values
-
-            records.append({
-                "file_name": file_name,
-                "chunk_index": index,
-                "content": chunk,
-                "embedding": embedding_vector
-            })
-
-        self.supabase.table("document_vectors").insert(records).execute()
-
-    def query_document(self, file_name: str, chat_history: list, question: str) -> str:
-        q_emb_res = self.client.models.embed_content(
-            model="text-embedding-004",
-            contents=question
-        )
-        query_vector = q_emb_res.embeddings[0].values
-
-        search_res = self.supabase.rpc(
-            "match_document_vectors",
-            {
-                "query_embedding": query_vector,
-                "match_threshold": 0.2,
-                "match_count": 5,
-                "filter_file_name": file_name
-            }
-        ).execute()
-
-        retrieved_chunks = [item["content"] for item in search_res.data] if search_res.data else []
-        retrieved_context = "\n---\n".join(retrieved_chunks)
-
+    def query_document(self, document_text: str, chat_history: list, question: str) -> str:
         formatted_history = ""
         for message in chat_history:
             role = "User" if message["role"] == "user" else "Assistant"
@@ -85,11 +62,11 @@ class DocumentRAGEngine:
 
         prompt = f"""
         You are an expert Document Intelligence Assistant. 
-        Answer the user's question accurately using ONLY the vector-retrieved context chunks and conversation history below.
+        Answer the user's question accurately using ONLY the provided document context and conversation history.
 
-        <retrieved_context>
-        {retrieved_context if retrieved_context else "No relevant context found in vector storage."}
-        </retrieved_context>
+        <document_context>
+        {document_text[:15000]}
+        </document_context>
 
         <conversation_history>
         {formatted_history}
