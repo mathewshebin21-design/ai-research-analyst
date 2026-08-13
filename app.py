@@ -12,7 +12,16 @@ st.set_page_config(
 st.sidebar.title("🎯 Executive Controls")
 selected_persona = st.sidebar.selectbox(
     "Default Analyst Persona:",
-    ["Senior Venture Capitalist", "Chief Strategy Officer", "Market Intelligence Director", "Management Consultant"]
+    [
+        "Senior Venture Capitalist", 
+        "Chief Strategy Officer", 
+        "Market Intelligence Director", 
+        "Management Consultant",
+        "Chief Technology Officer (CTO)",
+        "Global Supply Chain Director",
+        "ESG & Sustainability Lead",
+        "Private Equity Principal"
+    ]
 )
 
 st.sidebar.success("System Status: Operational")
