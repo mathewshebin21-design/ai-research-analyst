@@ -6,7 +6,7 @@ st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 st.title("🚀 AI Research & Intelligence Hub")
 st.markdown("Enterprise modular market intelligence paired with advanced vector-indexed multi-document RAG and MBA Strategic Decision Frameworks.")
 
-# Sidebar Controls & Personas
+# Sidebar - Executive Configuration & MBA Strategic Controls
 st.sidebar.header("Executive Configuration")
 persona = st.sidebar.selectbox(
     "Select Analyst Persona",
@@ -20,6 +20,12 @@ persona = st.sidebar.selectbox(
     ]
 )
 st.sidebar.markdown(f"**Active Persona:** `{persona}`")
+
+st.sidebar.markdown("---")
+st.sidebar.header("🎓 MBA Strategic Settings")
+sidebar_capital = st.sidebar.number_input("Capital Allocation (INR):", value=180000, key="sb_cap")
+sidebar_growth = st.sidebar.slider("Annual Growth Rate (%)", 5, 50, 20, key="sb_growth")
+
 st.sidebar.success("System Status: Operational")
 
 # Navigation Modes
@@ -84,13 +90,13 @@ if app_mode == "v2: Modular Market Research":
                 
         if mod_financial:
             st.markdown("### 💰 Financial Projections")
-            st.metric(label="Estimated Initial Outlay", value="INR 180,000 (Initial Capital)")
+            st.metric(label="Estimated Initial Outlay", value=f"INR {sidebar_capital:,}")
             
         if mod_chart:
             st.markdown("### 📈 Interactive Growth Trajectory")
             chart_data = {
                 "Quarter": ["Q1", "Q2", "Q3", "Q4", "Year 2"],
-                "Projected Revenue (INR)": [180000, 210000, 260000, 320000, 450000]
+                "Projected Revenue (INR)": [sidebar_capital, int(sidebar_capital*1.1), int(sidebar_capital*1.25), int(sidebar_capital*1.4), int(sidebar_capital*1.8)]
             }
             st.line_chart(chart_data, x="Quarter", y="Projected Revenue (INR)")
             
@@ -101,43 +107,35 @@ if app_mode == "v2: Modular Market Research":
 
 elif app_mode == "MBA Strategic Decision Hub":
     st.header("🎓 MBA Strategic Decision Framework & Financial Modeler")
-    st.markdown("Advanced quantitative analysis and strategic positioning tools based on executive frameworks.")
+    st.markdown("Advanced quantitative analysis and strategic positioning tools driven by sidebar parameters.")
     
-    # Query Box for Custom MBA Questions
     mba_query = st.text_input(
         "Ask a strategic business or financial question:",
         value="What is the optimal capital allocation strategy for scaling our bootstrap fashion brand?"
     )
     
-    col_m1, col_m2 = st.columns(2)
-    with col_m1:
-        initial_capital = st.number_input("Initial Capital Allocation (INR):", value=180000)
-    with col_m2:
-        annual_growth = st.slider("Projected Annual Growth Rate (%)", 5, 50, 20)
-        
     if st.button("Run MBA Financial Simulation & Query Analysis"):
-        st.success(f"Executing simulation under persona **{persona}** for query: *'{mba_query}'*")
+        st.success(f"Executing simulation under persona **{persona}** using Sidebar Capital (INR {sidebar_capital:,}) and Growth ({sidebar_growth}%)...")
         
-        # Calculation logic
         years = 3
         projections = []
-        val = initial_capital
+        val = sidebar_capital
         for y in range(1, years + 1):
-            val *= (1 + annual_growth / 100)
+            val *= (1 + sidebar_growth / 100)
             projections.append((f"Year {y}", int(val)))
             
-        st.metric(label="Starting Capital Principal", value=f"INR {initial_capital:,}")
+        st.metric(label="Starting Capital Principal", value=f"INR {sidebar_capital:,}")
         
         chart_dict = {
             "Timeline": ["Initial"] + [p[0] for p in projections],
-            "Valuation (INR)": [initial_capital] + [p[1] for p in projections]
+            "Valuation (INR)": [sidebar_capital] + [p[1] for p in projections]
         }
         st.bar_chart(chart_dict, x="Timeline", y="Valuation (INR)")
         
         st.markdown("### 🏛️ Strategic Decision Breakdown")
         st.write(f"- **Query Evaluation:** Addressing *'{mba_query}'* through disciplined capital efficiency.")
-        st.write("- **Capital Returns:** High ROI trajectory relative to initial bootstrap capital.")
-        st.write("- **Risk Horizon:** Maintain conservative burn rates during early inventory cycles.")
+        st.write(f"- **Compounded Growth:** Scaling at {sidebar_growth}% annually over {years} years.")
+        st.write("- **Risk Horizon:** Maintain conservative cash burn rates during early inventory cycles.")
 
 else:
     st.header("Advanced Multi-Document Vector RAG Engine")
