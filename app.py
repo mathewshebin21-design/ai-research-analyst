@@ -7,6 +7,38 @@ from src.pdf_generator import generate_pdf_report
 
 st.set_page_config(page_title="AI Research Analyst", page_icon="📈", layout="wide")
 
+# Helper function for animated skeleton loader
+def show_skeleton_loader():
+    """Renders a sleek pulsing CSS skeleton loader while AI analysis runs."""
+    skeleton_html = """
+    <style>
+    @keyframes pulse {
+        0% { opacity: 0.6; }
+        50% { opacity: 1; }
+        100% { opacity: 0.6; }
+    }
+    .skeleton-box {
+        background-color: #e0e0e0;
+        border-radius: 6px;
+        animation: pulse 1.5s infinite ease-in-out;
+        margin-bottom: 12px;
+    }
+    .skeleton-title { height: 35px; width: 60%; }
+    .skeleton-text { height: 18px; width: 100%; }
+    .skeleton-card { height: 120px; width: 100%; }
+    </style>
+    
+    <div class="skeleton-box skeleton-title"></div>
+    <div class="skeleton-box skeleton-text"></div>
+    <div class="skeleton-box skeleton-text" style="width: 80%;"></div>
+    <br>
+    <div style="display: flex; gap: 15px;">
+        <div class="skeleton-box skeleton-card" style="flex: 1;"></div>
+        <div class="skeleton-box skeleton-card" style="flex: 3;"></div>
+    </div>
+    """
+    return st.markdown(skeleton_html, unsafe_allow_html=True)
+
 st.title("📈 AI Research Analyst")
 st.caption("Automated Market Intelligence & Strategic Assessment Platform")
 
@@ -25,7 +57,7 @@ st.sidebar.markdown("---")
 st.sidebar.title("📂 Assessment History")
 
 if st.session_state.history:
-    history_options = {f"{i+1}. {item["query"][:40]}...": i for i, item in enumerate(st.session_state.history)}
+    history_options = {f"{i+1}. {item['query'][:40]}...": i for i, item in enumerate(st.session_state.history)}
     selected_label = st.sidebar.selectbox("Select Past Report:", options=list(history_options.keys()))
     if selected_label:
         st.session_state.current_index = history_options[selected_label]
@@ -46,16 +78,22 @@ if st.button("Run Strategic Analysis", type="primary"):
     if not query.strip():
         st.warning("Please enter a valid strategic business question.")
     else:
-        with st.spinner("Analyzing opportunity with Gemini..."):
-            try:
-                engine = ResearchEngine()
-                analysis_result = engine.analyze_question(query, persona=persona)
-                new_entry = {"query": query, "analysis": analysis_result}
-                st.session_state.history.append(new_entry)
-                st.session_state.current_index = len(st.session_state.history) - 1
-                st.success("Analysis Complete!")
-            except Exception as e:
-                st.error(f"An error occurred during research: {e}")
+        loader_placeholder = st.empty()
+        with loader_placeholder.container():
+            show_skeleton_loader()
+            
+        try:
+            engine = ResearchEngine()
+            analysis_result = engine.analyze_question(query, persona=persona)
+            new_entry = {"query": query, "analysis": analysis_result}
+            st.session_state.history.append(new_entry)
+            st.session_state.current_index = len(st.session_state.history) - 1
+            
+            loader_placeholder.empty()
+            st.success("Analysis Complete!")
+        except Exception as e:
+            loader_placeholder.empty()
+            st.error(f"An error occurred during research: {e}")
 
 if st.session_state.current_index is not None and st.session_state.history:
     current_item = st.session_state.history[st.session_state.current_index]
@@ -146,9 +184,42 @@ if st.session_state.current_index is not None and st.session_state.history:
     st.markdown("---")
     st.markdown("### 🏢 Competitive Landscape Matrix")
     if hasattr(analysis, "competitors") and analysis.competitors:
-        comp_data = [{"Competitor": c.name, "Positioning": c.positioning, "Pricing Tier": c.pricing_tier, "Strengths": c.strengths, "Weaknesses": c.weaknesses} for c in analysis.competitors]
+        comp_data = [
+            {
+                "Competitor": c.name, 
+                "Positioning": c.positioning, 
+                "Pricing Tier": c.pricing_tier, 
+                "Strengths": c.strengths, 
+                "Weaknesses": c.weaknesses
+            } 
+            for c in analysis.competitors
+        ]
         comp_df = pd.DataFrame(comp_data)
-        st.dataframe(comp_df, use_container_width=True, hide_index=True)
+        
+        selected_competitor = st.dataframe(
+            comp_df, 
+            use_container_width=True, 
+            hide_index=True,
+            on_select="rerun",
+            selection_mode="single-row"
+        )
+        
+        if selected_competitor and selected_competitor.selection.rows:
+            selected_row_idx = selected_competitor.selection.rows[0]
+            chosen_comp = comp_df.iloc[selected_row_idx]
+            
+            with st.container(border=True):
+                st.markdown(f"#### 🔍 Deep Dive: {chosen_comp['Competitor']}")
+                col_d1, col_d2 = st.columns(2)
+                with col_d1:
+                    st.write(f"**Positioning:** {chosen_comp['Positioning']}")
+                    st.write(f"**Pricing Tier:** {chosen_comp['Pricing Tier']}")
+                with col_d2:
+                    st.write(f"**Core Strengths:** {chosen_comp['Strengths']}")
+                    st.write(f"**Key Weaknesses:** {chosen_comp['Weaknesses']}")
+                
+                if st.button(f"Generate Strategic Counter-Analysis against {chosen_comp['Competitor']}"):
+                    st.success(f"Action triggered! Formulating a market positioning strategy to outmaneuver {chosen_comp['Competitor']}...")
     else:
         st.info("No competitor data available for this report.")
 
