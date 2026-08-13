@@ -301,3 +301,16 @@ if st.session_state.current_index is not None and st.session_state.history:
         )
     except Exception as pdf_err:
         st.error(f"Failed to generate PDF: {pdf_err}")
+        from src.database import save_report, load_reports, clear_reports
+
+# ... (keep your existing imports, setup, and helper functions)
+
+# Initialize session history from SQLite database
+if "history" not in st.session_state:
+    db_rows = load_reports()
+    # db_rows format: (id, query, persona, analysis_json, timestamp)
+    st.session_state.history = []
+    for row in db_rows:
+        # Re-parse JSON back into your Pydantic object if needed, or handle as dict
+        # For simplicity, we can load them into history items
+        pass # We will wire this cleanly below
