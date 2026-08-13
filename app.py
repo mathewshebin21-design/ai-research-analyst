@@ -42,7 +42,8 @@ with tab1:
         mod_comp = st.checkbox("Key Competitors", value=True)
         mod_fin = st.checkbox("Financial Projections", value=True)
 
-    if st.button("Generate Custom Intelligence Report", type="primary"):
+    # Automatically render the report on default load or button click
+    if st.button("Generate Custom Intelligence Report", type="primary") or True:
         with st.spinner("Executing multi-agent market analysis and vector RAG retrieval..."):
             st.success("Analysis report generated successfully!")
             st.info(f"Targeting sector: **{research_topic}** using persona: **{selected_persona}**")
@@ -59,11 +60,13 @@ with tab1:
             
             if mod_swot:
                 with st.expander("🔍 SWOT Breakdown", expanded=True):
-                    st.col1, st.col2 = st.columns(2)
-                    st.markdown("**Strengths:** Proprietary hydrometallurgical recycling tech, high recovery rates.")
-                    st.markdown("**Weaknesses:** High initial capital expenditure for facility scaling.")
-                    st.markdown("**Opportunities:** Direct supply partnerships with major EV automotive makers.")
-                    st.markdown("**Threats:** Volatility in recycled metal market pricing.")
+                    col_s1, col_s2 = st.columns(2)
+                    with col_s1:
+                        st.markdown("**Strengths:** Proprietary hydrometallurgical recycling tech, high recovery rates.")
+                        st.markdown("**Weaknesses:** High initial capital expenditure for facility scaling.")
+                    with col_s2:
+                        st.markdown("**Opportunities:** Direct supply partnerships with major EV automotive makers.")
+                        st.markdown("**Threats:** Volatility in recycled metal market pricing.")
             
             if mod_comp:
                 with st.expander("🏢 Key Competitors Landscape", expanded=True):
