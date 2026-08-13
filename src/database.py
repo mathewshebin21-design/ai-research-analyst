@@ -18,12 +18,6 @@ class HistoryDatabase:
             raise ValueError("Supabase URL or Key not found in Streamlit secrets or environment variables.")
         
         self.supabase: Client = create_client(url, key)
-        self._ensure_table()
-
-    def _ensure_table(self):
-        # Supabase tables are typically managed via SQL editor, 
-        # but we check connection health here
-        pass
 
     def save_report(self, query: str, persona: str, report_dict: dict):
         try:
@@ -42,3 +36,6 @@ class HistoryDatabase:
         except Exception as e:
             print(f"Error fetching from Supabase: {e}")
             return []
+
+    def load_history(self):
+        return self.get_history()
