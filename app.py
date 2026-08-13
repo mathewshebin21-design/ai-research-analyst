@@ -1,6 +1,6 @@
 import streamlit as st
-from src.research import ResearchEngine
-from src.rag import DocumentRAGEngine
+from research import ResearchEngine
+from rag import DocumentRAGEngine
 
 st.set_page_config(page_title="AI Research & Document Intelligence Hub", layout="wide")
 
