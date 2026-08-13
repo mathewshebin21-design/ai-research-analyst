@@ -7,6 +7,7 @@ from rag import AdvancedRAGEngine
 from scoring import StrategicScorer
 from financials import FinancialScenarioModeler
 from recommendations import StrategicRecommendationEngine
+from pdf_export import PDFReportGenerator
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
@@ -58,7 +59,7 @@ st.sidebar.markdown(f"**Active Persona:** `{persona}`")
 st.sidebar.success("System Status: Operational")
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 🕒 Interactive Chat & History")
+st.sidebar.markdown("### 🕒 Interactive Chat & Research History")
 st.sidebar.caption("Click any past query to reload it:")
 
 for i, past_query in enumerate(st.session_state.chat_history):
@@ -115,7 +116,7 @@ if app_mode == "v2: Modular Market Research":
         mod_chart = st.checkbox("Interactive Plotly Charts", value=True)
         
     if st.button("🚀 Generate Custom Intelligence Report", type="primary"):
-        st.success(f"Executing multi-agent research plan and recommendation engine under persona: **{persona}**...")
+        st.success(f"Executing multi-agent research plan and PDF report generation under persona: **{persona}**...")
         
         if research_topic and research_topic not in st.session_state.chat_history:
             st.session_state.chat_history.insert(0, research_topic)
@@ -208,6 +209,21 @@ if app_mode == "v2: Modular Market Research":
                 st.metric("AI Response Faithfulness", rec['faithfulness_score'])
                 st.metric("Retrieval Relevance Score", rec['relevance_score'])
                 st.caption("Evaluated against RAG Triad benchmarks to prevent hallucination and ensure citation grounding.")
+
+        # PDF Download Section
+        st.markdown("---")
+        st.subheader("📥 Export Executive Report")
+        pdf_filename = "Executive_Intelligence_Report.pdf"
+        PDFReportGenerator.generate_pdf(pdf_filename, research_topic, persona, scores, rec)
+        
+        with open(pdf_filename, "rb") as pdf_file:
+            st.download_button(
+                label="📄 Download Professional Executive PDF Report",
+                data=pdf_file,
+                file_name=pdf_filename,
+                mime="application/pdf",
+                type="primary"
+            )
 
 elif app_mode == "MBA Strategic Decision Hub":
     st.header("🎓 MBA Strategic Decision Framework & Financial Modeler")
