@@ -179,3 +179,22 @@ if st.session_state.current_index is not None and st.session_state.history:
         )
     except Exception as pdf_err:
         st.error(f"Failed to generate PDF: {pdf_err}")
+        # Market Trends Chart Section
+    st.markdown("---")
+    st.markdown("### 📈 Market Size Projections & Trend Analysis")
+    if hasattr(analysis, 'market_trends') and analysis.market_trends:
+        trend_data = [{"Year": str(t.year), "Market Size ($B)": t.market_size_billion_usd} for t in analysis.market_trends]
+        trend_df = pd.DataFrame(trend_data)
+        
+        fig_trend = px.line(
+            trend_df,
+            x="Year",
+            y="Market Size ($B)",
+            markers=True,
+            title="Market Valuation Growth Trajectory",
+            color_discrete_sequence=["#2563EB"]
+        )
+        fig_trend.update_layout(margin=dict(t=30, b=10, l=10, r=10), height=300)
+        st.plotly_chart(fig_trend, use_container_width=True)
+    else:
+        st.info("No market trend timeline available for this report.")
