@@ -1,7 +1,10 @@
+import time
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from google import genai
+from google.genai import types
 from src.research import ResearchEngine
 from src.pdf_generator import generate_pdf_report
 
@@ -39,6 +42,28 @@ def show_skeleton_loader():
     """
     return st.markdown(skeleton_html, unsafe_allow_html=True)
 
+# Helper function to generate dynamic follow-up questions
+def generate_follow_ups(query: str, executive_summary: str) -> list:
+    try:
+        client = genai.Client()
+        prompt = f"""
+        Based on the strategic question "{query}" and the executive summary "{executive_summary}", 
+        generate exactly 3 short, highly relevant follow-up strategic questions a business leader would want to investigate next.
+        Return ONLY the 3 questions separated by a newline character, with no numbers or extra text.
+        """
+        response = client.models.generate_content(
+            model='gemini-3.5-flash',
+            contents=prompt
+        )
+        questions = [q.strip() for q in response.text.strip().split("\n") if q.strip()]
+        return questions[:3]
+    except Exception:
+        return [
+            "What are the primary regulatory and compliance hurdles for this initiative?",
+            "Can you provide a detailed capital expenditure (CapEx) breakdown for Year 1?",
+            "What alternative market segments offer higher profit margins?"
+        ]
+
 st.title("📈 AI Research Analyst")
 st.caption("Automated Market Intelligence & Strategic Assessment Platform")
 
@@ -46,6 +71,8 @@ if "history" not in st.session_state:
     st.session_state.history = []
 if "current_index" not in st.session_state:
     st.session_state.current_index = None
+if "triggered_query" not in st.session_state:
+    st.session_state.triggered_query = ""
 
 st.sidebar.title("⚙️ Configuration")
 persona = st.sidebar.selectbox(
@@ -68,14 +95,22 @@ if st.session_state.history:
 else:
     st.sidebar.info("No past reports yet. Run an analysis to save history!")
 
-query = st.text_input(
+# Handle auto-triggered follow-up inputs or manual text inputs
+user_input_query = st.text_input(
     "Enter a strategic business question:",
-    value="",
+    value=st.session_state.triggered_query,
     placeholder="e.g., Should a UK fashion company launch a premium technical outdoor-streetwear collection in 2027?"
 )
 
-if st.button("Run Strategic Analysis", type="primary"):
-    if not query.strip():
+# Reset triggered query after reading it
+if st.session_state.triggered_query:
+    st.session_state.triggered_query = ""
+
+run_analysis = st.button("Run Strategic Analysis", type="primary")
+
+if run_analysis:
+    query_to_run = user_input_query
+    if not query_to_run.strip():
         st.warning("Please enter a valid strategic business question.")
     else:
         loader_placeholder = st.empty()
@@ -84,8 +119,11 @@ if st.button("Run Strategic Analysis", type="primary"):
             
         try:
             engine = ResearchEngine()
-            analysis_result = engine.analyze_question(query, persona=persona)
-            new_entry = {"query": query, "analysis": analysis_result}
+            analysis_result = engine.analyze_question(query_to_run, persona=persona)
+            
+            time.sleep(1.2)
+            
+            new_entry = {"query": query_to_run, "analysis": analysis_result}
             st.session_state.history.append(new_entry)
             st.session_state.current_index = len(st.session_state.history) - 1
             
@@ -217,9 +255,6 @@ if st.session_state.current_index is not None and st.session_state.history:
                 with col_d2:
                     st.write(f"**Core Strengths:** {chosen_comp['Strengths']}")
                     st.write(f"**Key Weaknesses:** {chosen_comp['Weaknesses']}")
-                
-                if st.button(f"Generate Strategic Counter-Analysis against {chosen_comp['Competitor']}"):
-                    st.success(f"Action triggered! Formulating a market positioning strategy to outmaneuver {chosen_comp['Competitor']}...")
     else:
         st.info("No competitor data available for this report.")
 
@@ -237,6 +272,22 @@ if st.session_state.current_index is not None and st.session_state.history:
         st.markdown("### Action Plan")
         for a in getattr(analysis, "action_plan", getattr(analysis, "opportunities", [])):
             st.markdown(f"- {a}")
+
+    # Automated Follow-Up Generator Section
+    st.markdown("---")
+    st.markdown("### 🤖 Recommended Follow-Up Investigations")
+    st.caption("Click any follow-up question below to instantly trigger a deep-dive analysis:")
+    
+    if "cached_follow_ups" not in st.session_state or st.session_state.get("last_query") != saved_query:
+        st.session_state.cached_follow_ups = generate_follow_ups(saved_query, analysis.executive_summary)
+        st.session_state.last_query = saved_query
+
+    fu_cols = st.columns(len(st.session_state.cached_follow_ups))
+    for idx, fu_question in enumerate(st.session_state.cached_follow_ups):
+        with fu_cols[idx]:
+            if st.button(fu_question, key=f"fu_btn_{idx}", use_container_width=True):
+                st.session_state.triggered_query = fu_question
+                st.rerun()
 
     st.markdown("---")
     try:
