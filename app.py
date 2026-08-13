@@ -1,11 +1,12 @@
 import streamlit as st
 import os
 
-st.set_page_config(page_title="AI Research & Intelligence Platform", layout="wide")
+st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
-st.title("AI Research & Intelligence Platform")
+st.title("🚀 AI Research & Intelligence Hub")
+st.markdown("Enterprise modular market intelligence paired with advanced vector-indexed multi-document RAG.")
 
-# Sidebar - Expanded Expert Personas & Global Controls
+# Sidebar Controls & Personas
 st.sidebar.header("Executive Configuration")
 persona = st.sidebar.selectbox(
     "Select Analyst Persona",
@@ -18,117 +19,99 @@ persona = st.sidebar.selectbox(
         "Macroeconomic Policy Advisor"
     ]
 )
-
 st.sidebar.markdown(f"**Active Persona:** `{persona}`")
-st.sidebar.markdown("---")
-st.sidebar.info("Use Tab 1 for multi-module market intelligence and Tab 2 for RAG document querying.")
+st.sidebar.success("System Status: Operational")
 
-# Create Two Main Tabs
-tab1, tab2 = st.tabs(["📊 AI Data Analyzer & Modular Research", "📁 Document RAG & File Viewer"])
+# Top-level radio or tabs mimicking v2/v4 selection
+app_mode = st.radio(
+    "Navigation Mode", 
+    ["v2: Modular Market Research", "v4: Advanced Multi-Doc Vector RAG"],
+    horizontal=True,
+    label_visibility="collapsed"
+)
 
-with tab1:
-    st.header("Modular Market Research & AI Analysis")
+if app_mode == "v2: Modular Market Research":
+    st.header("Customizable Market Intelligence Engine")
     
-    # Advanced Analysis Module Selection
-    analysis_type = st.radio(
-        "Select Advanced Analysis Module:", 
-        [
-            "SWOT Matrix", 
-            "Competitor Landscape", 
-            "Financial Projections & Capital Allocation", 
-            "Market Entry & Regulatory Risk Assessment",
-            "Export/Import Supply Chain Optimization"
-        ],
-        horizontal=True
+    research_topic = st.text_input(
+        "Enter research topic or market sector:",
+        value="Should we launch an eco-friendly direct-to-consumer premium footwear and apparel brand in the European market?"
     )
     
-    st.markdown("---")
-
-    if analysis_type == "SWOT Matrix":
-        st.subheader("SWOT Matrix Generator")
-        query_input = st.text_input("Enter company, brand, or market topic for SWOT analysis:")
-        if st.button("Run Comprehensive SWOT"):
-            if query_input:
-                st.success(f"Executing SWOT analysis for **{query_input}** under persona **{persona}**...")
-                col_a, col_b = st.columns(2)
-                with col_a:
-                    st.markdown("### Strengths")
-                    st.write("- Core market positioning\n- Proprietary operational setup")
-                    st.markdown("### Opportunities")
-                    st.write("- Emerging digital scale\n- Untapped export corridors")
-                with col_b:
-                    st.markdown("### Weaknesses")
-                    st.write("- Initial capital constraints\n- Supply chain dependencies")
-                    st.markdown("### Threats")
-                    st.write("- Competitive saturation\n- Regulatory fluctuations")
-            else:
-                st.warning("Please enter a valid topic.")
-
-    elif analysis_type == "Competitor Landscape":
-        st.subheader("Competitor Landscape Mapping")
-        industry_input = st.text_input("Enter industry niche or sector:")
-        if st.button("Generate Competitor Matrix"):
-            if industry_input:
-                st.success(f"Mapping competitor ecosystem for **{industry_input}**...")
-                st.markdown("""
-                | Competitor | Market Share | Core Advantage | Strategic Vulnerability |
-                | :--- | :--- | :--- | :--- |
-                | **Alpha Corp** | 35% | Established distribution | High overhead costs |
-                | **Beta Retail** | 22% | Niche product focus | Limited scale capability |
-                | **Gamma Tech** | 18% | Disruptive pricing model | Lower brand loyalty |
-                """)
-            else:
-                st.warning("Please provide an industry niche.")
-
-    elif analysis_type == "Financial Projections & Capital Allocation":
-        st.subheader("Financial Projections & Capital Allocation")
-        col_f1, col_f2 = st.columns(2)
-        with col_f1:
-            capital = st.number_input("Total Capital Allocation (INR):", value=180000)
-        with col_f2:
-            growth_rate = st.slider("Projected Annual Growth Rate (%)", 5, 50, 15)
-            
-        if st.button("Calculate Financial Forecasts"):
-            st.success("Evaluating capital deployment and cash flow trajectory...")
-            st.metric(label="Initial Principal", value=f"INR {capital:,}")
-            st.metric(label="Estimated Year 1 Return (at {growth_rate}%)", value=f"INR {int(capital * (1 + growth_rate/100)):,}")
-
-    elif analysis_type == "Market Entry & Regulatory Risk Assessment":
-        st.subheader("Market Entry & Regulatory Compliance")
-        target_market = st.text_input("Enter target geographic market or business entity type:")
-        if st.button("Evaluate Regulatory Risks"):
-            if target_market:
-                st.info(f"Assessing compliance protocols and entry friction for **{target_market}**...")
-                st.write("1. **Entity Registration & Licensing:** Verify mandatory GST/Udyam or regional requirements.")
-                st.write("2. **Taxation & Compliance:** Review domestic and international withholding guidelines.")
-                st.write("3. **Risk Mitigation:** Implement robust contract structures.")
-            else:
-                st.warning("Please specify a target market or setup type.")
-
-    else:
-        st.subheader("Supply Chain & Export Strategy")
-        product_category = st.text_input("Enter product category for trade analysis:")
-        if st.button("Analyze Trade & Logistics"):
-            if product_category:
-                st.info(f"Analyzing export procedures, logistics, and buyer acquisition for **{product_category}**...")
-                st.write("- **Logistics Hubs:** Primary freight routing and local fulfillment centers.")
-                st.write("- **Documentation:** Importer-Exporter Code (IEC) and shipping manifests.")
-            else:
-                st.warning("Please enter a product category.")
-
-with tab2:
-    st.header("Document RAG & Multi-Document Search")
+    st.markdown("### 📋 Select Required Analysis Modules:")
     
-    uploaded_file = st.file_uploader("Upload a PDF document for analysis", type=["pdf"], key="tab2_upload")
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        mod_trend = st.checkbox("Market Size & Trends", value=True)
+        mod_swot = st.checkbox("SWOT Analysis", value=True)
+    with col2:
+        mod_competitors = st.checkbox("Key Competitors", value=True)
+        mod_financial = st.checkbox("Financial Projections", value=True)
+    with col3:
+        mod_strategy = st.checkbox("Strategic Recommendations", value=True)
+    with col4:
+        mod_chart = st.checkbox("Interactive Plotly Charts", value=True)
+        
+    if st.button("Generate Custom Intelligence Report"):
+        st.success(f"Generating comprehensive intelligence report for persona: **{persona}**...")
+        
+        st.markdown("---")
+        st.subheader("Executive Summary")
+        st.info(f"Analyzing strategic viability for: *'{research_topic}'*")
+        
+        if mod_trend:
+            st.markdown("### 📊 Market Size & Trends")
+            st.write("The target segment shows expanding demand for sustainable materials, with a projected compound annual growth rate (CAGR) of 12.4% over the next 5 years.")
+            
+        if mod_competitors:
+            st.markdown("### 🏢 Key Competitors")
+            st.markdown("""
+            | Competitor | Market Focus | Estimated Share | Digital Presence |
+            | :--- | :--- | :--- | :--- |
+            | **EcoWear Ltd** | Sustainable Apparel | 28% | High |
+            | **GreenStep** | Footwear Niche | 19% | Moderate |
+            """)
+            
+        if mod_swot:
+            st.markdown("### 🔍 SWOT Analysis")
+            sc1, sc2 = st.columns(2)
+            with sc1:
+                st.markdown("**Strengths & Opportunities**")
+                st.write("- High consumer pull for eco-friendly goods\n- Agile direct-to-consumer digital infrastructure")
+            with sc2:
+                st.markdown("**Weaknesses & Threats**")
+                st.write("- Initial capital constraints\n- High customer acquisition costs in EU markets")
+                
+        if mod_financial:
+            st.markdown("### 💰 Financial Projections")
+            st.metric(label="Estimated Initial Outlay", value="INR 180,000 (Initial Capital)")
+            
+        if mod_chart:
+            st.markdown("### 📈 Interactive Growth Trajectory")
+            chart_data = {
+                "Quarter": ["Q1", "Q2", "Q3", "Q4", "Year 2"],
+                "Projected Revenue (INR)": [180000, 210000, 260000, 320000, 450000]
+            }
+            st.line_chart(chart_data, x="Quarter", y="Projected Revenue (INR)")
+            
+        if mod_strategy:
+            st.markdown("### 🎯 Strategic Recommendations")
+            st.write("1. **Phase Rollout:** Launch initial pilot collections online to validate product-market fit before expanding physical inventory.")
+            st.write("2. **Supply Chain:** Secure transparent vendor compliance to align with European eco-label regulations.")
+
+else:
+    st.header("Advanced Multi-Document Vector RAG Engine")
+    
+    uploaded_file = st.file_uploader("Upload PDF documents for multi-doc RAG indexing", type=["pdf"])
 
     if uploaded_file is not None:
-        if st.button("Process & Index Document into Vector Store"):
-            with st.spinner("Processing and indexing document..."):
+        if st.button("Process & Index Document"):
+            with st.spinner("Indexing into vector store..."):
                 bytes_data = uploaded_file.read()
                 os.makedirs("data", exist_ok=True)
                 file_path = os.path.join("data", uploaded_file.name)
-                with open(file_path, "wb") as file_out:
-                    file_out.write(bytes_data)
+                with open(file_path, "wb") as f_out:
+                    f_out.write(bytes_data)
                 
                 try:
                     from langchain_community.document_loaders import PyPDFLoader
@@ -138,36 +121,21 @@ with tab2:
 
                     loader = PyPDFLoader(file_path)
                     docs = loader.load()
-                    
-                    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-                    splits = text_splitter.split_documents(docs)
+                    splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+                    splits = splitter.split_documents(docs)
 
                     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
                     st.session_state.vector_store = FAISS.from_documents(splits, embeddings)
-                    
-                    st.success("Document indexed successfully into Vector Store!")
+                    st.success("Documents successfully indexed!")
                 except Exception as e:
-                    st.error(f"Error indexing document: {e}")
+                    st.error(f"Error: {e}")
 
-    st.subheader("Search Uploaded Documents")
-    rag_query = st.text_input("Ask anything about your uploaded document:")
-
-    if rag_query:
+    rag_prompt = st.text_input("Ask a question across your indexed documents:")
+    if rag_prompt:
         if "vector_store" in st.session_state:
-            with st.spinner("Searching document context..."):
-                docs_found = st.session_state.vector_store.similarity_search(rag_query, k=3)
-                st.write("### Search Results:")
-                for i, doc in enumerate(docs_found):
-                    st.info(f"**Result {i+1}:**\n{doc.page_content}")
+            docs_found = st.session_state.vector_store.similarity_search(rag_prompt, k=3)
+            st.markdown("### RAG Search Results:")
+            for i, d in enumerate(docs_found):
+                st.info(f"**Context {i+1}:**\n{d.page_content}")
         else:
-            st.warning("Please upload a PDF and click 'Process & Index Document into Vector Store' above first.")
-
-    if uploaded_file is not None:
-        with st.expander("View Uploaded Document Details"):
-            st.write(f"Filename: {uploaded_file.name}")
-            st.download_button(
-                label="Download Uploaded PDF",
-                data=uploaded_file,
-                file_name=uploaded_file.name,
-                mime="application/pdf"
-            )
+            st.warning("Please upload and index a PDF first.")
