@@ -5,9 +5,17 @@ from src.research import ResearchEngine
 from rag import DocumentRAGEngine
 from pdf_generator import PDFExporter
 
-# Define the dynamic theme injection function for fully responsive UI styling
-def apply_theme(theme_name):
-    if theme_name == "Modern Dark":
+st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
+
+# Sidebar Configuration with Clean CSS and Layout Fixes
+with st.sidebar:
+    st.title("⚙️ Hub Configuration")
+    
+    # Styled Theme Selector
+    theme_selection = st.radio("App Theme", ["Modern Dark", "Professional Light"], label_visibility="visible")
+    
+    # Dynamic Theme Injection matching the selection cleanly
+    if theme_selection == "Modern Dark":
         st.markdown("""
             <style>
             .stApp { background-color: #0E1117; color: #FAFAFA; }
@@ -21,15 +29,7 @@ def apply_theme(theme_name):
             section[data-testid="stSidebar"] { background-color: #F8F9FA; color: #31333F; }
             </style>
             """, unsafe_allow_html=True)
-
-st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
-
-# Sidebar Global Settings Configuration
-with st.sidebar:
-    st.title("⚙️ Hub Configuration")
-    theme_selection = st.radio("App Theme", ["Modern Dark", "Professional Light"])
-    apply_theme(theme_selection)
-    
+            
     st.divider()
     
     persona = st.selectbox(
@@ -45,11 +45,12 @@ with st.sidebar:
             "Cybersecurity & Compliance Officer"
         ]
     )
+    
     st.divider()
-    st.info("System Status: Operational (Fail-safe Enabled)")
+    st.success("System Status: Operational (Fail-safe Enabled)")
 
-st.title("🚀 AI Research & Intelligence Hub (v6.8)")
-st.write("Enterprise modular market intelligence with dynamic theme switching, simulation fail-safe, expert personas, and multi-document RAG.")
+st.title("🚀 AI Research & Intelligence Hub (v6.9)")
+st.write("Enterprise modular market intelligence with streamlined layout, simulation fail-safe, expert personas, and multi-document RAG.")
 
 tab1, tab2 = st.tabs(["📊 Modular Market Research", "📁 Multi-Document RAG & Summarizer"])
 
