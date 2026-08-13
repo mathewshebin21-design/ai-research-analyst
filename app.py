@@ -7,26 +7,25 @@ from pdf_generator import PDFExporter
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
-# Sidebar Configuration with Clean CSS and Layout Fixes
+# Sidebar Configuration with Safe Theme Styling
 with st.sidebar:
     st.title("⚙️ Hub Configuration")
     
-    # Styled Theme Selector
-    theme_selection = st.radio("App Theme", ["Modern Dark", "Professional Light"], label_visibility="visible")
+    theme_selection = st.radio("App Theme", ["Modern Dark", "Professional Light"])
     
-    # Dynamic Theme Injection matching the selection cleanly
+    # Clean, high-contrast theme injection ensuring text remains readable
     if theme_selection == "Modern Dark":
         st.markdown("""
             <style>
-            .stApp { background-color: #0E1117; color: #FAFAFA; }
-            section[data-testid="stSidebar"] { background-color: #161B22; color: #FAFAFA; }
+            .stApp, [data-testid="stSidebar"] { background-color: #0E1117 !important; color: #FFFFFF !important; }
+            .stTextInput input, .stSelectbox div[data-baseweb="select"] { color: #FFFFFF !important; background-color: #262730 !important; }
             </style>
             """, unsafe_allow_html=True)
     else:
         st.markdown("""
             <style>
-            .stApp { background-color: #FFFFFF; color: #31333F; }
-            section[data-testid="stSidebar"] { background-color: #F8F9FA; color: #31333F; }
+            .stApp, [data-testid="stSidebar"] { background-color: #FFFFFF !important; color: #111111 !important; }
+            .stTextInput input, .stSelectbox div[data-baseweb="select"] { color: #111111 !important; background-color: #F0F2F6 !important; }
             </style>
             """, unsafe_allow_html=True)
             
@@ -47,10 +46,10 @@ with st.sidebar:
     )
     
     st.divider()
-    st.success("System Status: Operational (Fail-safe Enabled)")
+    st.success("System Status: Operational")
 
-st.title("🚀 AI Research & Intelligence Hub (v6.9)")
-st.write("Enterprise modular market intelligence with streamlined layout, simulation fail-safe, expert personas, and multi-document RAG.")
+st.title("🚀 AI Research & Intelligence Hub (v6.10)")
+st.write("Enterprise modular market intelligence with high-contrast UI, simulation fail-safe, expert personas, and multi-document RAG.")
 
 tab1, tab2 = st.tabs(["📊 Modular Market Research", "📁 Multi-Document RAG & Summarizer"])
 
