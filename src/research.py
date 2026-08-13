@@ -1,64 +1,33 @@
 import os
-import streamlit as st
 from google import genai
-from google.genai import types
-from pydantic import BaseModel, Field
-from tavily import TavilyClient
+from pydantic import BaseModel
+from typing import List
 
-# --- Pydantic Schema with Citations ---
 class Citation(BaseModel):
-    source_title: str = Field(description="Title of the source webpage or publisher.")
-    url: str = Field(description="Exact URL supporting the data point.")
+    source_title: str
+    url: str
 
-class MarketReport(BaseModel):
-    executive_summary: str = Field(description="High-level synthesis based on real-time data.")
-    market_size_and_trends: str = Field(description="Current market size, valuation, and key growth metrics.")
-    key_competitors: list[str] = Field(description="Top players operating in this space.")
-    strategic_recommendations: list[str] = Field(description="Actionable steps for market entry or growth.")
-    citations: list[Citation] = Field(description="List of verified URLs used to ground this report.")
+class ResearchReport(BaseModel):
+    executive_summary: str
+    market_size_and_trends: str
+    key_competitors: List[str]
+    strategic_recommendations: List[str]
+    citations: List[Citation]
 
 class ResearchEngine:
-    def generate_report(self, query: str, persona: str) -> MarketReport:
-        gemini_key = st.secrets.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
-        tavily_key = st.secrets.get("TAVILY_API_KEY") or os.environ.get("TAVILY_API_KEY")
+    def __init__(self):
+        self.client = genai.Client()
 
-        if not gemini_key:
-            raise ValueError("GEMINI_API_KEY is missing from secrets.")
+    def generate_report(self, query: str, persona: str) -> ResearchReport:
+        prompt = f"Act as a {persona}. Provide a thorough research report on: {query}."
         
-        client = genai.Client(api_key=gemini_key)
-
-        search_context = "No live web data available (operating on parametric memory)."
-        if tavily_key:
-            try:
-                tavily = TavilyClient(api_key=tavily_key)
-                search_context = tavily.get_search_context(query=query, max_results=5)
-            except Exception as e:
-                print(f"Web search failed: {e}")
-
-        prompt = f"""
-        You are an expert AI Research Analyst adopting the persona: {persona}.
-        
-        Analyze the following research query: "{query}"
-
-        Here is real-time web intelligence retrieved for this topic:
-        <web_search_context>
-        {search_context}
-        </web_search_context>
-
-        Instructions:
-        - Base your statistics, market valuations, and findings strictly on the provided web search context where applicable.
-        - Explicitly provide valid URLs from the context inside the citations schema.
-        - Avoid making up generic statistics; ground every core data point.
-        """
-
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
+        response = self.client.models.generate_content(
+            model='gemini-3.5-flash',
             contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=MarketReport,
-                temperature=0.2,
-            ),
+            config={
+                'response_mime_type': 'application/json',
+                'response_schema': ResearchReport,
+                'tools': [{'google_search': {}}]
+            },
         )
-
-        return MarketReport.model_validate_json(response.text)
+        return ResearchReport.model_validate_json(response.text)

@@ -7,14 +7,14 @@ from pdf_generator import PDFExporter
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
-st.title("🚀 AI Research & Intelligence Hub (v6.2)")
-st.write("Real-time market research with dynamic Plotly visualizations, multi-document comparison, automated summaries, and PDF export.")
+st.title("🚀 AI Research & Intelligence Hub (v6)")
+st.write("Real-time market research with dynamic Plotly visualizations, multi-document comparison, automated summaries, and PDF export using Gemini 3.5 Flash.")
 
 tab1, tab2 = st.tabs(["📊 Market Research & Visualizations", "📁 Multi-Document RAG & Summarizer"])
 
 with tab1:
     st.header("Real-Time Market Research Engine")
-    query = st.text_input("Enter research topic or market sector:", "Global Electric Vehicle Market Trends")
+    query = st.text_input("Enter research topic or market sector:", "Electric Vehicle Battery Recycling and Supply Chain Innovations")
     persona = st.selectbox("Select Analyst Persona:", ["Senior Venture Capitalist", "Tech Industry Analyst", "Global Supply Chain Expert"])
     
     if st.button("Generate Research Report & Charts"):
