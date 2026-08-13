@@ -3,32 +3,51 @@ import os
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
+# Custom CSS for interactive UI styling & glowing card effects
+st.markdown("""
+<style>
+    .metric-card {
+        background-color: #1e2530;
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid #2d3748;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .stButton>button {
+        width: 100%;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 st.title("🚀 AI Research & Intelligence Hub")
 st.markdown("Enterprise modular market intelligence paired with advanced vector-indexed multi-document RAG and MBA Strategic Decision Frameworks.")
 
-# Sidebar - Executive Configuration & MBA Strategic Controls
-st.sidebar.header("Executive Configuration")
-persona = st.sidebar.selectbox(
-    "Select Analyst Persona",
-    [
-        "General Market Analyst", 
-        "Financial Risk Expert", 
-        "Technical Due Diligence Agent", 
-        "Startup Strategist", 
-        "Supply Chain & Export Specialist", 
-        "Macroeconomic Policy Advisor"
-    ]
-)
+# Sidebar - Interactive Executive Configuration
+st.sidebar.markdown("### 🎛️ Executive Control Center")
+persona_category = st.sidebar.radio("Select Persona Domain:", ["Financial & Strategy", "Technical & Supply Chain"])
+
+if persona_category == "Financial & Strategy":
+    persona = st.sidebar.selectbox(
+        "Choose Specialist:",
+        ["General Market Analyst", "Financial Risk Expert", "Startup Strategist", "Macroeconomic Policy Advisor"]
+    )
+else:
+    persona = st.sidebar.selectbox(
+        "Choose Specialist:",
+        ["Technical Due Diligence Agent", "Supply Chain & Export Specialist"]
+    )
+
 st.sidebar.markdown(f"**Active Persona:** `{persona}`")
 
 st.sidebar.markdown("---")
-st.sidebar.header("🎓 MBA Strategic Settings")
+st.sidebar.markdown("### 🎓 MBA Strategic Settings")
 sidebar_capital = st.sidebar.number_input("Capital Allocation (INR):", value=180000, key="sb_cap")
 sidebar_growth = st.sidebar.slider("Annual Growth Rate (%)", 5, 50, 20, key="sb_growth")
-
 st.sidebar.success("System Status: Operational")
 
-# Navigation Modes
+# Interactive Navigation Tabs
 app_mode = st.radio(
     "Navigation Mode", 
     ["v2: Modular Market Research", "MBA Strategic Decision Hub", "v4: Advanced Multi-Doc Vector RAG"],
@@ -58,7 +77,7 @@ if app_mode == "v2: Modular Market Research":
     with col4:
         mod_chart = st.checkbox("Interactive Plotly Charts", value=True)
         
-    if st.button("Generate Custom Intelligence Report"):
+    if st.button("🚀 Generate Custom Intelligence Report", type="primary"):
         st.success(f"Generating comprehensive intelligence report for persona: **{persona}**...")
         
         st.markdown("---")
@@ -114,7 +133,7 @@ elif app_mode == "MBA Strategic Decision Hub":
         value="What is the optimal capital allocation strategy for scaling our bootstrap fashion brand?"
     )
     
-    if st.button("Run MBA Financial Simulation & Query Analysis"):
+    if st.button("🚀 Run MBA Financial Simulation & Query Analysis", type="primary"):
         st.success(f"Executing simulation under persona **{persona}** using Sidebar Capital (INR {sidebar_capital:,}) and Growth ({sidebar_growth}%)...")
         
         years = 3
@@ -143,7 +162,7 @@ else:
     uploaded_file = st.file_uploader("Upload PDF documents for multi-doc RAG indexing", type=["pdf"])
 
     if uploaded_file is not None:
-        if st.button("Process & Index Document"):
+        if st.button("Process & Index Document", type="primary"):
             with st.spinner("Indexing into vector store..."):
                 bytes_data = uploaded_file.read()
                 os.makedirs("data", exist_ok=True)
