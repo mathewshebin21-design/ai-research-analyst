@@ -7,12 +7,9 @@ from pdf_generator import PDFExporter
 
 st.set_page_config(page_title="AI Research & Intelligence Hub", layout="wide")
 
-# Sidebar Configuration using Native Streamlit Layout
+# Sidebar Configuration
 with st.sidebar:
     st.title("⚙️ Hub Configuration")
-    st.info("Theme is managed via native configuration for optimal compatibility.")
-    
-    st.divider()
     
     persona = st.selectbox(
         "Default Analyst Persona:", 
@@ -32,9 +29,10 @@ with st.sidebar:
     st.success("System Status: Operational")
 
 st.title("🚀 AI Research & Intelligence Hub")
-st.write("Enterprise modular market intelligence with native theme support, simulation fail-safe, expert personas, and multi-document RAG.")
+st.write("Enterprise modular market intelligence paired with multi-document RAG analysis.")
 
-tab1, tab2 = st.tabs(["📊 Modular Market Research", "📁 Multi-Document RAG & Summarizer"])
+# Renamed and focused strictly on v2 (Modular Market Research) and v4 (Multi-Document RAG)
+tab1, tab2 = st.tabs(["📊 v2: Modular Market Research", "📁 v4: Multi-Document RAG & Summarizer"])
 
 with tab1:
     st.header("Customizable Market Intelligence Engine")
