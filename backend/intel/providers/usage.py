@@ -12,6 +12,7 @@ class Usage:
     output_tokens: int = 0
     embedding_calls: int = 0
     by_stage: dict[str, int] = field(default_factory=dict)
+    models: dict[str, int] = field(default_factory=dict)
 
     def as_dict(self) -> dict:
         return {
@@ -21,4 +22,5 @@ class Usage:
             "input_tokens": self.input_tokens,
             "output_tokens": self.output_tokens,
             "embedding_calls": self.embedding_calls,
+            "models": dict(self.models),
         }

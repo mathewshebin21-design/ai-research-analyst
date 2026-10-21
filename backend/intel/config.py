@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     tavily_api_key: str | None = None
     gemini_api_key: str | None = None
     llm_model: str = "gemini-3.8-flash"
+    # Tried in order when the main model stays overloaded (HTTP 429/503) after all retries.
+    llm_fallback_models: list[str] = Field(default_factory=list)
+    llm_attempts: int = 5
     embedding_model: str = "gemini-embedding-001"
 
     # Limits.

@@ -300,3 +300,44 @@ def test_gemini_retries_overload_then_reports_reason(monkeypatch):
     with pytest.raises(ProviderError, match="503 UNAVAILABLE: high demand"):
         llm.generate(system="s", prompt="p", schema=Plan, usage=Usage())
     assert sleeps == [2.0, 4.0, 8.0, 16.0]
+
+
+def test_gemini_falls_back_to_next_model_only_on_overload(monkeypatch):
+    import pytest
+    from google.genai import errors as genai_errors
+
+    from intel.pipeline.llm_schemas import Plan
+    from intel.providers.errors import ProviderError
+    from intel.providers.llm import GeminiLLM
+    from intel.providers.usage import Usage
+
+    monkeypatch.setattr("time.sleep", lambda s: None)
+    calls = []
+
+    class Resp:
+        usage_metadata = None
+        parsed = Plan(objective="o", tasks=[])
+        text = ""
+
+    def fake(model, **kw):
+        calls.append(model)
+        if model == "busy":
+            raise genai_errors.ServerError(
+                503, {"error": {"code": 503, "status": "UNAVAILABLE", "message": "high demand"}}
+            )
+        if model == "retired":
+            raise genai_errors.ClientError(404, {"error": {"code": 404, "status": "NOT_FOUND", "message": "gone"}})
+        return Resp()
+
+    llm = GeminiLLM("k", "busy", attempts=2, fallbacks=["backup"])
+    monkeypatch.setattr(llm._client.models, "generate_content", fake)
+    usage = Usage()
+    llm.generate(system="s", prompt="p", schema=Plan, usage=usage)
+    assert calls == ["busy", "busy", "backup"] and llm.last_model == "backup" and usage.models == {"backup": 1}
+
+    calls.clear()
+    llm = GeminiLLM("k", "retired", attempts=3, fallbacks=["backup"])
+    monkeypatch.setattr(llm._client.models, "generate_content", fake)
+    with pytest.raises(ProviderError, match="404 NOT_FOUND"):
+        llm.generate(system="s", prompt="p", schema=Plan, usage=Usage())
+    assert calls == ["retired"]  # configuration errors are not retried or masked by a fallback

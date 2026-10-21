@@ -81,7 +81,13 @@ def plan_run(db: Session, run: Run, llm: LLM, settings: Settings) -> None:
 def _merge_usage(existing: dict | None, usage: Usage) -> dict:
     out = dict(existing or {})
     for k, v in usage.as_dict().items():
-        out[k] = out.get(k, 0) + v
+        if isinstance(v, dict):
+            merged = dict(out.get(k) or {})
+            for name, n in v.items():
+                merged[name] = merged.get(name, 0) + n
+            out[k] = merged
+        else:
+            out[k] = out.get(k, 0) + v
     return out
 
 
@@ -369,7 +375,7 @@ def _verify(db, run, claims, index, llm, settings, usage):
                     relevance=j.relevance,
                     scope_issue=j.scope_issue,
                     verifier_note=j.note,
-                    verifier_model=llm.model,
+                    verifier_model=getattr(llm, "last_model", llm.model),
                 )
             )
             views.append(LinkView(j.relation, j.entailment, src.tier, src.publisher, j.scope_issue))

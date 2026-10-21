@@ -50,7 +50,11 @@ def main() -> None:
         ws = c.post("/workspaces", json={"name": "Acceptance"}, headers=h).json()
         r = c.post(f"/workspaces/{ws['id']}/runs", json={"question": question}, headers=h)
         if r.status_code != 201:
-            raise SystemExit(f"Planning failed ({r.status_code}): {r.json().get('detail')}")
+            reason = f"Planning failed ({r.status_code}): {r.json().get('detail')}"
+            (out / "SUMMARY.md").write_text(
+                f"# Acceptance run {out.name}: failed\n\n**Question:** {question}\n\n**Error:** {reason}\n"
+            )
+            raise SystemExit(reason)
         run = r.json()
         print(f"Plan: {len(run['tasks'])} tasks")
         c.post(f"/runs/{run['id']}/start", headers=h).raise_for_status()

@@ -33,6 +33,10 @@ jobs:
     env:
       TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      LLM_ATTEMPTS: "8"
+      # Optional repository variables: LLM_MODEL and LLM_FALLBACK_MODELS (JSON list, e.g. ["model-a","model-b"]).
+      LLM_MODEL: ${{ vars.LLM_MODEL || 'gemini-3.8-flash' }}
+      LLM_FALLBACK_MODELS: ${{ vars.LLM_FALLBACK_MODELS || '[]' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -45,6 +49,16 @@ jobs:
         run: |
           test -n "$TAVILY_API_KEY" || { echo "::error::Add the TAVILY_API_KEY repository secret"; exit 1; }
           test -n "$GEMINI_API_KEY" || { echo "::error::Add the GEMINI_API_KEY repository secret"; exit 1; }
+      - name: Models available to this key
+        run: |
+          python - <<'PY'
+          import os
+          from google import genai
+          client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+          models = list(client.models.list())
+          usable = [m.name for m in models if "generateContent" in (getattr(m, "supported_actions", None) or [])]
+          print("\n".join(usable or [m.name for m in models]))
+          PY
       - name: Research run
         id: research
         env:
@@ -65,7 +79,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/redesign/evidence/acceptance backend/eval/results || true
+          for p in docs/redesign/evidence/acceptance backend/eval/results; do
+            if [ -e "$p" ]; then git add "$p"; fi
+          done
           git diff --cached --quiet && { echo "Nothing to commit"; exit 0; }
           git commit -m "Record acceptance run and verifier evaluation"
           git push

@@ -23,7 +23,8 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default=get_settings().llm_model)
     args = ap.parse_args()
-    llm = GeminiLLM(get_settings().gemini_api_key, args.model)
+    st = get_settings()
+    llm = GeminiLLM(st.gemini_api_key, args.model, st.llm_attempts, st.llm_fallback_models)
     usage = Usage()
     rows = [json.loads(line) for line in (HERE / "verifier_pairs.jsonl").read_text().splitlines()]
     results = []
