@@ -29,8 +29,12 @@ class GeminiLLM:
         if not api_key:
             raise ProviderNotConfigured("GEMINI_API_KEY is not set, so research runs cannot start.")
         from google import genai
+        from google.genai import types
 
-        self._client = genai.Client(api_key=api_key)
+        # Our own retry loop decides when to back off or fall back; the SDK's built-in retries would
+        # multiply the wait (seen as 30-minute stalls during overload). Each request times out at 2 minutes.
+        options = types.HttpOptions(retry_options=types.HttpRetryOptions(attempts=1), timeout=120_000)
+        self._client = genai.Client(api_key=api_key, http_options=options)
         self.model = model
         self.models = [model, *[m for m in (fallbacks or []) if m and m != model]]
         self.attempts = attempts

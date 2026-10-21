@@ -33,7 +33,7 @@ jobs:
     env:
       TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      LLM_ATTEMPTS: "8"
+      LLM_ATTEMPTS: "6"
       # Optional repository variables: LLM_MODEL and LLM_FALLBACK_MODELS (JSON list, e.g. ["model-a","model-b"]).
       LLM_MODEL: ${{ vars.LLM_MODEL || 'gemini-3.8-flash' }}
       LLM_FALLBACK_MODELS: ${{ vars.LLM_FALLBACK_MODELS || '[]' }}
