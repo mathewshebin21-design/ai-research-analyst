@@ -1,6 +1,6 @@
 """Measure the verifier against hand-labelled pairs with the real model.
 
-Usage: GEMINI_API_KEY=... python -m eval.run_eval [--model gemini-2.5-flash]
+Usage: GEMINI_API_KEY=... python -m eval.run_eval [--model gemini-3.8-flash]
 Writes eval/results/<date>-<model>.json and .md. Re-run after any prompt or model change.
 """
 

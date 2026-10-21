@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     # Providers. Missing keys make runs fail with a clear error; nothing is simulated.
     tavily_api_key: str | None = None
     gemini_api_key: str | None = None
-    llm_model: str = "gemini-2.5-flash"
+    llm_model: str = "gemini-3.8-flash"
     embedding_model: str = "gemini-embedding-001"
 
     # Limits.

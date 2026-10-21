@@ -2,6 +2,8 @@
 
 Prices are from public pricing pages and third-party summaries as of October 2026. Confirm them before budgeting.
 
+> **Model change, 21 Oct 2026:** Google no longer offers `gemini-2.5-flash` to new API accounts, so the default model is now `gemini-3.8-flash`. The language-model line below was estimated at 2.5 Flash prices; check the 3.8 Flash price on Google's pricing page and the token counts recorded by the first real run (`usage` in the run JSON).
+
 ## Per research run
 
 Assumes one market-entry question: about 7 tasks, 14 advanced searches, 10 page extracts, about 40 claims verified
