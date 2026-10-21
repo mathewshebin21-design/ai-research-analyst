@@ -261,6 +261,19 @@ def finance_spec() -> dict:
     return ASSUMPTION_SPEC
 
 
+class CalculateIn(BaseModel):
+    values: dict[str, float]
+
+
+@router.post("/finance/calculate")
+def calculate(body: CalculateIn, user: User = Depends(accepted_user)) -> dict:
+    """Compute scenarios without saving, for live assumption controls."""
+    try:
+        return run_scenarios(body.values)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
 @router.post("/runs/{run_id}/reports", status_code=201, dependencies=[Depends(expensive)])
 def create_report(
     run_id: str,

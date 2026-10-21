@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+/* Design A · Executive Intelligence. Layout: fixed navy rail, memo-style reading column. */
+:root {
+  --bg: #0b1628;
+  --surface: #0f1e35;
+  --surface-2: #162a47;
+  --rail: #081120;
+  --line: rgba(239, 233, 220, 0.13);
+  --fg: #efe9dc;
+  --muted: #a3a9b4;
+  --accent: #c8a65d;
+  --primary: #c8a65d;
+  --primary-fg: #0b1628;
+  --ring: #c8a65d;
+  --ok: #8fc3a5;
+  --ok-bg: rgba(143, 195, 165, 0.13);
+  --warn: #dcb062;
+  --warn-bg: rgba(220, 176, 98, 0.14);
+  --bad: #e39a86;
+  --bad-bg: rgba(227, 154, 134, 0.13);
+  --radius: 2px;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-disp: var(--font-newsreader);
+  --font-txt: var(--font-hanken);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+body {
+  font-family: var(--font-hanken), system-ui, sans-serif;
+  min-height: 100dvh;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.gutter {
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+input,
+textarea,
+select {
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+/* Legal pages render Markdown. */
+.prose-legal h1 { font-family: var(--font-newsreader); font-size: 34px; line-height: 1.15; margin-bottom: 8px; }
+.prose-legal h2 { font-family: var(--font-newsreader); font-size: 22px; margin: 28px 0 8px; }
+.prose-legal p, .prose-legal li { font-size: 15px; line-height: 1.75; color: var(--fg); }
+.prose-legal p { margin: 10px 0; }
+.prose-legal ul, .prose-legal ol { margin: 10px 0 10px 20px; }
+.prose-legal ul { list-style: disc; }
+.prose-legal ol { list-style: decimal; }
+.prose-legal a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.prose-legal strong { font-weight: 600; }
+.prose-legal table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+.prose-legal th, .prose-legal td { border-bottom: 1px solid var(--line); padding: 8px 10px 8px 0; text-align: left; vertical-align: top; }
+.prose-legal th { color: var(--muted); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+.prose-legal .table-wrap { overflow-x: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

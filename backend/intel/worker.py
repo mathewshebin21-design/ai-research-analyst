@@ -11,10 +11,11 @@ from sqlalchemy.orm import Session
 from intel.config import Settings, get_settings
 from intel.db import session_factory
 from intel.logging_setup import configure_logging
-from intel.models import Job, Run
+from intel.models import Job, Run, SearchCache
 from intel.pipeline.orchestrator import execute_run
 from intel.providers import factory
 from intel.providers.errors import ProviderError
+from intel.providers.search import CACHE_TTL
 
 log = logging.getLogger(__name__)
 STALE_AFTER = timedelta(minutes=30)
@@ -42,6 +43,14 @@ def requeue_stale(db: Session) -> None:
             job.status = "queued" if job.attempts < 2 else "failed"
             job.error = "Worker stopped while running this job."
     db.commit()
+
+
+def purge_expired(db: Session) -> int:
+    """Enforce retention promised in the privacy notice for data the Service caches."""
+    cutoff = datetime.now(UTC) - CACHE_TTL
+    n = db.query(SearchCache).filter(SearchCache.created_at < cutoff).delete()
+    db.commit()
+    return n
 
 
 def process_one(settings: Settings | None = None) -> bool:
@@ -76,7 +85,12 @@ def loop(stop: threading.Event, interval: float = 2.0) -> None:
         requeue_stale(db)
     finally:
         db.close()
+    last_purge = 0.0
     while not stop.is_set():
+        if time.monotonic() - last_purge > 3600:
+            with session_factory()() as s:
+                purge_expired(s)
+            last_purge = time.monotonic()
         try:
             worked = process_one()
         except Exception:

@@ -1,0 +1,12 @@
+{
+  "_comment": "Fill these in before launch. Every legal page reads its details from this file.",
+  "product": "Strategic Intelligence Hub",
+  "company": "[COMPANY LEGAL NAME] Ltd",
+  "company_number": "[COMPANY NUMBER]",
+  "address": "[REGISTERED OFFICE ADDRESS]",
+  "email": "[CONTACT EMAIL]",
+  "privacy_email": "[PRIVACY EMAIL]",
+  "ico_number": "[ICO REGISTRATION NUMBER]",
+  "effective": "21 October 2026",
+  "version": "2026-10-21"
+}

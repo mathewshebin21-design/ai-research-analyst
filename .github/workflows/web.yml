@@ -1,0 +1,33 @@
+name: Web app CI
+
+on:
+  pull_request:
+    paths: ["frontend/**", "backend/**", ".github/workflows/web.yml"]
+  push:
+    branches: [main]
+    paths: ["frontend/**", "backend/**", ".github/workflows/web.yml"]
+
+jobs:
+  build-and-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e "backend[dev]"
+      - working-directory: frontend
+        run: npm ci && npm run typecheck && npm run lint && npx playwright install --with-deps chromium
+      - name: End-to-end journey (real API and web app, fake model and search)
+        working-directory: frontend
+        run: npm run e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-results
+          path: frontend/e2e-results

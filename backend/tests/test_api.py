@@ -193,3 +193,61 @@ def test_monthly_run_cap(client, monkeypatch):
         s.get(Run, ids[0]).started_at = datetime.now(UTC)
         s.commit()
     assert client.post(f"/runs/{ids[1]}/start", headers=h).status_code == 429
+
+
+def test_retention_rules(client):
+    from datetime import UTC, datetime, timedelta
+
+    from intel.db import session_factory
+    from intel.models import AuditLog, SearchCache
+    from intel.worker import purge_expired
+
+    with session_factory()() as s:
+        s.add(SearchCache(key="old", response=[], created_at=datetime.now(UTC) - timedelta(days=8)))
+        s.add(SearchCache(key="new", response=[]))
+        s.commit()
+        assert purge_expired(s) == 1
+        assert [r.key for r in s.query(SearchCache)] == ["new"]
+
+    h = login(client, "erase@example.com")
+    client.delete("/me", headers=h)
+    with session_factory()() as s:
+        rows = s.query(AuditLog).all()
+        assert all("erase" not in (r.user_id or "") for r in rows)  # no direct identifier survives
+        assert {r.action for r in rows if (r.user_id or "").startswith("deleted:")} == {
+            "terms.accepted",
+            "account.deleted",
+        }
+
+
+def test_calculate_does_not_save(client):
+    h = login(client)
+    values = {
+        "price": 159,
+        "gross_margin": 0.62,
+        "return_rate": 0.35,
+        "cac": 58,
+        "marketing": 30000,
+        "repeat_rate": 0.4,
+        "fixed_costs": 15000,
+        "launch_cost": 150000,
+    }
+    r = client.post("/finance/calculate", json={"values": values}, headers=h)
+    assert r.status_code == 200 and r.json()["scenarios"]["base"]["break_even_month"] == 21
+    assert (
+        client.post("/finance/calculate", json={"values": {**values, "gross_margin": 3}}, headers=h).status_code == 422
+    )
+
+
+def test_claims_are_unique_across_tasks(client):
+    from intel.worker import process_one
+
+    h = login(client)
+    ws = client.post("/workspaces", json={"name": "W"}, headers=h).json()
+    run = client.post(
+        f"/workspaces/{ws['id']}/runs", json={"question": "Should we launch trainers in the UK?"}, headers=h
+    ).json()
+    client.post(f"/runs/{run['id']}/start", headers=h)
+    process_one()
+    texts = [c["text"].lower() for c in client.get(f"/runs/{run['id']}", headers=h).json()["claims"]]
+    assert texts and len(texts) == len(set(texts))

@@ -1,5 +1,6 @@
 """Account, consent and data-subject rights (UK GDPR access and erasure)."""
 
+import hashlib
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -110,9 +111,14 @@ def delete_account(
     for ws in owned:
         db.delete(ws)
     db.flush()
+    # Keep consent records (6 years, see privacy notice) under a pseudonym; drop all other activity.
+    pseudonym = "deleted:" + hashlib.sha256(user.id.encode()).hexdigest()[:16]
+    db.query(AuditLog).filter(AuditLog.user_id == user.id, AuditLog.action.like("terms.%")).update(
+        {AuditLog.user_id: pseudonym}, synchronize_session=False
+    )
     db.query(AuditLog).filter_by(user_id=user.id).delete()
     db.delete(db.merge(user))
-    db.add(AuditLog(action="account.deleted", user_id=None, detail={"workspaces": len(owned)}))
+    db.add(AuditLog(action="account.deleted", user_id=pseudonym, detail={"workspaces": len(owned)}))
     db.commit()
     for key in set(files):
         try:

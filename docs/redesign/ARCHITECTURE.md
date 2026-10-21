@@ -93,3 +93,13 @@ conservative, base and optimistic cases. Golden-value tests pin results. The pre
 The current code uses Gemini. The pipeline calls the model through one adapter so the provider can be chosen per step
 (a Flash-class model for extraction, a stronger model for verification if the evaluation set shows it is needed). The
 choice is made on M3 evaluation results, not up front.
+
+## As built (differences from the plan above)
+
+| Planned | Built | Why |
+| --- | --- | --- |
+| pgvector embeddings | BM25 lexical retrieval over page-level passages | No dependency or extra cost; deterministic; good enough for candidate selection because the verifier, not retrieval, decides support. Embeddings can be added behind the same `PassageIndex`. |
+| RQ on Redis | Database-backed job queue (`jobs` table, `SKIP LOCKED` on Postgres), worker in-process or separate | One fewer service to run and pay for. |
+| Redis rate limiter | In-process token bucket per user | Correct for a single API instance; swap for Redis or proxy limits when scaling out. |
+| Supabase Storage | Files on the API's persistent disk under random names | Simpler first deployment; the storage functions are isolated in `intel/rag/pdf.py`. |
+| Factor scores from the model | Scores from the model, but held at 50 unless they cite supported or partial claims | Prevents confident scores with no evidence. |

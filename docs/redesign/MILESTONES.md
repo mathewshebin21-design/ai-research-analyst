@@ -10,6 +10,16 @@ Starts only after a design direction is approved. Each milestone is one pull req
 - Database changes are additive migrations with down scripts; nothing the Streamlit app reads is altered.
 - Cutover is a DNS or link change, reversible in minutes.
 
+## Status (21 Oct 2026)
+
+| ID | Status |
+| --- | --- |
+| M0 | Done, except pushing the `v1-streamlit` tag (blocked from the build environment; one command in DEPLOY.md) |
+| M1–M5, M7 | Done and tested with test doubles for the model and search |
+| M3 evaluation | Dataset and runner done; **real-model precision not yet measured** (needs a Gemini key) |
+| M6 | Done; browser journey passes against the real API |
+| M8 | Not started: needs hosting accounts, keys, the legal checklist and a recorded real run |
+
 ## Milestones
 
 | ID | Title | Scope | Done when | Estimate |

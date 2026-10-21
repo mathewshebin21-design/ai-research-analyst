@@ -280,6 +280,7 @@ def _build_index(db, run) -> PassageIndex:
 def _extract(db, run, tasks, index, task_sources, doc_ids, llm, settings, usage):
     claims: list[Claim] = []
     missing = []
+    seen_claims: set[str] = set()
     per_task = max(3, settings.max_claims_per_run // max(1, len(tasks)))
     for t in tasks:
         if len(claims) >= settings.max_claims_per_run:
@@ -292,14 +293,20 @@ def _extract(db, run, tasks, index, task_sources, doc_ids, llm, settings, usage)
             db.commit()
             continue
         out = extract_claims(llm, run.question, t.title, candidates, usage, per_task)
+        added = 0
         for c in out.claims:
+            norm = " ".join(c.text.lower().rstrip(".;").split())
+            if norm in seen_claims:
+                continue  # the same statement found again by a later task
+            seen_claims.add(norm)
+            added += 1
             claim = Claim(run_id=run.id, task_id=t.id, key=f"C{len(claims) + 1}", text=c.text, kind=c.kind)
             claim._refs = c.passage_ids  # type: ignore[attr-defined]  # transient, used by _verify
             db.add(claim)
             claims.append(claim)
         missing.extend(out.missing)
         db.commit()
-        emit(db, run, "Extractor", f"{t.key}: {len(out.claims)} claims")
+        emit(db, run, "Extractor", f"{t.key}: {added} new claims")
     seen, unique = set(), []
     for m in missing:
         if m.item.lower() not in seen:
