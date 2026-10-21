@@ -1,0 +1,60 @@
+name: Acceptance run (real data)
+
+# Runs the full research pipeline with real Tavily search and the real Gemini model, plus the
+# verifier evaluation, and commits the recorded results to the branch it was started on.
+# Needs repository secrets TAVILY_API_KEY and GEMINI_API_KEY. Started by hand only.
+
+on:
+  workflow_dispatch:
+    inputs:
+      question:
+        description: Market-entry question to research
+        required: true
+        default: Should we launch an eco-friendly direct-to-consumer premium footwear and apparel brand in Germany in 2027?
+
+permissions:
+  contents: write
+
+concurrency:
+  group: acceptance-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - run: pip install -e .
+      - name: Check secrets are present
+        run: |
+          test -n "$TAVILY_API_KEY" || { echo "::error::Add the TAVILY_API_KEY repository secret"; exit 1; }
+          test -n "$GEMINI_API_KEY" || { echo "::error::Add the GEMINI_API_KEY repository secret"; exit 1; }
+      - name: Research run
+        env:
+          QUESTION: ${{ inputs.question }}
+        run: python -m scripts.acceptance_run "$QUESTION"
+      - name: Verifier evaluation
+        # Fails below 0.90 "supported" precision; results are still committed so they can be reviewed.
+        continue-on-error: true
+        run: python -m eval.run_eval
+      - name: Commit recorded results
+        working-directory: .
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/redesign/evidence/acceptance backend/eval/results || true
+          git diff --cached --quiet && { echo "Nothing to commit"; exit 0; }
+          git commit -m "Record acceptance run and verifier evaluation"
+          git push
