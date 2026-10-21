@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+/*
+ * Each design direction is a self-contained visual world selected by [data-design].
+ * Components only read these tokens, so the three previews share behaviour and data
+ * while differing in palette, type, density and shape.
+ */
+
+:root {
+  --font-review: var(--font-hanken);
+  --bg: #f4f4f1;
+  --surface: #ffffff;
+  --surface-2: #ecebe6;
+  --line: #d9d8d1;
+  --fg: #16171a;
+  --muted: #62646b;
+  --accent: #23395d;
+  --primary: #16171a;
+  --primary-fg: #ffffff;
+  --ring: #23395d;
+  --ok: #2c6e4f;
+  --ok-bg: #e2efe7;
+  --warn: #8a5a00;
+  --warn-bg: #f6ead1;
+  --bad: #a3392b;
+  --bad-bg: #f6e1dc;
+  --radius: 6px;
+  --font-display: var(--font-hanken);
+  --font-body: var(--font-hanken);
+  --font-data: var(--font-plex-mono);
+  color-scheme: light;
+}
+
+[data-design="executive"] {
+  /* Layout: fixed navy rail, memo-style reading column, figures set like a board paper. */
+  --bg: #0b1628;
+  --surface: #0f1e35;
+  --surface-2: #162a47;
+  --line: rgba(239, 233, 220, 0.13);
+  --fg: #efe9dc;
+  --muted: #a3a9b4;
+  --accent: #c8a65d;
+  --primary: #c8a65d;
+  --primary-fg: #0b1628;
+  --ring: #c8a65d;
+  --ok: #8fc3a5;
+  --ok-bg: rgba(143, 195, 165, 0.13);
+  --warn: #dcb062;
+  --warn-bg: rgba(220, 176, 98, 0.14);
+  --bad: #e39a86;
+  --bad-bg: rgba(227, 154, 134, 0.13);
+  --radius: 2px;
+  --font-display: var(--font-newsreader);
+  --font-body: var(--font-hanken);
+  --font-data: var(--font-hanken);
+  color-scheme: dark;
+}
+
+[data-design="command"] {
+  /* Layout: icon rail + command bar, 12-column panel grid, everything addressable by ID. */
+  --bg: #0d0f12;
+  --surface: #14171c;
+  --surface-2: #1b1f26;
+  --line: #272c35;
+  --fg: #e4e8ee;
+  --muted: #8a93a3;
+  --accent: #3b8cff;
+  --primary: #3b8cff;
+  --primary-fg: #06101f;
+  --ring: #3b8cff;
+  --ok: #3ccf91;
+  --ok-bg: rgba(60, 207, 145, 0.12);
+  --warn: #f5b841;
+  --warn-bg: rgba(245, 184, 65, 0.12);
+  --bad: #ff6464;
+  --bad-bg: rgba(255, 100, 100, 0.12);
+  --radius: 4px;
+  --font-display: var(--font-plex-sans);
+  --font-body: var(--font-plex-sans);
+  --font-data: var(--font-plex-mono);
+  color-scheme: dark;
+}
+
+[data-design="minimal"] {
+  /* Layout: single editorial column with a wide measure, numbers set large, hairlines only. */
+  --bg: #f8f6f1;
+  --surface: #fffefb;
+  --surface-2: #efebe3;
+  --line: #dcd7cc;
+  --fg: #121212;
+  --muted: #6c675d;
+  --accent: #121212;
+  --primary: #121212;
+  --primary-fg: #f8f6f1;
+  --ring: #121212;
+  --ok: #2d6a4c;
+  --ok-bg: #e3ece4;
+  --warn: #8c5f0b;
+  --warn-bg: #f3e8cf;
+  --bad: #9e3626;
+  --bad-bg: #f3e0da;
+  --radius: 0px;
+  --font-display: var(--font-instrument);
+  --font-body: var(--font-schibsted);
+  --font-data: var(--font-schibsted);
+  color-scheme: light;
+}
+
+@theme inline {
+  --font-disp: var(--font-display);
+  --font-txt: var(--font-body);
+  --font-num: var(--font-data);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+body {
+  font-family: var(--font-body), system-ui, sans-serif;
+  min-height: 100%;
+}
+
+[data-design] {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body), system-ui, sans-serif;
+  min-height: 100dvh;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.gutter {
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

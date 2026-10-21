@@ -1,0 +1,13 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.16, pytest-9.1.1, pluggy-1.7.0 -- /tmp/claude-0/venv-ara/bin/python
+cachedir: .pytest_cache
+rootdir: /home/user/ai-research-analyst
+plugins: platformdirs-4.13.5, anyio-4.15.1
+collecting ... collected 4 items
+
+tests.py::TestAIResearchHub::test_ai_planner PASSED                      [ 25%]
+tests.py::TestAIResearchHub::test_financial_scenarios PASSED             [ 50%]
+tests.py::TestAIResearchHub::test_recommendation_engine PASSED           [ 75%]
+test_tavily.py::test_search PASSED                                       [100%]
+
+============================== 4 passed in 0.09s ===============================

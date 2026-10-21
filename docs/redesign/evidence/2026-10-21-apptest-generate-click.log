@@ -1,0 +1,29 @@
+WARNING:yfinance:Cookie fetch from fc.yahoo.com failed (ConnectionError), continuing without it
+WARNING:yfinance:Cookie/crumb fetch failed (ConnectionError), continuing without crumb
+ERROR:yfinance:Failed to get ticker 'EURINR=X' reason: Failed to perform, curl: (7) CONNECT tunnel failed, response 403. See https://curl.se/libcurl/c/libcurl-errors.html first for more details.
+WARNING:yfinance:Cookie/crumb fetch failed (ConnectionError), continuing without crumb
+initial run exceptions: []
+WARNING:yfinance:Cookie/crumb fetch failed (ConnectionError), continuing without crumb
+ERROR:yfinance:Failed to get ticker 'EURINR=X' reason: Failed to perform, curl: (7) CONNECT tunnel failed, response 403. See https://curl.se/libcurl/c/libcurl-errors.html first for more details.
+WARNING:yfinance:Cookie/crumb fetch failed (ConnectionError), continuing without crumb
+2026-10-21 17:20:26.645 Uncaught app execution
+Traceback (most recent call last):
+  File "/tmp/claude-0/venv-ara/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 136, in exec_func_with_error_handling
+    result = func()
+  File "/tmp/claude-0/venv-ara/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 924, in code_to_exec
+    exec(code, module.__dict__)  # noqa: S102
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/ai-research-analyst/app.py", line 148, in <module>
+    evidence_list = AdvancedRAGEngine.query_evidence_sources(research_topic)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'AdvancedRAGPipeline' has no attribute 'query_evidence_sources'
+after Generate click exceptions:
+   type object 'AdvancedRAGPipeline' has no attribute 'query_evidence_sources'
+WARNING:yfinance:Cookie/crumb fetch failed (ConnectionError), continuing without crumb
+ERROR:yfinance:Failed to get ticker 'EURINR=X' reason: Failed to perform, curl: (7) CONNECT tunnel failed, response 403. See https://curl.se/libcurl/c/libcurl-errors.html first for more details.
+WARNING:yfinance:Cookie/crumb fetch failed (ConnectionError), continuing without crumb
+ERROR:yfinance:$EURINR=X: possibly delisted; no price data found  (period=1d)
+WARNING:yfinance:Cookie/crumb fetch failed (ConnectionError), continuing without crumb
+ERROR:yfinance:Failed to get ticker 'EURINR=X' reason: Failed to perform, curl: (7) CONNECT tunnel failed, response 403. See https://curl.se/libcurl/c/libcurl-errors.html first for more details.
+WARNING:yfinance:Cookie/crumb fetch failed (ConnectionError), continuing without crumb
+ERROR:yfinance:$EURINR=X: possibly delisted; no price data found  (period=1d)
