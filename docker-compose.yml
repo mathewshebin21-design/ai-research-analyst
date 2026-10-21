@@ -1,0 +1,21 @@
+# Local stack: Postgres, API with in-process worker, and the web app.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: intel
+      POSTGRES_PASSWORD: intel
+      POSTGRES_DB: intel
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+  api:
+    build: ./backend
+    env_file: ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://intel:intel@db:5432/intel
+    ports: ["8000:8000"]
+    depends_on: [db]
+    volumes: [storage:/data/storage]
+volumes:
+  pgdata:
+  storage:
