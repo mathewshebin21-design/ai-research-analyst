@@ -2,9 +2,13 @@ name: Acceptance run (real data)
 
 # Runs the full research pipeline with real Tavily search and the real Gemini model, plus the
 # verifier evaluation, and commits the recorded results to the branch it was started on.
-# Needs repository secrets TAVILY_API_KEY and GEMINI_API_KEY. Started by hand only.
+# Needs repository secrets TAVILY_API_KEY and GEMINI_API_KEY.
+# Start it by editing docs/redesign/evidence/acceptance-request.md (first line = the question)
+# and pushing, or with "Run workflow" once this file is on the default branch.
 
 on:
+  push:
+    paths: ["docs/redesign/evidence/acceptance-request.md"]
   workflow_dispatch:
     inputs:
       question:
@@ -43,8 +47,11 @@ jobs:
           test -n "$GEMINI_API_KEY" || { echo "::error::Add the GEMINI_API_KEY repository secret"; exit 1; }
       - name: Research run
         env:
-          QUESTION: ${{ inputs.question }}
-        run: python -m scripts.acceptance_run "$QUESTION"
+          INPUT_QUESTION: ${{ inputs.question }}
+        run: |
+          QUESTION="${INPUT_QUESTION:-$(head -n 1 ../docs/redesign/evidence/acceptance-request.md)}"
+          echo "Question: $QUESTION"
+          python -m scripts.acceptance_run "$QUESTION"
       - name: Verifier evaluation
         # Fails below 0.90 "supported" precision; results are still committed so they can be reviewed.
         continue-on-error: true
