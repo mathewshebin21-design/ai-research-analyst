@@ -38,7 +38,8 @@ hand on the same Radix + class-variance-authority pattern. `components.json` is 
 
 ## Hosted preview
 
-`PREVIEW_RELATIVE_ASSETS=1 npm run build` emits `./_next/...` asset paths, and `scripts/artifact-page.py` turns
-`out/index.html` into a body fragment for hosts that supply their own document skeleton. On such hosts React logs one
+`PREVIEW_RELATIVE_ASSETS=1 npm run build` emits `./_next/...` asset paths. `python scripts/artifact-page.py out dist-artifact`
+then turns `out/index.html` into a body fragment for hosts that supply their own document skeleton, and moves assets to
+`nx/` for hosts that reserve names starting with `_`. On such hosts React logs one
 recoverable hydration warning (#418) because the host's `<head>` differs from the exported one; the page then renders
 client-side and works normally.
