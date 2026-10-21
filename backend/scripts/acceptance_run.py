@@ -58,6 +58,12 @@ def main() -> None:
         detail = c.get(f"/runs/{run['id']}", headers=h).json()
         (out / "run.json").write_text(json.dumps(detail, indent=2))
         if detail["status"] != "completed":
+            (out / "SUMMARY.md").write_text(
+                f"# Acceptance run {out.name}: failed\n\n**Question:** {question}\n\n"
+                f"**Error:** {detail['error']}\n\n**Usage:** {detail['usage']}\n\nEvents:\n\n"
+                + "\n".join(f"- {e['agent']}: {e['message']}" for e in detail["events"])
+                + "\n"
+            )
             raise SystemExit(f"Run failed: {detail['error']}")
         rep = c.post(f"/runs/{run['id']}/reports", headers=h).json()
         (out / "report.pdf").write_bytes(c.get(rep["download"], headers=h).content)

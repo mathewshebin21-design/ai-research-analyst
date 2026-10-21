@@ -46,6 +46,7 @@ jobs:
           test -n "$TAVILY_API_KEY" || { echo "::error::Add the TAVILY_API_KEY repository secret"; exit 1; }
           test -n "$GEMINI_API_KEY" || { echo "::error::Add the GEMINI_API_KEY repository secret"; exit 1; }
       - name: Research run
+        id: research
         env:
           INPUT_QUESTION: ${{ inputs.question }}
         run: |
@@ -53,10 +54,13 @@ jobs:
           echo "Question: $QUESTION"
           python -m scripts.acceptance_run "$QUESTION"
       - name: Verifier evaluation
+        if: always() && steps.research.outcome != 'skipped'
         # Fails below 0.90 "supported" precision; results are still committed so they can be reviewed.
         continue-on-error: true
         run: python -m eval.run_eval
       - name: Commit recorded results
+        # Failed runs are recorded too, so the reason and partial evidence are kept.
+        if: always() && steps.research.outcome != 'skipped'
         working-directory: .
         run: |
           git config user.name "github-actions[bot]"

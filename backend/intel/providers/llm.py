@@ -21,13 +21,14 @@ class LLM(Protocol):
 
 
 class GeminiLLM:
-    def __init__(self, api_key: str | None, model: str) -> None:
+    def __init__(self, api_key: str | None, model: str, attempts: int = 5) -> None:
         if not api_key:
             raise ProviderNotConfigured("GEMINI_API_KEY is not set, so research runs cannot start.")
         from google import genai
 
         self._client = genai.Client(api_key=api_key)
         self.model = model
+        self.attempts = attempts
 
     def generate(self, *, system: str, prompt: str, schema: type[T], usage: Usage, temperature: float = 0.2) -> T:
         from google.genai import errors as genai_errors
@@ -40,7 +41,7 @@ class GeminiLLM:
             response_schema=schema,
         )
         last: Exception | None = None
-        for attempt in range(3):
+        for attempt in range(self.attempts):
             try:
                 response = self._client.models.generate_content(model=self.model, contents=prompt, config=config)
                 usage.llm_calls += 1
@@ -58,7 +59,8 @@ class GeminiLLM:
                 last = exc
                 if getattr(exc, "code", 500) not in (429, 500, 502, 503, 504):
                     break
-            time.sleep(1.5 * (2**attempt))
+            if attempt < self.attempts - 1:
+                time.sleep(min(30.0, 2.0 * (2**attempt)))  # 2, 4, 8, 16 s: rides out short overload spikes
         detail = type(last).__name__
         if last is not None and hasattr(last, "code"):
             # Status and Google's message help fix configuration (bad key, API disabled, quota).

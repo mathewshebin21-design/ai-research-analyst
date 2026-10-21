@@ -114,6 +114,9 @@ def execute_run(db: Session, run_id: str, providers: Providers, settings: Settin
         doc_ids = {s.id for s in doc_sources}
         claims, missing_items = _extract(db, run, tasks, index, task_sources, doc_ids, providers.llm, settings, usage)
 
+        if not claims:
+            raise RunFailed("No claims could be extracted from the sources. See the task notes for the reason.")
+
         stage = "verify"
         run.stage = stage
         db.commit()
@@ -292,7 +295,14 @@ def _extract(db, run, tasks, index, task_sources, doc_ids, llm, settings, usage)
             t.note = (t.note + " " if t.note else "") + "No passages to extract from."
             db.commit()
             continue
-        out = extract_claims(llm, run.question, t.title, candidates, usage, per_task)
+        try:
+            out = extract_claims(llm, run.question, t.title, candidates, usage, per_task)
+        except ProviderError as exc:
+            # One unavailable call should not sink the run; the gap is recorded on the task.
+            t.note = (t.note + " " if t.note else "") + f"Claims could not be extracted: {exc}"
+            db.commit()
+            emit(db, run, "Extractor", f"{t.key}: extraction failed ({exc})")
+            continue
         added = 0
         for c in out.claims:
             norm = " ".join(c.text.lower().rstrip(".;").split())
@@ -324,7 +334,22 @@ def _verify(db, run, claims, index, llm, settings, usage):
         chosen = list(dict.fromkeys([*refs, *extra]))[:6]
         best = max((scores.get(p.pid, 0.0) for p in chosen), default=0.0)
         candidates = [(p, relevance(scores.get(p.pid, 0.0), best)) for p in chosen]
-        judged = verify_claim(llm, claim.text, candidates, usage)
+        try:
+            judged = verify_claim(llm, claim.text, candidates, usage)
+        except ProviderError as exc:
+            claim.status = "missing"
+            claim.status_reason = f"Not checked: the verification service was unavailable ({exc}). Treat as unverified."
+            db.add(
+                Finding(
+                    run_id=run.id,
+                    claim_id=claim.id,
+                    severity="high",
+                    code="unverified",
+                    text=f"{claim.key}: could not be checked against its sources; it is excluded from support.",
+                )
+            )
+            db.commit()
+            continue
         views = []
         for j in judged:
             if j.relation == "related" and j.relevance < 0.3:

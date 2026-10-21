@@ -251,3 +251,52 @@ def test_claims_are_unique_across_tasks(client):
     process_one()
     texts = [c["text"].lower() for c in client.get(f"/runs/{run['id']}", headers=h).json()["claims"]]
     assert texts and len(texts) == len(set(texts))
+
+
+def test_provider_outage_on_one_task_or_claim_does_not_sink_the_run(client):
+    from intel.pipeline.orchestrator import Providers
+    from intel.providers import factory
+    from intel.worker import process_one
+    from tests.fakes import FakeLLM, FakeSearch
+
+    factory.set_factory(
+        lambda s: Providers(
+            llm=FakeLLM(fail_extract_on="Competitor pricing", fail_verify_on="Premium trainers"), search=FakeSearch()
+        )
+    )
+    h = login(client)
+    ws = client.post("/workspaces", json={"name": "W"}, headers=h).json()
+    run = client.post(
+        f"/workspaces/{ws['id']}/runs", json={"question": "Should we launch trainers in the UK?"}, headers=h
+    ).json()
+    client.post(f"/runs/{run['id']}/start", headers=h)
+    process_one()
+    d = client.get(f"/runs/{run['id']}", headers=h).json()
+    assert d["status"] == "completed", d["error"]
+    t3 = next(t for t in d["tasks"] if t["title"] == "Competitor pricing")
+    assert "could not be extracted" in t3["note"] and "503" in t3["note"]
+    unchecked = [c for c in d["claims"] if c["text"].startswith("Premium trainers")]
+    assert unchecked and all(c["status"] == "missing" and "Not checked" in c["status_reason"] for c in unchecked)
+    assert any(f["code"] == "unverified" and f["severity"] == "high" for f in d["findings"])
+
+
+def test_gemini_retries_overload_then_reports_reason(monkeypatch):
+    import pytest
+    from google.genai import errors as genai_errors
+
+    from intel.pipeline.llm_schemas import Plan
+    from intel.providers.errors import ProviderError
+    from intel.providers.llm import GeminiLLM
+    from intel.providers.usage import Usage
+
+    sleeps = []
+    monkeypatch.setattr("time.sleep", lambda s: sleeps.append(s))
+    llm = GeminiLLM("test-key", "gemini-test", attempts=5)
+
+    def overloaded(**kw):
+        raise genai_errors.ServerError(503, {"error": {"code": 503, "status": "UNAVAILABLE", "message": "high demand"}})
+
+    monkeypatch.setattr(llm._client.models, "generate_content", overloaded)
+    with pytest.raises(ProviderError, match="503 UNAVAILABLE: high demand"):
+        llm.generate(system="s", prompt="p", schema=Plan, usage=Usage())
+    assert sleeps == [2.0, 4.0, 8.0, 16.0]

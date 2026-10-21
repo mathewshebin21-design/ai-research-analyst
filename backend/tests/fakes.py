@@ -71,8 +71,18 @@ class FakeLLM:
 
     model = "fake-llm"
 
+    def __init__(self, fail_extract_on: str | None = None, fail_verify_on: str | None = None) -> None:
+        self.fail_extract_on = fail_extract_on
+        self.fail_verify_on = fail_verify_on
+
     def generate(self, *, system, prompt, schema, usage, temperature=0.2):
+        from intel.providers.errors import ProviderError
+
         usage.llm_calls += 1
+        if schema is S.Extraction and self.fail_extract_on and self.fail_extract_on in prompt:
+            raise ProviderError("The language model failed for Extraction (HTTP 503 UNAVAILABLE: high demand)")
+        if schema is S.Verification and self.fail_verify_on and self.fail_verify_on in prompt.split("\n", 1)[0]:
+            raise ProviderError("The language model failed for Verification (HTTP 503 UNAVAILABLE: high demand)")
         if schema is S.Plan:
             return S.Plan(
                 objective="Fixture objective",

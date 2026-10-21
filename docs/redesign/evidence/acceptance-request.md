@@ -7,3 +7,4 @@ Results are committed to docs/redesign/evidence/acceptance/ and backend/eval/res
 Requested 2026-10-21T19:05Z.
 Requested 19:26Z (retry with clearer errors).
 Requested 19:28Z (model gemini-3.8-flash).
+Requested 19:54Z (retries and partial-failure handling).
