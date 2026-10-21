@@ -2,12 +2,13 @@
 
 import json
 import logging
+import re
 import time
 from typing import Protocol, TypeVar
 
 from pydantic import BaseModel, ValidationError
 
-from intel.providers.errors import ProviderError, ProviderNotConfigured
+from intel.providers.errors import ProviderError, ProviderNotConfigured, ProviderQuotaExceeded
 from intel.providers.usage import Usage
 
 T = TypeVar("T", bound=BaseModel)
@@ -81,11 +82,28 @@ class GeminiLLM:
                 log.warning("model returned invalid structure", extra={"stage": schema.__name__})
             except genai_errors.APIError as exc:
                 last = exc
+                if self._quota_exhausted(exc):
+                    raise ProviderQuotaExceeded(
+                        "The Gemini API quota for this key is used up "
+                        f"({self._describe(exc)}). Enable billing on the key's Google project, "
+                        "or wait for the quota to reset."
+                    ) from exc
                 if getattr(exc, "code", 500) not in self.RETRYABLE:
                     return None, exc, False
             if attempt < self.attempts - 1:
                 time.sleep(min(30.0, 2.0 * (2**attempt)))  # 2, 4, 8, 16, 30… s: rides out overload spikes
         return None, last, True
+
+    @staticmethod
+    def _quota_exhausted(exc: Exception) -> bool:
+        """A 429 that names a daily or free-tier quota, or asks to wait over a minute, is not a transient spike."""
+        if getattr(exc, "code", None) != 429:
+            return False
+        text = str(getattr(exc, "details", "") or "") + str(getattr(exc, "message", "") or "") + str(exc)
+        if "PerDay" in text or "free_tier" in text or "FreeTier" in text or "billing" in text:
+            return True
+        delay = re.search(r"retryDelay'?:\s*'?(\d+)s", text)
+        return bool(delay and int(delay.group(1)) > 60)
 
     @staticmethod
     def _describe(last: Exception | None) -> str:

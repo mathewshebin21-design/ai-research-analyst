@@ -4,3 +4,7 @@ class ProviderError(RuntimeError):
 
 class ProviderNotConfigured(ProviderError):
     pass
+
+
+class ProviderQuotaExceeded(ProviderError):
+    """The account's quota is used up (e.g. a free-tier daily limit). Retrying or continuing will not help."""

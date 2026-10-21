@@ -341,3 +341,62 @@ def test_gemini_falls_back_to_next_model_only_on_overload(monkeypatch):
     with pytest.raises(ProviderError, match="404 NOT_FOUND"):
         llm.generate(system="s", prompt="p", schema=Plan, usage=Usage())
     assert calls == ["retired"]  # configuration errors are not retried or masked by a fallback
+
+
+def test_quota_exhaustion_fails_fast_with_reason(monkeypatch):
+    import pytest
+    from google.genai import errors as genai_errors
+
+    from intel.pipeline.llm_schemas import Plan
+    from intel.providers.errors import ProviderQuotaExceeded
+    from intel.providers.llm import GeminiLLM
+    from intel.providers.usage import Usage
+
+    sleeps, calls = [], []
+    monkeypatch.setattr("time.sleep", lambda s: sleeps.append(s))
+    body = {
+        "error": {
+            "code": 429,
+            "status": "RESOURCE_EXHAUSTED",
+            "message": "You exceeded your current quota, please check your plan and billing details.",
+            "details": [{"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier"}, {"retryDelay": "36103s"}],
+        }
+    }
+
+    def exhausted(model, **kw):
+        calls.append(model)
+        raise genai_errors.ClientError(429, body)
+
+    llm = GeminiLLM("k", "main", attempts=6, fallbacks=["backup"])
+    monkeypatch.setattr(llm._client.models, "generate_content", exhausted)
+    with pytest.raises(ProviderQuotaExceeded, match="quota for this key is used up"):
+        llm.generate(system="s", prompt="p", schema=Plan, usage=Usage())
+    assert calls == ["main"] and sleeps == []  # no pointless retries
+
+
+def test_quota_exhaustion_stops_the_run(client):
+    from intel.pipeline.orchestrator import Providers
+    from intel.providers import factory
+    from intel.providers.errors import ProviderQuotaExceeded
+    from intel.worker import process_one
+    from tests.fakes import FakeLLM, FakeSearch
+
+    class QuotaLLM(FakeLLM):
+        def generate(self, *, system, prompt, schema, usage, temperature=0.2):
+            from intel.pipeline import llm_schemas as S
+
+            if schema is S.Verification:
+                raise ProviderQuotaExceeded("The Gemini API quota for this key is used up (HTTP 429).")
+            return super().generate(system=system, prompt=prompt, schema=schema, usage=usage, temperature=temperature)
+
+    factory.set_factory(lambda s: Providers(llm=QuotaLLM(), search=FakeSearch()))
+    h = login(client)
+    ws = client.post("/workspaces", json={"name": "W"}, headers=h).json()
+    run = client.post(
+        f"/workspaces/{ws['id']}/runs", json={"question": "Should we launch trainers in the UK?"}, headers=h
+    ).json()
+    client.post(f"/runs/{run['id']}/start", headers=h)
+    process_one()
+    d = client.get(f"/runs/{run['id']}", headers=h).json()
+    assert d["status"] == "failed" and "quota" in d["error"]
+    assert d["recommendation"] is None  # no verdict is produced from unverified claims

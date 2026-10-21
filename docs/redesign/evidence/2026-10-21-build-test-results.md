@@ -35,3 +35,16 @@ GEMINI_API_KEY=... python -m eval.run_eval
 ```
 
 The first writes `docs/redesign/evidence/acceptance/<timestamp>/` (run JSON, PDF, summary); the second writes `backend/eval/results/` and fails if "supported" precision is below 0.90.
+
+## Real-data attempts through GitHub Actions (21 October 2026)
+
+The `Acceptance run (real data)` workflow ran with the repository's Tavily and Gemini secrets.
+
+| Run | Reached | Stopped by | Fix |
+| --- | --- | --- | --- |
+| 1–2 | Planning | Gemini HTTP 404: `gemini-2.5-flash` no longer offered to new accounts | Default model changed to `gemini-3.8-flash`; provider errors now carry Google's reason |
+| 3 | Planning (6 tasks), Tavily research, extraction | Gemini HTTP 503 overload after 3 retries | Longer backoff; one failed task or claim no longer fails the run |
+| 4 | Planning | Gemini HTTP 503 overload; results not recorded because of a bad path in the commit step | Commit step fixed; planning failures recorded; fallback models supported |
+| 5 | Planning, Tavily research, extraction, into verification | Gemini HTTP 429 `GenerateRequestsPerDayPerProjectPerModel-FreeTier`, limit 20 requests a day; retries stacked with the SDK's own retries until the 30-minute limit | SDK retries off; quota exhaustion now stops the run at once with the reason |
+
+Real Tavily search worked in every run that reached it. The remaining blocker is the Gemini key's free-tier quota: a full run needs roughly 30–60 model calls. Enabling billing on the key's Google project removes the daily cap and is also what the privacy notice assumes (no training on customer content).

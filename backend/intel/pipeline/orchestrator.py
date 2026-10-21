@@ -30,7 +30,7 @@ from intel.pipeline.planner import make_plan
 from intel.pipeline.sources import canonical_url, content_hash, domain, tier_for
 from intel.pipeline.status import LinkView, derive_status
 from intel.pipeline.verify import verify_claim
-from intel.providers.errors import ProviderError
+from intel.providers.errors import ProviderError, ProviderQuotaExceeded
 from intel.providers.llm import LLM
 from intel.providers.search import SearchClient, cached_search
 from intel.providers.usage import Usage
@@ -303,6 +303,8 @@ def _extract(db, run, tasks, index, task_sources, doc_ids, llm, settings, usage)
             continue
         try:
             out = extract_claims(llm, run.question, t.title, candidates, usage, per_task)
+        except ProviderQuotaExceeded:
+            raise  # no later call can succeed either; fail the run with the reason
         except ProviderError as exc:
             # One unavailable call should not sink the run; the gap is recorded on the task.
             t.note = (t.note + " " if t.note else "") + f"Claims could not be extracted: {exc}"
@@ -342,6 +344,8 @@ def _verify(db, run, claims, index, llm, settings, usage):
         candidates = [(p, relevance(scores.get(p.pid, 0.0), best)) for p in chosen]
         try:
             judged = verify_claim(llm, claim.text, candidates, usage)
+        except ProviderQuotaExceeded:
+            raise
         except ProviderError as exc:
             claim.status = "missing"
             claim.status_reason = f"Not checked: the verification service was unavailable ({exc}). Treat as unverified."
