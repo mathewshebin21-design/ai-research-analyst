@@ -5,3 +5,4 @@ The first line is the question for the next real acceptance run. Changing this f
 Results are committed to docs/redesign/evidence/acceptance/ and backend/eval/results/.
 
 Requested 2026-10-21T19:05Z.
+Requested 19:26Z (retry with clearer errors).

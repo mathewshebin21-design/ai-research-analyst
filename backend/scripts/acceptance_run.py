@@ -49,7 +49,8 @@ def main() -> None:
         c.post("/me/accept-terms", json={"terms_version": v["terms"], "privacy_version": v["privacy"]}, headers=h)
         ws = c.post("/workspaces", json={"name": "Acceptance"}, headers=h).json()
         r = c.post(f"/workspaces/{ws['id']}/runs", json={"question": question}, headers=h)
-        r.raise_for_status()
+        if r.status_code != 201:
+            raise SystemExit(f"Planning failed ({r.status_code}): {r.json().get('detail')}")
         run = r.json()
         print(f"Plan: {len(run['tasks'])} tasks")
         c.post(f"/runs/{run['id']}/start", headers=h).raise_for_status()

@@ -59,4 +59,8 @@ class GeminiLLM:
                 if getattr(exc, "code", 500) not in (429, 500, 502, 503, 504):
                     break
             time.sleep(1.5 * (2**attempt))
-        raise ProviderError(f"The language model failed for {schema.__name__}: {type(last).__name__}") from last
+        detail = type(last).__name__
+        if last is not None and hasattr(last, "code"):
+            # Status and Google's message help fix configuration (bad key, API disabled, quota); neither contains the key.
+            detail = f"HTTP {getattr(last, 'code', '?')} {getattr(last, 'status', '') or ''}: {str(getattr(last, 'message', '') or last)[:300]}"
+        raise ProviderError(f"The language model failed for {schema.__name__} ({detail})") from last
