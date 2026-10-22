@@ -38,6 +38,7 @@ Health check path: `/ready` (fails until the database and both keys are configur
 - Work through `frontend/content/legal/LAUNCH_CHECKLIST.md` (company details, ICO fee, regions, paid Gemini tier, solicitor review).
 - Record a real acceptance run and the verifier evaluation (see `evidence/2026-10-21-build-test-results.md`).
 - Set log retention on Render and Vercel to 30 days.
+- Replace the sample report with the recorded real run: `python -m intel.export_sample RUN_ID "A real run recorded on <date>. Not advice."`, then commit `backend/intel/sample/sample-run.json`.
 
 ## Rollback
 

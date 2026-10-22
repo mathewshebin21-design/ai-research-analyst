@@ -20,6 +20,15 @@ Starts only after a design direction is approved. Each milestone is one pull req
 | M6 | Done; browser journey passes against the real API |
 | M8 | Not started: needs hosting accounts, keys, the legal checklist and a recorded real run |
 
+### Feature round (22 Oct 2026)
+
+| Feature | Status |
+| --- | --- |
+| Decision workspace: factor weights with live preview, currency per run (GBP, EUR, USD, INR), condition tracker | Done, tested |
+| Your own evidence: add a link, pasted text or your PDF to a claim (same quote-checked verifier, tier B); dispute a claim | Done, tested |
+| Read-only share links (hashed tokens, revocable, no sign-in) and a 16:9 slide-deck export | Done, tested |
+| Runs-left meter, refresh with "what changed", opt-in monthly refresh, public sample report | Done, tested |
+
 ## Milestones
 
 | ID | Title | Scope | Done when | Estimate |

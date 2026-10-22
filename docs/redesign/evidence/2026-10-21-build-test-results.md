@@ -48,3 +48,17 @@ The `Acceptance run (real data)` workflow ran with the repository's Tavily and G
 | 5 | Planning, Tavily research, extraction, into verification | Gemini HTTP 429 `GenerateRequestsPerDayPerProjectPerModel-FreeTier`, limit 20 requests a day; retries stacked with the SDK's own retries until the 30-minute limit | SDK retries off; quota exhaustion now stops the run at once with the reason |
 
 Real Tavily search worked in every run that reached it. The remaining blocker is the Gemini key's free-tier quota: a full run needs roughly 30–60 model calls. Enabling billing on the key's Google project removes the daily cap and is also what the privacy notice assumes (no training on customer content).
+
+## Feature round, 22 October 2026
+
+Same setup (test doubles for the model and search; everything else real).
+
+| Check | Result |
+| --- | --- |
+| Backend lint and format | Pass |
+| Backend tests on SQLite | 73 passed |
+| Backend tests on Postgres 16 | 73 passed |
+| Web app typecheck and lint | Pass |
+| Browser journey, extended: sample report → INR currency → decision weights and conditions → add evidence → dispute → export slides (.pptx) → create share link, open it signed out, check it is read-only, turn it off → refresh the run → "what changed" → runs-left meter (50 → 48) | Pass |
+
+Defects found and fixed in this round: user-added passages were invisible to the test verifier (ID prefix); the share page would have crashed on the research tab (usage removed from the public view; now only the search count is kept); a refresh compared hand-edited assumptions with the model's, and custom weights with standard ones (now the research's own base case is compared and saved weights carry over); the slide chart's axis labels overlapped the zero line (moved below the plot, value axis in thousands).
