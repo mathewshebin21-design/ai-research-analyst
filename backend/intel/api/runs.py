@@ -29,6 +29,7 @@ class RunIn(BaseModel):
     geography: str | None = Field(default=None, max_length=200)
     notes: str | None = Field(default=None, max_length=2000)
     document_ids: list[str] = Field(default_factory=list, max_length=10)
+    currency: str = Field(default="GBP", pattern="^(GBP|EUR|USD|INR)$")
 
 
 class TaskIn(BaseModel):
@@ -84,7 +85,7 @@ def create_run(
         workspace_id=workspace_id,
         created_by=user.id,
         question=body.question.strip(),
-        context={"company": body.company, "geography": body.geography, "notes": body.notes},
+        context={"company": body.company, "geography": body.geography, "notes": body.notes, "currency": body.currency},
         document_ids=body.document_ids,
     )
     db.add(run)
@@ -341,7 +342,8 @@ def compare(a: str, b: str, user: User = Depends(accepted_user), db: Session = D
                 "claims": counts,
                 "sources": len(d["sources"]),
                 "factors": {f["key"]: f["score"] for f in d["factors"]},
-                "break_even_month": base.get("break_even_month"),
+                "currency_symbol": d["currency_symbol"],
+            "break_even_month": base.get("break_even_month"),
                 "peak_funding": base.get("peak_funding"),
             }
         )

@@ -59,9 +59,12 @@ def _cited(item: CitedItem, index: dict[str, ClaimRef]) -> dict:
     return {"text": item.text, "claims": keys, "basis": basis, "coverage": cov}
 
 
-def analyse(llm: LLM, question: str, claims: list[ClaimRef], usage: Usage) -> dict:
+def analyse(llm: LLM, question: str, claims: list[ClaimRef], usage: Usage, currency: str = "EUR") -> dict:
     index = {c.key: c for c in claims}
-    prompt = f"Decision question: {question}\n\nClaims:\n{_claims_block(claims)}"
+    prompt = (
+        f"Decision question: {question}\nGive every monetary assumption in {currency}.\n\n"
+        f"Claims:\n{_claims_block(claims)}"
+    )
     a: Analysis = llm.generate(system=ANALYST_SYSTEM, prompt=prompt, schema=Analysis, usage=usage)
 
     swot = {

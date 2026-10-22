@@ -34,11 +34,13 @@ export function Shell({ children }: { children: React.ReactNode }) {
         .then((r) => live && setRecent(r.slice(0, 6)))
         .catch(() => live && setRecent([]));
     load();
-    // Keep statuses fresh while a run is still in progress.
+    // Keep statuses fresh while a run is in progress, and immediately when a run page reports a change.
     const timer = pending ? setInterval(load, 10_000) : undefined;
+    window.addEventListener("sih:runs-changed", load);
     return () => {
       live = false;
       clearInterval(timer);
+      window.removeEventListener("sih:runs-changed", load);
     };
   }, [workspace.id, pathname, pending]);
 
@@ -66,7 +68,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               </select>
             )}
           </div>
-          <nav aria-label="Primary" className="-mx-1 flex gap-1 overflow-x-auto lg:mx-0 lg:flex-col">
+          <nav aria-label="Primary" className="-mx-1 flex flex-wrap gap-1 lg:mx-0 lg:flex-col">
             {nav.map(({ href, label, icon: Icon }) => {
               const active = href === "/app" ? pathname === "/app" || pathname.startsWith("/app/run") : pathname.startsWith(href);
               return (

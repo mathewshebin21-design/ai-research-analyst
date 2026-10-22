@@ -61,6 +61,8 @@ class Run(Base):
     settings: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)  # thresholds, models, limits used
     usage: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)  # searches, tokens
     document_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
+    # Set when this run refreshes an earlier one, so the two can be compared.
+    previous_run_id: Mapped[str | None] = mapped_column(ForeignKey("runs.id", ondelete="SET NULL"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -145,6 +147,9 @@ class Claim(Base):
     kind: Mapped[str] = mapped_column(String(16), default="fact")  # fact | figure | forecast
     status: Mapped[str] = mapped_column(String(16), default="missing")
     status_reason: Mapped[str] = mapped_column(Text, default="")
+    # A user can dispute a claim; disputed claims count as no evidence until the dispute is cleared.
+    user_flag: Mapped[str | None] = mapped_column(String(16))
+    user_note: Mapped[str | None] = mapped_column(Text)
     evidence: Mapped[list["EvidenceLink"]] = relationship(cascade="all, delete-orphan", back_populates="claim")
 
 
@@ -252,3 +257,15 @@ class AuditLog(Base):
     workspace_id: Mapped[str | None] = mapped_column(String(32))
     action: Mapped[str] = mapped_column(String(64))
     detail: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+
+
+class ShareLink(Base):
+    """Read-only link to one run. Only a hash of the token is stored; revoking stops it immediately."""
+
+    __tablename__ = "share_links"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    run_id: Mapped[str] = mapped_column(ForeignKey("runs.id", ondelete="CASCADE"), index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    created_by: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

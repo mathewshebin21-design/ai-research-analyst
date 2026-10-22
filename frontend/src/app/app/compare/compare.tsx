@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "@/components/app/session";
 import { ErrorNote, Eyebrow, Panel } from "@/components/app/status";
 import { api } from "@/lib/api";
-import { date, eurK } from "@/lib/format";
+import { date, money } from "@/lib/format";
 import type { RunSummary } from "@/lib/types";
 
 type Row = {
@@ -21,6 +21,7 @@ type Row = {
   factors: Record<string, number>;
   break_even_month: number | null;
   peak_funding: number | null;
+  currency_symbol: string;
 };
 
 const factorLabels: Record<string, string> = { attract: "Market attractiveness", demand: "Customer demand", compete: "Competitive room", econ: "Unit economics", exec: "Execution and compliance" };
@@ -59,7 +60,7 @@ export function Compare() {
     ["Sources", (r) => String(r.sources)],
     ...Object.entries(factorLabels).map(([k, l]) => [l, (r: Row) => String(r.factors[k] ?? "—")] as [string, (r: Row) => string]),
     ["Break-even month (base)", (r) => (r.break_even_month ? `Month ${r.break_even_month}` : "Not in 36 months")],
-    ["Peak funding need (base)", (r) => (r.peak_funding != null ? eurK(-r.peak_funding) : "—")],
+    ["Peak funding need (base)", (r) => (r.peak_funding != null ? money(-r.peak_funding, r.currency_symbol) : "—")],
   ];
 
   return (

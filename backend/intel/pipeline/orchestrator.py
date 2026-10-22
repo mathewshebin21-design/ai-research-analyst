@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from sqlalchemy.orm import Session
 
 from intel.config import Settings
+from intel.decision import currency_of
 from intel.finance import ASSUMPTION_SPEC, run_scenarios
 from intel.models import (
     Analysis,
@@ -421,7 +422,7 @@ def _critique(db, run, claims, failed, total) -> list[Finding]:
 
 def _analyse(db, run, claims, findings, llm, usage):
     refs = [analyst.ClaimRef(c.id, c.key, c.status, c.text) for c in claims]
-    result = analyst.analyse(llm, run.question, refs, usage)
+    result = analyst.analyse(llm, run.question, refs, usage, currency_of(run))
     high = sum(1 for f in findings if f.severity == "high")
     scores = analyst.score(result["factors"], high)
     decision = analyst.decide(scores, result["factors"])

@@ -400,3 +400,71 @@ def test_quota_exhaustion_stops_the_run(client):
     d = client.get(f"/runs/{run['id']}", headers=h).json()
     assert d["status"] == "failed" and "quota" in d["error"]
     assert d["recommendation"] is None  # no verdict is produced from unverified claims
+
+
+def _completed_run(client, h, **extra):
+    from intel.worker import process_one
+
+    ws = client.post("/workspaces", json={"name": "W"}, headers=h).json()
+    run = client.post(
+        f"/workspaces/{ws['id']}/runs", json={"question": "Should we launch trainers in the UK?", **extra}, headers=h
+    ).json()
+    client.post(f"/runs/{run['id']}/start", headers=h)
+    process_one()
+    return ws, client.get(f"/runs/{run['id']}", headers=h).json()
+
+
+def test_decision_workspace_weights_currency_and_conditions(client):
+    h = login(client)
+    ws, d = _completed_run(client, h, currency="INR")
+    assert d["currency"] == "INR" and d["currency_symbol"] == "₹"
+    dec = d["decision"]
+    assert dec["verdict"] == d["recommendation"]["verdict"] and dec["changed"] is False
+    assert abs(sum(dec["weights"].values()) - 1) < 1e-6
+
+    # Preview: all weight on market attractiveness (the only evidenced factor) changes the score, not saved.
+    preview = client.post(
+        f"/runs/{d['id']}/decision",
+        json={"weights": {"attract": 1, "demand": 0, "compete": 0, "econ": 0, "exec": 0}},
+        headers=h,
+    ).json()
+    assert preview["weights"]["attract"] == 1 and preview["overall"] != dec["overall"]
+    assert client.get(f"/runs/{d['id']}", headers=h).json()["decision"]["custom_weights"] is False
+
+    saved = client.post(
+        f"/runs/{d['id']}/decision",
+        json={"weights": {"attract": 2, "demand": 1, "compete": 1, "econ": 0, "exec": 0}, "save": True},
+        headers=h,
+    ).json()
+    assert saved["custom_weights"] is True and saved["weights"]["attract"] == 0.5 and saved["changed"] is True
+    bad = client.post(f"/runs/{d['id']}/decision", json={"weights": {"attract": 0}, "save": True}, headers=h)
+    assert bad.status_code == 422
+
+    conds = client.put(
+        f"/runs/{d['id']}/conditions/0", json={"status": "met", "note": "CAC was 48 in pilot"}, headers=h
+    )
+    assert conds.status_code == 200 and conds.json()[0]["status"] == "met"
+    assert client.put(f"/runs/{d['id']}/conditions/9", json={"status": "met"}, headers=h).status_code == 404
+
+    rep = client.post(f"/runs/{d['id']}/reports", headers=h).json()
+    pdf = client.get(rep["download"], headers=h).content
+    import io
+
+    from pypdf import PdfReader
+
+    text = "\n".join(p.extract_text() for p in PdfReader(io.BytesIO(pdf)).pages)
+    assert "INR " in text and "₹" not in text  # rupee sign is missing from PDF base fonts, so the code is used
+    assert "CONDITION TRACKER" in text and "CAC was 48 in pilot" in text
+    assert "the weights were adjusted" in text
+
+    assert client.delete(f"/runs/{d['id']}/decision/weights", headers=h).json()["custom_weights"] is False
+
+
+def test_viewers_can_preview_but_not_save_weights(client):
+    ana, ben = login(client, "ana@example.com"), login(client, "ben@example.com")
+    ws, d = _completed_run(client, ana)
+    client.post(f"/workspaces/{ws['id']}/members", json={"email": "ben@example.com", "role": "viewer"}, headers=ana)
+    w = {"attract": 1, "demand": 1, "compete": 1, "econ": 1, "exec": 1}
+    assert client.post(f"/runs/{d['id']}/decision", json={"weights": w}, headers=ben).status_code == 200
+    assert client.post(f"/runs/{d['id']}/decision", json={"weights": w, "save": True}, headers=ben).status_code == 403
+    assert client.put(f"/runs/{d['id']}/conditions/0", json={"status": "met"}, headers=ben).status_code == 403

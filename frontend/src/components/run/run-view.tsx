@@ -36,7 +36,10 @@ export function RunView() {
   const load = useCallback(async () => {
     try {
       const r = await api<RunDetail>(`/runs/${id}`);
-      setRun(r);
+      setRun((prev) => {
+        if (prev && prev.status !== r.status) window.dispatchEvent(new Event("sih:runs-changed"));
+        return r;
+      });
       setEvents(r.events);
     } catch (e) {
       setError(e instanceof ApiError && e.status === 404 ? "This run does not exist or you no longer have access." : (e as Error).message);

@@ -9,9 +9,10 @@ import { ErrorNote, Eyebrow, Panel } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { api, saveBlob } from "@/lib/api";
-import { assumptionKeys, assumptionMeta, eurK, formatAssumption } from "@/lib/format";
+import { assumptionKeys, assumptionMeta, formatAssumption, money } from "@/lib/format";
 import type { Assumption, AssumptionKey, RunDetail, ScenarioOut, ScenarioResults } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { DecisionWorkspace } from "./decision";
 
 const verdictTone: Record<string, string> = {
   Go: "border-[var(--ok)] text-[var(--ok)]",
@@ -77,46 +78,9 @@ export function Dashboard({ run, canEdit, onRunChange }: { run: RunDetail; canEd
         </section>
       )}
 
-      <Scenarios run={run} canEdit={canEdit} onRunChange={onRunChange} />
+      <DecisionWorkspace run={run} canEdit={canEdit} onRunChange={onRunChange} />
 
-      <Panel title="How the score is built" aside={rec && <span className="tnum text-[13px]">Weighted score {rec.overall} / 100</span>}>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[680px] text-left text-[13.5px]">
-            <thead>
-              <tr className="text-[11px] tracking-[0.1em] text-[var(--muted)] uppercase">
-                <th className="py-2 pr-4 font-semibold">Factor</th>
-                <th className="py-2 pr-4 font-semibold">Weight</th>
-                <th className="w-[24%] py-2 pr-4 font-semibold">Score</th>
-                <th className="py-2 pr-4 font-semibold">Evidence</th>
-                <th className="py-2 font-semibold">Basis</th>
-              </tr>
-            </thead>
-            <tbody>
-              {run.factors.map((f) => (
-                <tr key={f.key} className="border-t border-[var(--line)] align-top">
-                  <td className="py-3 pr-4">{f.label}</td>
-                  <td className="tnum py-3 pr-4 text-[var(--muted)]">{Math.round(f.weight * 100)}%</td>
-                  <td className="py-3 pr-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-1 flex-1 bg-[var(--line)]">
-                        <div className="h-1 bg-[var(--accent)]" style={{ width: `${f.score}%` }} />
-                      </div>
-                      <span className="tnum w-6 text-right">{f.score}</span>
-                    </div>
-                    {f.basis !== "evidenced" && f.model_score !== null && (
-                      <p className="mt-1 text-[11.5px] text-[var(--warn)]">Held at 50: the analyst&apos;s {f.model_score} had no evidence behind it</p>
-                    )}
-                  </td>
-                  <td className={cn("tnum py-3 pr-4", f.coverage < 0.5 ? "text-[var(--warn)]" : "text-[var(--muted)]")}>{Math.round(f.coverage * 100)}%</td>
-                  <td className="py-3 text-[var(--muted)]">
-                    {f.rationale} <span className="text-[var(--fg)]">{f.claims.join(", ")}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+      <Scenarios run={run} canEdit={canEdit} onRunChange={onRunChange} />
 
       <div className="grid gap-12 lg:grid-cols-2">
         <Panel title="Competitors named in the evidence">
@@ -239,8 +203,9 @@ function Scenarios({ run, canEdit, onRunChange }: { run: RunDetail; canEdit: boo
   }
 
   const base = results?.scenarios.base;
-  const cash = useMemo(() => (results ? cashOption(results) : null), [results]);
-  const tornado = useMemo(() => (results ? tornadoOption(results) : null), [results]);
+  const sym = run.currency_symbol;
+  const cash = useMemo(() => (results ? cashOption(results, sym) : null), [results, sym]);
+  const tornado = useMemo(() => (results ? tornadoOption(results, sym) : null), [results, sym]);
 
   return (
     <Panel
@@ -265,9 +230,9 @@ function Scenarios({ run, canEdit, onRunChange }: { run: RunDetail; canEdit: boo
         <>
           <dl className="mb-6 grid grid-cols-2 gap-6 md:grid-cols-4">
             <Figure label="Break-even month, base" value={base.break_even_month ? `Month ${base.break_even_month}` : "Not in 36 months"} />
-            <Figure label="Peak funding need" value={eurK(-base.peak_funding)} />
-            <Figure label="Cash at month 36" value={eurK(base.cash_36)} />
-            <Figure label="Revenue over 36 months" value={eurK(base.revenue_36)} />
+            <Figure label="Peak funding need" value={money(-base.peak_funding, sym)} />
+            <Figure label="Cash at month 36" value={money(base.cash_36, sym)} />
+            <Figure label="Revenue over 36 months" value={money(base.revenue_36, sym)} />
           </dl>
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
             {cash && <EChart option={cash} label="Cumulative cash by scenario over 36 months" className="h-[320px] w-full" />}
@@ -279,7 +244,7 @@ function Scenarios({ run, canEdit, onRunChange }: { run: RunDetail; canEdit: boo
                   <div key={k}>
                     <div className="flex items-baseline justify-between gap-2 text-[13px]">
                       <label htmlFor={`a-${k}`}>{m.label}</label>
-                      <span className="tnum font-semibold">{formatAssumption(k, a.value)}</span>
+                      <span className="tnum font-semibold">{formatAssumption(k, a.value, sym)}</span>
                     </div>
                     <Slider
                       id={`a-${k}`}

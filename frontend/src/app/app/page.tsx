@@ -9,7 +9,7 @@ import { useSession } from "@/components/app/session";
 import { ErrorNote, Eyebrow, Field, Panel } from "@/components/app/status";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
-import { date } from "@/lib/format";
+import { currencies, date } from "@/lib/format";
 import type { DocumentOut, RunDetail, RunSummary } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +28,7 @@ export default function ResearchHome() {
   const canEdit = workspace.role !== "viewer";
   const [runs, setRuns] = useState<RunSummary[] | null>(null);
   const [docs, setDocs] = useState<DocumentOut[]>([]);
-  const [form, setForm] = useState({ question: "", company: "", geography: "", notes: "" });
+  const [form, setForm] = useState({ question: "", company: "", geography: "", notes: "", currency: "GBP" });
   const [selected, setSelected] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -125,6 +125,15 @@ export default function ResearchHome() {
                 <input id="geography" value={form.geography} onChange={(e) => setForm({ ...form, geography: e.target.value })} className="px-3 py-2" />
               </Field>
             </div>
+            <Field label="Currency for financial figures" htmlFor="currency" hint="Amounts are estimated and shown in this currency; they are not converted later.">
+              <select id="currency" value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} className="px-3 py-2 sm:max-w-[260px]">
+                {currencies.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
             <Field label="Context the researchers should know (optional)" htmlFor="notes">
               <textarea id="notes" rows={2} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="px-3 py-2" />
             </Field>

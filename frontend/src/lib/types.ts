@@ -65,6 +65,8 @@ export type ClaimOut = {
   kind: "fact" | "figure" | "forecast";
   status: ClaimStatus;
   status_reason: string;
+  user_flag: "disputed" | null;
+  user_note: string | null;
   evidence: EvidenceOut[];
 };
 
@@ -119,7 +121,29 @@ export type ScenarioResults = {
 
 export type ScenarioOut = { id: string; version: number; assumptions: Record<AssumptionKey, Assumption>; results: ScenarioResults; created_at: string };
 
+export type Decision = {
+  verdict: Recommendation["verdict"];
+  rule: string;
+  overall: number;
+  coverage: number;
+  confidence: number;
+  confidence_label: string;
+  confidence_method: string;
+  weights: Record<string, number>;
+  factors: Factor[];
+  original_verdict: string;
+  original_overall: number;
+  changed: boolean;
+  custom_weights: boolean;
+};
+
+export type Condition = { text: string; status: "open" | "met" | "not_met"; note: string; updated_at: string | null; updated_by: string | null };
+
 export type RunDetail = RunSummary & {
+  currency: "GBP" | "EUR" | "USD" | "INR";
+  currency_symbol: string;
+  decision: Decision | null;
+  conditions: Condition[];
   workspace_name: string;
   objective: string | null;
   context: Record<string, string | null>;

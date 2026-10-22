@@ -8,11 +8,19 @@ export const statusLabel: Record<ClaimStatus, string> = {
   missing: "Missing data",
 };
 
-export const eurK = (v: number) => {
+/** Compact money, e.g. −£329k or £3.11m, in the run's currency. */
+export const money = (v: number, sym = "£") => {
   const sign = v < 0 ? "−" : "";
   const abs = Math.abs(v);
-  return abs >= 1_000_000 ? `${sign}€${(abs / 1_000_000).toFixed(2)}m` : `${sign}€${Math.round(abs / 1000)}k`;
+  return abs >= 1_000_000 ? `${sign}${sym}${(abs / 1_000_000).toFixed(2)}m` : `${sign}${sym}${Math.round(abs / 1000)}k`;
 };
+
+export const currencies = [
+  { code: "GBP", label: "£ Pound sterling" },
+  { code: "EUR", label: "€ Euro" },
+  { code: "USD", label: "$ US dollar" },
+  { code: "INR", label: "₹ Indian rupee" },
+] as const;
 
 export const assumptionMeta: Record<AssumptionKey, { label: string; share: boolean; min: number; max: number; step: number }> = {
   price: { label: "Price per unit", share: false, min: 1, max: 2000, step: 1 },
@@ -27,9 +35,9 @@ export const assumptionMeta: Record<AssumptionKey, { label: string; share: boole
 
 export const assumptionKeys = Object.keys(assumptionMeta) as AssumptionKey[];
 
-export function formatAssumption(key: AssumptionKey, v: number) {
+export function formatAssumption(key: AssumptionKey, v: number, sym = "£") {
   const m = assumptionMeta[key];
-  return m.share ? `${Math.round(v * 100)}%` : v >= 10000 ? eurK(v) : `€${v.toLocaleString("en-GB", { maximumFractionDigits: 0 })}`;
+  return m.share ? `${Math.round(v * 100)}%` : v >= 10000 ? money(v, sym) : `${sym}${v.toLocaleString("en-GB", { maximumFractionDigits: 0 })}`;
 }
 
 export function date(iso: string | null) {

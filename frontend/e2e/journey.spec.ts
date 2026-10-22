@@ -25,6 +25,7 @@ test("market-entry question to defensible report", async ({ page }) => {
   await expect(page.getByText("memo.pdf")).toBeVisible();
 
   await page.getByLabel("Market-entry question").fill("Should we launch sustainable trainers online in the UK in 2027?");
+  await page.getByLabel("Currency for financial figures").selectOption("INR");
   await page.getByRole("button", { name: "Draft research plan" }).click();
 
   // Research plan: reviewed and edited before anything is searched.
@@ -37,8 +38,8 @@ test("market-entry question to defensible report", async ({ page }) => {
   // Run completes; the executive dashboard appears.
   await expect(page.getByRole("button", { name: "Executive dashboard" })).toBeVisible({ timeout: 60_000 });
   await expect(page.getByText("Recommendation", { exact: true })).toBeVisible();
-  await expect(page.getByText(/Confidence (Low|Moderate|High)/)).toBeVisible();
-  await expect(page.getByText("Held at 50")).toBeVisible(); // unevidenced factor score is not trusted
+  await expect(page.getByText(/Confidence (Low|Moderate|High)/).first()).toBeVisible();
+  await expect(page.getByText("held at 50").first()).toBeVisible(); // unevidenced factor score is not trusted
   await shot(page, "02-dashboard");
 
   // Change an assumption: the Python engine recalculates; save a new version.
@@ -56,6 +57,22 @@ test("market-entry question to defensible report", async ({ page }) => {
   await page.getByRole("button", { name: "Export board report" }).click();
   const file = await (await download).path();
   expect(fs.readFileSync(file!).subarray(0, 4).toString()).toBe("%PDF");
+
+  // Figures use the run's currency.
+  await expect(page.getByText(/₹\d/).first()).toBeVisible();
+
+  // Decision workspace: preview other weights, save them, and track a condition.
+  await expect(page.getByRole("heading", { name: "Decision workspace" })).toBeVisible();
+  const weight = page.getByRole("slider", { name: "Weight for Market attractiveness" });
+  await weight.focus();
+  for (let i = 0; i < 6; i++) await page.keyboard.press("ArrowRight");
+  await expect(page.getByText("Preview", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Save these weights" }).click();
+  await expect(page.getByText("Using your saved weights.")).toBeVisible();
+  const met = page.getByRole("button", { name: "Met", exact: true }).first();
+  await met.click();
+  await expect(met).toHaveAttribute("aria-pressed", "true");
+  await shot(page, "02b-decision");
 
   // Evidence inspector: contradicted claim with its exact quote.
   await page.getByRole("button", { name: "Evidence inspector" }).click();

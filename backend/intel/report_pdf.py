@@ -83,10 +83,10 @@ def _p(text: str, style: ParagraphStyle) -> Paragraph:
     return Paragraph(escape(str(text)), style)
 
 
-def _eur(v: float) -> str:
+def _eur(v: float, sym: str = "€") -> str:
     sign = "−" if v < 0 else ""
     v = abs(v)
-    return f"{sign}€{v / 1_000_000:.2f}m" if v >= 1_000_000 else f"{sign}€{round(v / 1000):,}k"
+    return f"{sign}{sym}{v / 1_000_000:.2f}m" if v >= 1_000_000 else f"{sign}{sym}{round(v / 1000):,}k"
 
 
 def _table(rows: list[list], widths: list[float], header: bool = True) -> Table:
@@ -132,6 +132,12 @@ def build_report(data: dict) -> bytes:
     width = A4[0] - 36 * mm
     story: list = []
     rec = data.get("recommendation") or {}
+    # The built-in PDF fonts include £, € and $ but not ₹, so rupees are written as a code.
+    sym = {"₹": "INR "}.get(data.get("currency_symbol", "€"), data.get("currency_symbol", "€"))
+
+    def money(v: float) -> str:
+        return _eur(v, sym)
+
     claims = data.get("claims", [])
 
     # Cover and recommendation.
@@ -175,6 +181,23 @@ def build_report(data: dict) -> bytes:
         story.append(
             Table([[cols[0], cols[1]]], colWidths=[width / 2, width / 2], style=[("VALIGN", (0, 0), (-1, -1), "TOP")])
         )
+        decision = data.get("decision") or {}
+        if decision.get("changed"):
+            reason = "the weights were adjusted" if decision.get("custom_weights") else "the evidence changed"
+            story.append(
+                _p(
+                    f"Since this recommendation was written, {reason}. Current verdict: {decision['verdict']} "
+                    f"(score {decision['overall']}, confidence {decision['confidence_label']}).",
+                    s["body"],
+                )
+            )
+        tracked = data.get("conditions") or []
+        if any(c["status"] != "open" for c in tracked):
+            labels = {"open": "Open", "met": "Met", "not_met": "Not met"}
+            story.append(_p("CONDITION TRACKER", s["h2"]))
+            for c in tracked:
+                note = f" ({c['note']})" if c.get("note") else ""
+                story.append(_p(f"{labels[c['status']]}: {c['text']}{note}", s["body"]))
 
     # Scores.
     factors = data.get("factors", [])
@@ -205,9 +228,9 @@ def build_report(data: dict) -> bytes:
         for label, key, fmt in (
             ("Break-even month", "break_even_month", lambda v: f"Month {v}" if v else "Not within 36 months"),
             ("Payback month", "payback_month", lambda v: f"Month {v}" if v else "Not within 36 months"),
-            ("Peak funding need", "peak_funding", lambda v: _eur(-v)),
-            ("Revenue, 36 months", "revenue_36", _eur),
-            ("Cash at month 36", "cash_36", _eur),
+            ("Peak funding need", "peak_funding", lambda v: money(-v)),
+            ("Revenue, 36 months", "revenue_36", money),
+            ("Cash at month 36", "cash_36", money),
         ):
             rows.append([label] + [fmt(res[n][key]) for n in ("conservative", "base", "optimistic")])
         story.append(_table(rows, [50 * mm] + [(width - 50 * mm) / 3] * 3))
@@ -220,7 +243,7 @@ def build_report(data: dict) -> bytes:
                 "user": "Entered by user",
             }.get(v.get("origin"), v.get("origin"))
             spec = ASSUMPTION_SPEC.get(k, {"label": k, "unit": ""})
-            value = f"{v['value'] * 100:.0f}%" if spec["unit"] == "share" else f"€{v['value']:,.0f}"
+            value = f"{v['value'] * 100:.0f}%" if spec["unit"] == "share" else f"{sym}{v['value']:,.0f}"
             arows.append([spec["label"], value, origin])
         story.append(_table(arows, [60 * mm, 40 * mm, width - 100 * mm]))
         sens = scenario["results"].get("sensitivity", [])[:4]
@@ -228,7 +251,7 @@ def build_report(data: dict) -> bytes:
             story.append(
                 _p(
                     "Most sensitive inputs (change in month-36 cash for a ±20% move): "
-                    + "; ".join(f"{r['label']} {_eur(r['low'])} / {_eur(r['high'])}" for r in sens),
+                    + "; ".join(f"{r['label']} {money(r['low'])} / {money(r['high'])}" for r in sens),
                     s["small"],
                 )
             )

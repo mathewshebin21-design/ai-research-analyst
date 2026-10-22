@@ -1,4 +1,4 @@
-import { eurK } from "@/lib/format";
+import { money } from "@/lib/format";
 import type { RunDetail, ScenarioResults } from "@/lib/types";
 import type { EChartOption } from "./echart";
 
@@ -20,15 +20,15 @@ const axis = {
 };
 const tip = { backgroundColor: P.surface, borderColor: P.line, textStyle: { color: P.fg, fontFamily: P.font, fontSize: 12 } };
 
-export function cashOption(r: ScenarioResults): EChartOption {
+export function cashOption(r: ScenarioResults, sym = "£"): EChartOption {
   const order = ["optimistic", "base", "conservative"] as const;
   const names = { optimistic: "Optimistic", base: "Base", conservative: "Conservative" };
   return {
     textStyle: { fontFamily: P.font },
     grid: { left: 56, right: 96, top: 16, bottom: 28 },
-    tooltip: { trigger: "axis", ...tip, valueFormatter: (v: number) => eurK(v) },
+    tooltip: { trigger: "axis", ...tip, valueFormatter: (v: number) => money(v, sym) },
     xAxis: { type: "category", boundaryGap: false, data: Array.from({ length: r.months }, (_, i) => `M${i + 1}`), ...axis, splitLine: { show: false }, axisLabel: { ...axis.axisLabel, interval: 5 } },
-    yAxis: { type: "value", ...axis, axisLabel: { ...axis.axisLabel, formatter: (v: number) => eurK(v) } },
+    yAxis: { type: "value", ...axis, axisLabel: { ...axis.axisLabel, formatter: (v: number) => money(v, sym) } },
     series: order.map((k) => ({
       name: names[k],
       type: "line",
@@ -42,14 +42,14 @@ export function cashOption(r: ScenarioResults): EChartOption {
   };
 }
 
-export function tornadoOption(r: ScenarioResults): EChartOption {
+export function tornadoOption(r: ScenarioResults, sym = "£"): EChartOption {
   const rows = [...r.sensitivity].reverse();
   return {
     textStyle: { fontFamily: P.font },
     grid: { left: 150, right: 24, top: 28, bottom: 24 },
     legend: { top: 0, right: 0, itemWidth: 10, itemHeight: 10, textStyle: { color: P.muted, fontSize: 11 } },
-    tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, ...tip, valueFormatter: (v: number) => eurK(v) },
-    xAxis: { type: "value", ...axis, axisLabel: { ...axis.axisLabel, formatter: (v: number) => eurK(v) } },
+    tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, ...tip, valueFormatter: (v: number) => money(v, sym) },
+    xAxis: { type: "value", ...axis, axisLabel: { ...axis.axisLabel, formatter: (v: number) => money(v, sym) } },
     yAxis: { type: "category", data: rows.map((x) => x.label), ...axis, splitLine: { show: false } },
     series: [
       { name: "Input −20%", type: "bar", stack: "a", data: rows.map((x) => Math.round(x.low)), itemStyle: { color: P.muted }, barWidth: 12 },

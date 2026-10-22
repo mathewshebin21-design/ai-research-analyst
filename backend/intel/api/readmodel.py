@@ -2,6 +2,7 @@
 
 from sqlalchemy.orm import Session
 
+from intel.decision import CURRENCIES, conditions, currency_of, current_decision
 from intel.models import (
     Analysis,
     Claim,
@@ -91,6 +92,8 @@ def run_detail(db: Session, run: Run, events_after: int = 0) -> dict:
             "kind": c.kind,
             "status": c.status,
             "status_reason": c.status_reason,
+            "user_flag": c.user_flag,
+            "user_note": c.user_note,
             "evidence": [
                 {
                     "source_id": e.source_id,
@@ -116,6 +119,10 @@ def run_detail(db: Session, run: Run, events_after: int = 0) -> dict:
         "workspace_name": workspace.name if workspace else "",
         "objective": (run.context or {}).get("objective"),
         "context": {k: v for k, v in (run.context or {}).items() if k not in ("objective", "verdict")},
+        "currency": currency_of(run),
+        "currency_symbol": CURRENCIES[currency_of(run)],
+        "decision": current_decision(db, run) if run.status == "completed" else None,
+        "conditions": conditions(db, run) if run.status == "completed" else [],
         "settings": run.settings,
         "usage": run.usage,
         "document_ids": run.document_ids,
