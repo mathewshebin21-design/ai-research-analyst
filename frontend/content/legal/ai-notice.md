@@ -19,6 +19,10 @@
 - **Relevant** sources that do not state a claim never count as support.
 - **Model estimate** marks a financial assumption that no source provided. Replace it with your own figure where you can.
 
+## Evidence you add
+
+You can add a link, pasted text or one of your PDFs to any claim. It is checked in the same way, with an exact quote, and labelled "Added by user" everywhere it appears, including exports. Links are fetched by our servers only when you ask, and only from public web addresses. You can also dispute a claim; a disputed claim counts as no evidence in the decision until the dispute is cleared.
+
 ## Limitations
 
 Language models can misread text and search engines can return outdated, biased or wrong pages. Sources may be paywalled, incomplete or change after retrieval. Coverage depends on what search can find. Always read the cited extracts before relying on a figure, and treat outputs as a starting point for your own analysis.

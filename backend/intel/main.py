@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
-from intel.api import account, decision, documents, runs, workspaces
+from intel.api import account, decision, documents, evidence, runs, workspaces
 from intel.config import get_settings
 from intel.db import Base, get_engine
 from intel.logging_setup import configure_logging, request_id
@@ -100,7 +100,7 @@ def create_app(start_worker: bool | None = None) -> FastAPI:
     def legal_versions() -> dict:
         return {"terms": settings.terms_version, "privacy": settings.privacy_version}
 
-    for r in (account.router, workspaces.router, runs.router, documents.router, decision.router):
+    for r in (account.router, workspaces.router, runs.router, documents.router, decision.router, evidence.router):
         app.include_router(r)
     return app
 

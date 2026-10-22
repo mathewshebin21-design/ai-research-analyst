@@ -132,7 +132,7 @@ export function RunView() {
           <motion.div key={view} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
             {view === "dashboard" && <Dashboard run={run} canEdit={canEdit} onRunChange={setRun} />}
             {view === "research" && <ResearchTab run={run} />}
-            {view === "evidence" && <EvidenceTab run={run} />}
+            {view === "evidence" && <EvidenceTab run={run} canEdit={canEdit} onRunChange={setRun} />}
           </motion.div>
         </>
       )}

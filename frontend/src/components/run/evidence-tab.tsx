@@ -7,10 +7,11 @@ import { Eyebrow, StatusBadge } from "@/components/app/status";
 import { statusLabel } from "@/lib/format";
 import type { ClaimStatus, RunDetail } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { ClaimActions } from "./claim-actions";
 
 const filters = ["all", "supported", "partial", "contradicted", "unsupported", "missing"] as const;
 
-export function EvidenceTab({ run }: { run: RunDetail }) {
+export function EvidenceTab({ run, canEdit, onRunChange }: { run: RunDetail; canEdit: boolean; onRunChange: (r: RunDetail) => void }) {
   const [filter, setFilter] = useState<(typeof filters)[number]>("all");
   const firstProblem = run.claims.find((c) => c.status !== "supported") ?? run.claims[0];
   const [claimId, setClaimId] = useState(firstProblem?.id);
@@ -57,6 +58,7 @@ export function EvidenceTab({ run }: { run: RunDetail }) {
                 <span className="flex items-center gap-2">
                   <span className="tnum text-[12px] text-[var(--muted)]">{c.key}</span>
                   <StatusBadge status={c.status} />
+                  {c.user_flag && <span className="text-[11px] text-[var(--warn)]">Disputed</span>}
                 </span>
                 <span className="text-[13.5px] leading-6">{c.text}</span>
               </button>
@@ -130,6 +132,7 @@ export function EvidenceTab({ run }: { run: RunDetail }) {
             A source can be highly relevant to the topic and still not support the claim. Only the second score, backed by an exact quote, decides the
             status. Checked by {claim.evidence[0]?.model ?? "the verifier"} with rules version {String(run.settings.status_rules ?? "v1")}.
           </p>
+          {canEdit && <ClaimActions key={claim.id} run={run} claim={claim} onRunChange={onRunChange} />}
         </article>
         )}
       </div>

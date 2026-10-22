@@ -82,7 +82,21 @@ test("market-entry question to defensible report", async ({ page }) => {
   await page.getByRole("button", { name: /^All claims/ }).click();
   await page.getByRole("button", { name: /Online footwear sales in the United Kingdom grew by 6.5% in 2025$/ }).first().click();
   await expect(page.getByText(/page 1/).first()).toBeVisible();
+  // Bring your own evidence: a second independent source lifts a single-source claim to supported.
+  await page.getByRole("button", { name: /Competitor Northfold prices its core trainer/ }).first().click();
+  await page.getByRole("tab", { name: "Paste text" }).click();
+  await page.getByLabel("Where the text comes from").fill("Store audit, October 2026");
+  await page.getByLabel("Source text").fill("Competitor Northfold prices its core trainer at £150 and sells direct, our store audit found.");
+  await page.getByRole("button", { name: "Check this evidence" }).click();
+  await expect(page.getByRole("status")).toContainText("moved from partially supported to supported");
+
+  // Dispute a claim: flagged, and counted as no evidence until cleared.
+  await page.getByLabel("Reason for dispute").fill("Our panel shows a different figure");
+  await page.getByRole("button", { name: "Dispute this claim" }).click();
+  await expect(page.getByText(/counts as no evidence in the decision/)).toBeVisible();
   await shot(page, "03-evidence");
+  await page.getByRole("button", { name: "Clear dispute" }).click();
+  await expect(page.getByRole("button", { name: "Dispute this claim" })).toBeVisible();
 
   // Research workspace: real sources and frameworks.
   await page.getByRole("button", { name: "Research workspace" }).click();
