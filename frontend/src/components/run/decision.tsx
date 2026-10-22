@@ -25,7 +25,17 @@ const conditionStates: { id: Condition["status"]; label: string; tone: string }[
 
 const toPercent = (w: Record<string, number>) => Object.fromEntries(Object.entries(w).map(([k, v]) => [k, Math.round(v * 100)]));
 
-export function DecisionWorkspace({ run, canEdit, onRunChange }: { run: RunDetail; canEdit: boolean; onRunChange: (r: RunDetail) => void }) {
+export function DecisionWorkspace({
+  run,
+  canEdit,
+  onRunChange,
+  shared = false,
+}: {
+  run: RunDetail;
+  canEdit: boolean;
+  onRunChange: (r: RunDetail) => void;
+  shared?: boolean;
+}) {
   const saved = run.decision;
   const [weights, setWeights] = useState<Record<string, number>>(saved ? toPercent(saved.weights) : {});
   const [preview, setPreview] = useState<Decision | null>(saved);
@@ -78,7 +88,11 @@ export function DecisionWorkspace({ run, canEdit, onRunChange }: { run: RunDetai
   return (
     <Panel
       title="Decision workspace"
-      aside={<span className="text-[12px] text-[var(--muted)]">Change what matters most to you; the verdict follows fixed rules</span>}
+      aside={
+        <span className="text-[12px] text-[var(--muted)]">
+          {shared ? "Weights set by the report's owner; the verdict follows fixed rules" : "Change what matters most to you; the verdict follows fixed rules"}
+        </span>
+      }
     >
       {error && <div className="mb-4"><ErrorNote>{error}</ErrorNote></div>}
 
@@ -117,14 +131,14 @@ export function DecisionWorkspace({ run, canEdit, onRunChange }: { run: RunDetai
                 <td className="py-3 pr-4">{f.label}</td>
                 <td className="py-3 pr-4">
                   <div className="flex items-center gap-3">
-                    <Slider
+                    {!shared && <Slider
                       aria-label={`Weight for ${f.label}`}
                       min={0}
                       max={100}
                       step={5}
                       value={[weights[f.key] ?? 0]}
                       onValueChange={([v]) => setWeights({ ...weights, [f.key]: v })}
-                    />
+                    />}
                     <span className="tnum w-10 text-right text-[var(--muted)]">{Math.round(f.weight * 100)}%</span>
                   </div>
                 </td>
@@ -141,7 +155,7 @@ export function DecisionWorkspace({ run, canEdit, onRunChange }: { run: RunDetai
           </tbody>
         </table>
       </div>
-      <div className="mt-4 flex flex-wrap items-center gap-3">
+      <div className={cn("mt-4 flex flex-wrap items-center gap-3", shared && "hidden")}>
         {canEdit && (
           <Button size="sm" onClick={() => persist()} disabled={!dirty || busy}>
             <Save /> Save these weights

@@ -13,6 +13,7 @@ import { assumptionKeys, assumptionMeta, formatAssumption, money } from "@/lib/f
 import type { Assumption, AssumptionKey, RunDetail, ScenarioOut, ScenarioResults } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { DecisionWorkspace } from "./decision";
+import { SharePanel } from "./share-panel";
 
 const verdictTone: Record<string, string> = {
   Go: "border-[var(--ok)] text-[var(--ok)]",
@@ -23,7 +24,17 @@ const verdictTone: Record<string, string> = {
 
 const originLabel = { evidence: "From evidence", estimate: "Model estimate", user: "Your input" };
 
-export function Dashboard({ run, canEdit, onRunChange }: { run: RunDetail; canEdit: boolean; onRunChange: (r: RunDetail) => void }) {
+export function Dashboard({
+  run,
+  canEdit,
+  onRunChange,
+  shared = false,
+}: {
+  run: RunDetail;
+  canEdit: boolean;
+  onRunChange: (r: RunDetail) => void;
+  shared?: boolean;
+}) {
   const rec = run.recommendation;
   const counts = run.claims.reduce<Record<string, number>>((m, c) => ({ ...m, [c.status]: (m[c.status] ?? 0) + 1 }), {});
 
@@ -78,9 +89,9 @@ export function Dashboard({ run, canEdit, onRunChange }: { run: RunDetail; canEd
         </section>
       )}
 
-      <DecisionWorkspace run={run} canEdit={canEdit} onRunChange={onRunChange} />
+      <DecisionWorkspace run={run} canEdit={canEdit} onRunChange={onRunChange} shared={shared} />
 
-      <Scenarios run={run} canEdit={canEdit} onRunChange={onRunChange} />
+      <Scenarios run={run} canEdit={canEdit} onRunChange={onRunChange} shared={shared} />
 
       <div className="grid gap-12 lg:grid-cols-2">
         <Panel title="Competitors named in the evidence">
@@ -132,6 +143,8 @@ export function Dashboard({ run, canEdit, onRunChange }: { run: RunDetail; canEd
         </Panel>
       </div>
 
+      {!shared && <SharePanel run={run} canEdit={canEdit} />}
+
       <p className="border-t border-[var(--line)] pt-4 text-[12px] leading-5 text-[var(--muted)]">
         Generated with automated research and language models. Not financial, investment or legal advice. Check the cited extracts in the
         evidence inspector before relying on any figure.
@@ -149,7 +162,7 @@ function Figure({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Scenarios({ run, canEdit, onRunChange }: { run: RunDetail; canEdit: boolean; onRunChange: (r: RunDetail) => void }) {
+function Scenarios({ run, canEdit, onRunChange, shared }: { run: RunDetail; canEdit: boolean; onRunChange: (r: RunDetail) => void; shared: boolean }) {
   const saved = run.scenario;
   const initial = useMemo(() => {
     const from = saved?.assumptions ?? run.assumption_suggestions;
@@ -163,7 +176,7 @@ function Scenarios({ run, canEdit, onRunChange }: { run: RunDetail; canEdit: boo
   const changed = draft && initial && assumptionKeys.some((k) => draft[k].value !== initial[k].value);
 
   useEffect(() => {
-    if (!draft) return;
+    if (!draft || shared) return; // a shared link shows the saved version only; recalculating needs an account
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(async () => {
       try {
@@ -174,7 +187,7 @@ function Scenarios({ run, canEdit, onRunChange }: { run: RunDetail; canEdit: boo
         setError((e as Error).message);
       }
     }, 250);
-  }, [draft]);
+  }, [draft, shared]);
 
   async function saveVersion() {
     if (!draft) return;
@@ -217,9 +230,11 @@ function Scenarios({ run, canEdit, onRunChange }: { run: RunDetail; canEdit: boo
               <Save /> {busy === "save" ? "Saving…" : "Save as new version"}
             </Button>
           )}
-          <Button size="sm" onClick={exportPdf} disabled={busy !== null}>
-            <Download /> {busy === "export" ? "Preparing PDF…" : "Export board report"}
-          </Button>
+          {!shared && (
+            <Button size="sm" onClick={exportPdf} disabled={busy !== null}>
+              <Download /> {busy === "export" ? "Preparing PDF…" : "Export board report"}
+            </Button>
+          )}
         </div>
       }
     >

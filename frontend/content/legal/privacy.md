@@ -33,7 +33,7 @@ The Service uses language models to analyse research material and produce output
 
 ## Who we share it with
 
-We use the service providers in our [subprocessor list](/legal/subprocessors) to host the Service, authenticate users, run language models and perform web searches. They act on our instructions under written contracts. We do not sell personal data. We may disclose data if required by law or to protect rights and safety.
+We use the service providers in our [subprocessor list](/legal/subprocessors) to host the Service, authenticate users, run language models and perform web searches. They act on our instructions under written contracts. We do not sell personal data. If you or a colleague create a read-only share link for a report, anyone who holds that link can see the report, including extracts from documents uploaded to it; links can be turned off at any time from the report. We may disclose data if required by law or to protect rights and safety.
 
 ## International transfers
 

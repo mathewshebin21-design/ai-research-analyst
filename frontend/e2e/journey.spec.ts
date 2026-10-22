@@ -7,7 +7,7 @@ async function shot(page: import("@playwright/test").Page, name: string) {
   if (shots) await page.screenshot({ path: `${shots}/${name}.png`, fullPage: true });
 }
 
-test("market-entry question to defensible report", async ({ page }) => {
+test("market-entry question to defensible report", async ({ page, browser }) => {
   await page.goto("/");
   await page.getByRole("link", { name: "Sign in" }).click();
   await page.getByLabel("Email").fill("analyst@example.com");
@@ -103,6 +103,32 @@ test("market-entry question to defensible report", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Sources" })).toBeVisible();
   await expect(page.getByRole("link", { name: /Fixture: footwear retail sales bulletin/ })).toBeVisible();
   await shot(page, "04-workspace");
+
+  // Slides and a read-only link for stakeholders.
+  await page.getByRole("button", { name: "Executive dashboard" }).click();
+  const deckDl = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export slides" }).click();
+  const deck = await (await deckDl).path();
+  expect(fs.readFileSync(deck!).subarray(0, 2).toString()).toBe("PK"); // .pptx is a zip
+  await page.getByRole("button", { name: "Create read-only link" }).click();
+  const shareUrl = await page.getByLabel(/New link/).inputValue();
+  expect(shareUrl).toMatch(/\/shared\?t=/);
+  const guest = await browser.newContext(); // no sign-in
+  const guestPage = await guest.newPage();
+  await guestPage.goto(shareUrl);
+  await expect(guestPage.getByText(/Shared read-only report/)).toBeVisible();
+  await expect(guestPage.getByRole("heading", { level: 1 })).toContainText("sustainable trainers");
+  await expect(guestPage.getByText("Decision workspace")).toBeVisible();
+  await expect(guestPage.getByRole("button", { name: "Export board report" })).toHaveCount(0);
+  await expect(guestPage.getByRole("slider", { name: /Weight for/ })).toHaveCount(0);
+  await guestPage.getByRole("button", { name: "Evidence" }).click();
+  await expect(guestPage.getByRole("button", { name: "Dispute this claim" })).toHaveCount(0);
+  await shot(guestPage, "05-shared");
+  await page.getByRole("button", { name: "Turn off link 1" }).click();
+  await expect(page.getByText("No active links.")).toBeVisible();
+  await guestPage.reload();
+  await expect(guestPage.getByText("This link is not valid or has been turned off.")).toBeVisible();
+  await guest.close();
 
   // Account: data export works.
   await page.getByRole("link", { name: "Account and data" }).click();
