@@ -1309,5 +1309,6 @@
   "searches": 3
  },
  "shared": true,
- "sample_note": "Illustrative sample. It was produced by the real pipeline running on made-up test sources, so the sources, figures and verdict are not research. It shows how a report reads: every claim links to a checked extract, and unsupported figures are marked."
+ "sample_note": "Illustrative sample. It was produced by the real pipeline running on made-up test sources, so the sources, figures and verdict are not research. It shows how a report reads: every claim links to a checked extract, and unsupported figures are marked.",
+ "sample": true
 }

@@ -1,11 +1,11 @@
-"""Run allowance, refreshes and the public sample report."""
+"""Run allowance and refreshes."""
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from intel import growth
-from intel.api.deps import audit, expensive, limiter, rate_limited
+from intel.api.deps import audit, expensive, rate_limited
 from intel.api.readmodel import run_detail
 from intel.config import Settings, get_settings
 from intel.db import get_db
@@ -13,7 +13,6 @@ from intel.models import Run, User
 from intel.security.auth import accepted_user, require_role
 
 router = APIRouter(dependencies=[Depends(rate_limited)])
-public = APIRouter()
 
 
 class ScheduleIn(BaseModel):
@@ -60,12 +59,3 @@ def refresh_schedule(
     audit(db, "run.refresh_schedule", user.id, run.workspace_id, run=run.id, monthly=body.monthly)
     db.commit()
     return {"refresh_monthly": body.monthly}
-
-
-@public.get("/sample")
-def sample(request: Request) -> dict:
-    limiter("public", 30).check(request)
-    data = growth.sample_report()
-    if data is None:
-        raise HTTPException(404, "No sample report is available.")
-    return data

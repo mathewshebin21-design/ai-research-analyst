@@ -84,15 +84,15 @@ def test_monthly_refresh_is_opt_in_and_queues_once(client):
         assert growth.due_refreshes(db, settings, later) == []  # only once
 
 
-def test_sample_report_is_public_and_labelled(client, tmp_path, monkeypatch):
+def test_sample_export_is_labelled_and_private_fields_removed(client, tmp_path, monkeypatch):
+    import json
+
     from intel import export_sample
 
-    monkeypatch.setattr(growth, "SAMPLE_PATH", tmp_path / "sample.json")
     monkeypatch.setattr(export_sample, "SAMPLE_PATH", tmp_path / "sample.json")
-    assert client.get("/sample").status_code == 404
     h = login(client)
     ws, d = _completed_run(client, h)
     export_sample.export(d["id"], "Illustrative sample.")
-    body = client.get("/sample").json()
+    body = json.loads((tmp_path / "sample.json").read_text())
     assert body["sample"] is True and body["shared"] is True and body["sample_note"] == "Illustrative sample."
     assert body["workspace_name"] == "Sample" and "events" not in body and "dev-" not in str(body)

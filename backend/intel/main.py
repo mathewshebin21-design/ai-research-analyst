@@ -110,7 +110,6 @@ def create_app(start_worker: bool | None = None) -> FastAPI:
         share.router,
         growth.router,
         share.public,
-        growth.public,
     ):
         app.include_router(r)
     return app

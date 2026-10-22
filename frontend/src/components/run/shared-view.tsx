@@ -29,7 +29,8 @@ export function SharedView({ sample = false }: { sample?: boolean }) {
 
   useEffect(() => {
     if (!token && !sample) return;
-    fetch(sample ? `${API_URL}/sample` : `${API_URL}/shared/${encodeURIComponent(token)}`)
+    // The sample is a static file in the web app, so it works even without the API.
+    fetch(sample ? "/sample-run.json" : `${API_URL}/shared/${encodeURIComponent(token)}`)
       .then(async (r) => {
         if (r.ok) return setRun(await r.json());
         setError(

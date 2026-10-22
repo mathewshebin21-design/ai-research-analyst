@@ -1,14 +1,12 @@
-"""Run allowance, refreshing a run, what changed since the previous run, and the sample report.
+"""Run allowance, refreshing a run, and what changed since the previous run.
 
 Refreshing copies the reviewed plan into a new run linked by previous_run_id. The comparison is
 deterministic: claims from the two runs are matched by word overlap, sources by address, and the
 verdict, base case and competitor list are compared field by field.
 """
 
-import json
 import re
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 
 from sqlalchemy.orm import Session
 
@@ -18,7 +16,6 @@ from intel.models import Analysis, Claim, Job, Run, RunEvent, Scenario, Source, 
 
 REFRESH_AFTER = timedelta(days=30)
 CLAIM_MATCH = 0.5
-SAMPLE_PATH = Path(__file__).parent / "sample" / "sample-run.json"
 _WORD = re.compile(r"[a-z0-9]+(?:\.[0-9]+)?%?")
 
 
@@ -220,13 +217,3 @@ def changes(db: Session, run: Run) -> dict | None:
         "sources by web address. Evidence you added yourself is not compared. The base case is each run's "
         "first version, calculated from its own research.",
     }
-
-
-# ---- sample report -------------------------------------------------------------------------
-
-
-def sample_report() -> dict | None:
-    if not SAMPLE_PATH.exists():
-        return None
-    data = json.loads(SAMPLE_PATH.read_text())
-    return {**data, "shared": True, "sample": True}
