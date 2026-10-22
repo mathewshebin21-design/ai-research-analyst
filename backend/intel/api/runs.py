@@ -343,7 +343,7 @@ def compare(a: str, b: str, user: User = Depends(accepted_user), db: Session = D
                 "sources": len(d["sources"]),
                 "factors": {f["key"]: f["score"] for f in d["factors"]},
                 "currency_symbol": d["currency_symbol"],
-            "break_even_month": base.get("break_even_month"),
+                "break_even_month": base.get("break_even_month"),
                 "peak_funding": base.get("peak_funding"),
             }
         )
