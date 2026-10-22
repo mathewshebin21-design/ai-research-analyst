@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
-from intel.api import account, decision, documents, evidence, runs, share, workspaces
+from intel.api import account, decision, documents, evidence, growth, runs, share, workspaces
 from intel.config import get_settings
 from intel.db import Base, get_engine
 from intel.logging_setup import configure_logging, request_id
@@ -108,7 +108,9 @@ def create_app(start_worker: bool | None = None) -> FastAPI:
         decision.router,
         evidence.router,
         share.router,
+        growth.router,
         share.public,
+        growth.public,
     ):
         app.include_router(r)
     return app

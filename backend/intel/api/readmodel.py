@@ -3,6 +3,7 @@
 from sqlalchemy.orm import Session
 
 from intel.decision import CURRENCIES, conditions, currency_of, current_decision
+from intel.growth import changes
 from intel.models import (
     Analysis,
     Claim,
@@ -118,11 +119,16 @@ def run_detail(db: Session, run: Run, events_after: int = 0) -> dict:
         **run_summary(run),
         "workspace_name": workspace.name if workspace else "",
         "objective": (run.context or {}).get("objective"),
-        "context": {k: v for k, v in (run.context or {}).items() if k not in ("objective", "verdict")},
+        "context": {
+            k: v for k, v in (run.context or {}).items() if k not in ("objective", "verdict", "refresh_monthly")
+        },
         "currency": currency_of(run),
         "currency_symbol": CURRENCIES[currency_of(run)],
         "decision": current_decision(db, run) if run.status == "completed" else None,
         "conditions": conditions(db, run) if run.status == "completed" else [],
+        "previous_run_id": run.previous_run_id,
+        "refresh_monthly": bool((run.context or {}).get("refresh_monthly")),
+        "changes": changes(db, run),
         "settings": run.settings,
         "usage": run.usage,
         "document_ids": run.document_ids,

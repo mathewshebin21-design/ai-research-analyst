@@ -12,6 +12,7 @@ import type { RunSummary } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Eyebrow } from "./status";
 import { useSession } from "./session";
+import { UsageMeter, useUsage } from "./usage";
 
 const nav = [
   { href: "/app", label: "Research", icon: BookOpenCheck },
@@ -24,6 +25,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [recent, setRecent] = useState<RunSummary[]>([]);
+  const usage = useUsage(workspace.id);
 
   const pending = recent.some((r) => ["planned", "queued", "running"].includes(r.status));
 
@@ -87,6 +89,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               );
             })}
           </nav>
+          <UsageMeter usage={usage} className="hidden lg:flex" />
           {recent.length > 0 && (
             <div className="hidden lg:block">
               <Eyebrow className="mb-2">Recent questions</Eyebrow>

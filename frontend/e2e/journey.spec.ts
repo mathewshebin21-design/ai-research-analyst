@@ -9,6 +9,11 @@ async function shot(page: import("@playwright/test").Page, name: string) {
 
 test("market-entry question to defensible report", async ({ page, browser }) => {
   await page.goto("/");
+  // The sample report is public and clearly labelled.
+  await page.getByRole("link", { name: "See a sample report" }).click();
+  await expect(page.getByText("Sample report", { exact: true })).toBeVisible();
+  await expect(page.getByRole("note")).toContainText("not research");
+  await page.goto("/");
   await page.getByRole("link", { name: "Sign in" }).click();
   await page.getByLabel("Email").fill("analyst@example.com");
   await page.getByRole("button", { name: "Sign in" }).click();
@@ -19,6 +24,7 @@ test("market-entry question to defensible report", async ({ page, browser }) => 
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Accept and continue" }).click();
   await expect(page.getByRole("heading", { name: "What decision are you making?" })).toBeVisible();
+  await expect(page.getByText(/50 of 50 runs left/).first()).toBeVisible();
 
   // Upload an internal PDF; it is cited by page later.
   await page.locator("#upload").setInputFiles("e2e/fixtures/memo.pdf");
@@ -129,6 +135,15 @@ test("market-entry question to defensible report", async ({ page, browser }) => 
   await guestPage.reload();
   await expect(guestPage.getByText("This link is not valid or has been turned off.")).toBeVisible();
   await guest.close();
+
+  // Refresh: same plan, one more run used, and the new report says what changed.
+  await page.getByRole("button", { name: "Refresh with new data" }).click();
+  await expect(page.getByText(/This refreshes an/)).toBeVisible();
+  await page.getByRole("button", { name: "Approve plan and start research" }).click();
+  await expect(page.getByRole("heading", { name: /What changed since/ })).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText(/Verdict/).first()).toBeVisible();
+  await expect(page.getByText(/48 of 50 runs left/).first()).toBeVisible();
+  await shot(page, "06-changes");
 
   // Account: data export works.
   await page.getByRole("link", { name: "Account and data" }).click();

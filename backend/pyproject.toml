@@ -31,6 +31,9 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 include = ["intel*"]
 
+[tool.setuptools.package-data]
+intel = ["sample/*.json"]
+
 [tool.ruff]
 line-length = 120
 target-version = "py311"

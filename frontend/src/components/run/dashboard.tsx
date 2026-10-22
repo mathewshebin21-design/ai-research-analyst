@@ -13,6 +13,7 @@ import { assumptionKeys, assumptionMeta, formatAssumption, money } from "@/lib/f
 import type { Assumption, AssumptionKey, RunDetail, ScenarioOut, ScenarioResults } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { DecisionWorkspace } from "./decision";
+import { ChangesPanel, RefreshPanel } from "./refresh";
 import { SharePanel } from "./share-panel";
 
 const verdictTone: Record<string, string> = {
@@ -89,6 +90,8 @@ export function Dashboard({
         </section>
       )}
 
+      {run.changes && <ChangesPanel changes={run.changes} sym={run.currency_symbol} linkPrevious={!shared} />}
+
       <DecisionWorkspace run={run} canEdit={canEdit} onRunChange={onRunChange} shared={shared} />
 
       <Scenarios run={run} canEdit={canEdit} onRunChange={onRunChange} shared={shared} />
@@ -142,6 +145,8 @@ export function Dashboard({
           )}
         </Panel>
       </div>
+
+      {!shared && <RefreshPanel run={run} canEdit={canEdit} onRunChange={onRunChange} />}
 
       {!shared && <SharePanel run={run} canEdit={canEdit} />}
 

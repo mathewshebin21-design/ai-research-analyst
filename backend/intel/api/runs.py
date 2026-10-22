@@ -1,12 +1,12 @@
 import asyncio
 import json
-from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import Response, StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from intel import growth
 from intel.api.deps import audit, expensive, rate_limited
 from intel.api.readmodel import run_detail, run_summary, scenario_out
 from intel.config import Settings, get_settings
@@ -142,16 +142,9 @@ def start_run(
     run = _load(db, user, run_id, "editor")
     if run.status not in ("planned", "failed"):
         raise HTTPException(409, f"This run is already {run.status}.")
-    month_start = datetime.now(UTC).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    used = (
-        db.query(Run)
-        .filter(Run.workspace_id == run.workspace_id, Run.started_at.is_not(None), Run.started_at >= month_start)
-        .count()
-    )
-    if used >= settings.runs_per_workspace_per_month:
-        raise HTTPException(
-            429, f"This workspace has used its {settings.runs_per_workspace_per_month} runs for this month."
-        )
+    allowance = growth.usage(db, run.workspace_id, settings)
+    if allowance["remaining"] <= 0:
+        raise HTTPException(429, f"This workspace has used its {allowance['limit']} runs for this month.")
     if run.status == "failed":
         _reset(db, run)
     run.status, run.error = "queued", None

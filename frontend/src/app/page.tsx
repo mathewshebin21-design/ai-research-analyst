@@ -27,6 +27,9 @@ export default function Home() {
           <Link href="/sign-in" className="bg-[var(--primary)] px-5 py-2.5 text-[14px] font-medium text-[var(--primary-fg)] hover:opacity-90">
             Start a question
           </Link>
+          <Link href="/sample" className="border border-[var(--line)] px-5 py-2.5 text-[14px] hover:bg-[var(--surface-2)]">
+            See a sample report
+          </Link>
           <Link href="/legal/ai-notice" className="border border-[var(--line)] px-5 py-2.5 text-[14px] hover:bg-[var(--surface-2)]">
             How the evidence works
           </Link>

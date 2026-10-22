@@ -1,0 +1,1313 @@
+{
+ "id": "86ce44c03be14d998ca15fce654a3268",
+ "question": "Should we launch sustainable trainers online in the UK in 2027?",
+ "status": "completed",
+ "verdict": "Insufficient evidence",
+ "created_at": "2026-10-22T14:30:02.503538",
+ "finished_at": "2026-10-22T14:30:02.805099",
+ "workspace_name": "Sample",
+ "objective": "Fixture objective",
+ "currency": "GBP",
+ "currency_symbol": "£",
+ "decision": {
+  "overall": 55.0,
+  "coverage": 0.25,
+  "confidence": 0.212,
+  "confidence_label": "Low",
+  "confidence_method": "Weighted evidence coverage 0.25 × penalty 0.85 for 3 high-severity findings",
+  "verdict": "Insufficient evidence",
+  "rule": "Less than 35% of the weighted case rests on evidence.",
+  "weights": {
+   "attract": 0.25,
+   "demand": 0.2,
+   "compete": 0.15,
+   "econ": 0.25,
+   "exec": 0.15
+  },
+  "factors": [
+   {
+    "key": "attract",
+    "label": "Market attractiveness",
+    "weight": 0.25,
+    "score": 70,
+    "model_score": 70,
+    "coverage": 1.0,
+    "claims": [
+     "C1"
+    ],
+    "rationale": "Growth",
+    "basis": "evidenced"
+   },
+   {
+    "key": "demand",
+    "label": "Customer demand",
+    "weight": 0.2,
+    "score": 50,
+    "model_score": null,
+    "coverage": 0.0,
+    "claims": [],
+    "rationale": "The analyst gave no assessment.",
+    "basis": "no_evidence"
+   },
+   {
+    "key": "compete",
+    "label": "Competitive room",
+    "weight": 0.15,
+    "score": 50,
+    "model_score": null,
+    "coverage": 0.0,
+    "claims": [],
+    "rationale": "The analyst gave no assessment.",
+    "basis": "no_evidence"
+   },
+   {
+    "key": "econ",
+    "label": "Unit economics",
+    "weight": 0.25,
+    "score": 50,
+    "model_score": 90,
+    "coverage": 0.0,
+    "claims": [],
+    "rationale": "Guess",
+    "basis": "no_evidence"
+   },
+   {
+    "key": "exec",
+    "label": "Execution and compliance",
+    "weight": 0.15,
+    "score": 50,
+    "model_score": null,
+    "coverage": 0.0,
+    "claims": [],
+    "rationale": "The analyst gave no assessment.",
+    "basis": "no_evidence"
+   }
+  ],
+  "original_verdict": "Insufficient evidence",
+  "original_overall": 55.0,
+  "changed": false,
+  "custom_weights": false
+ },
+ "conditions": [
+  {
+   "text": "Measured CAC at or below the assumed 55 by month 4",
+   "status": "open",
+   "note": "",
+   "updated_at": null
+  }
+ ],
+ "previous_run_id": null,
+ "refresh_monthly": false,
+ "changes": null,
+ "settings": {
+  "support_threshold": 0.7,
+  "partial_threshold": 0.4,
+  "llm_model": "fake-llm",
+  "status_rules": "v1"
+ },
+ "started_at": "2026-10-22T14:30:02.666983",
+ "tasks": [
+  {
+   "id": "dc70a95e223d4207af21009ab4ee87c8",
+   "key": "T1",
+   "title": "UK online footwear market growth",
+   "category": "Market",
+   "rationale": "Size",
+   "queries": [
+    "uk online footwear sales growth"
+   ],
+   "status": "done",
+   "note": null,
+   "searches": [
+    {
+     "query": "uk online footwear sales growth",
+     "status": "ok",
+     "error": null,
+     "results": 3
+    }
+   ],
+   "claims": 6,
+   "supported": 3
+  },
+  {
+   "id": "eb5bc7ab5b0c456e8bb110aede7f406c",
+   "key": "T2",
+   "title": "Willingness to pay for sustainable trainers",
+   "category": "Customer",
+   "rationale": "Pricing",
+   "queries": [
+    "sustainable trainers premium survey uk"
+   ],
+   "status": "done",
+   "note": null,
+   "searches": [
+    {
+     "query": "sustainable trainers premium survey uk",
+     "status": "ok",
+     "error": null,
+     "results": 3
+    }
+   ],
+   "claims": 3,
+   "supported": 0
+  },
+  {
+   "id": "6e282bbdf4594251ab954cf8dc2e60b3",
+   "key": "T3",
+   "title": "Competitor pricing",
+   "category": "Competition",
+   "rationale": "Positioning",
+   "queries": [
+    "northfold trainer price"
+   ],
+   "status": "done",
+   "note": null,
+   "searches": [
+    {
+     "query": "northfold trainer price",
+     "status": "ok",
+     "error": null,
+     "results": 1
+    }
+   ],
+   "claims": 0,
+   "supported": 0
+  }
+ ],
+ "sources": [
+  {
+   "id": "63b79ac0f2a84d7ea2aea7f6632288a4",
+   "key": "S1",
+   "kind": "web",
+   "url": "https://statistics-office.example/fixture/footwear-sales",
+   "title": "Fixture: footwear retail sales bulletin",
+   "publisher": "statistics-office.example",
+   "tier": "A",
+   "published": "2026-03-01",
+   "retrieved_at": "2026-10-22T14:30:02.689730",
+   "document_id": null
+  },
+  {
+   "id": "4f5361f81c62422e9b7472f35782e493",
+   "key": "S2",
+   "kind": "web",
+   "url": "https://retail-analysts.example/fixture/uk-trainers",
+   "title": "Fixture: UK trainer market note",
+   "publisher": "retail-analysts.example",
+   "tier": "B",
+   "published": null,
+   "retrieved_at": "2026-10-22T14:30:02.691042",
+   "document_id": null
+  },
+  {
+   "id": "e84b85948618437facf6e62b6fc60c1c",
+   "key": "S3",
+   "kind": "web",
+   "url": "https://survey-institute.example/fixture/premium",
+   "title": "Fixture: willingness to pay survey",
+   "publisher": "survey-institute.example",
+   "tier": "B",
+   "published": null,
+   "retrieved_at": "2026-10-22T14:30:02.691851",
+   "document_id": null
+  },
+  {
+   "id": "e581f586ec464f56ba4297efb90d86dd",
+   "key": "S4",
+   "kind": "web",
+   "url": "https://lifestyle-blog.example/fixture/eco-boom",
+   "title": "Fixture: eco trainers are booming",
+   "publisher": "lifestyle-blog.example",
+   "tier": "C",
+   "published": null,
+   "retrieved_at": "2026-10-22T14:30:02.700108",
+   "document_id": null
+  }
+ ],
+ "claims": [
+  {
+   "id": "a0eff354376148fa9dce7e043c543afd",
+   "key": "C1",
+   "task": "T1",
+   "text": "Online footwear sales in the United Kingdom grew by 6.5% in 2025",
+   "kind": "figure",
+   "status": "supported",
+   "status_reason": "Entailed by a tier-A source.",
+   "user_flag": null,
+   "user_note": null,
+   "evidence": [
+    {
+     "source_id": "63b79ac0f2a84d7ea2aea7f6632288a4",
+     "passage": "Fixture text for tests. Online footwear sales in the United Kingdom grew by 6.5% in 2025. Premium trainers accounted for 22% of online footwear spending in 2025.",
+     "page": null,
+     "quote": "Online footwear sales in the United Kingdom grew by 6.5% in 2025.",
+     "quote_start": 24,
+     "quote_end": 89,
+     "relation": "supports",
+     "entailment": 0.88,
+     "relevance": 1.0,
+     "scope_issue": null,
+     "note": "States the claim.",
+     "model": "fake-llm"
+    },
+    {
+     "source_id": "4f5361f81c62422e9b7472f35782e493",
+     "passage": "Fixture text for tests. Online footwear sales in the United Kingdom grew by about 6.5% in 2025, according to our panel. Competitor Northfold prices its core trainer at £150 and sells direct.",
+     "page": null,
+     "quote": "Online footwear sales in the United Kingdom grew by about 6.5% in 2025, according to our panel.",
+     "quote_start": 24,
+     "quote_end": 119,
+     "relation": "supports",
+     "entailment": 0.88,
+     "relevance": 0.804,
+     "scope_issue": null,
+     "note": "States the claim.",
+     "model": "fake-llm"
+    }
+   ]
+  },
+  {
+   "id": "ac1cdc6d92334733b22be6655e65956a",
+   "key": "C2",
+   "task": "T1",
+   "text": "Premium trainers accounted for 22% of online footwear spending in 2025",
+   "kind": "figure",
+   "status": "supported",
+   "status_reason": "Entailed by a tier-A source.",
+   "user_flag": null,
+   "user_note": null,
+   "evidence": [
+    {
+     "source_id": "63b79ac0f2a84d7ea2aea7f6632288a4",
+     "passage": "Fixture text for tests. Online footwear sales in the United Kingdom grew by 6.5% in 2025. Premium trainers accounted for 22% of online footwear spending in 2025.",
+     "page": null,
+     "quote": "Premium trainers accounted for 22% of online footwear spending in 2025.",
+     "quote_start": 90,
+     "quote_end": 161,
+     "relation": "supports",
+     "entailment": 0.88,
+     "relevance": 1.0,
+     "scope_issue": null,
+     "note": "States the claim.",
+     "model": "fake-llm"
+    }
+   ]
+  },
+  {
+   "id": "b4b3c9b7f5f841c4b09943de1a86cbe5",
+   "key": "C3",
+   "task": "T1",
+   "text": "Online footwear sales in the United Kingdom grew by about 6.5% in 2025, according to our panel",
+   "kind": "figure",
+   "status": "supported",
+   "status_reason": "Entailed by a tier-A source.",
+   "user_flag": null,
+   "user_note": null,
+   "evidence": [
+    {
+     "source_id": "4f5361f81c62422e9b7472f35782e493",
+     "passage": "Fixture text for tests. Online footwear sales in the United Kingdom grew by about 6.5% in 2025, according to our panel. Competitor Northfold prices its core trainer at £150 and sells direct.",
+     "page": null,
+     "quote": "Online footwear sales in the United Kingdom grew by about 6.5% in 2025, according to our panel.",
+     "quote_start": 24,
+     "quote_end": 119,
+     "relation": "supports",
+     "entailment": 0.88,
+     "relevance": 1.0,
+     "scope_issue": null,
+     "note": "States the claim.",
+     "model": "fake-llm"
+    },
+    {
+     "source_id": "63b79ac0f2a84d7ea2aea7f6632288a4",
+     "passage": "Fixture text for tests. Online footwear sales in the United Kingdom grew by 6.5% in 2025. Premium trainers accounted for 22% of online footwear spending in 2025.",
+     "page": null,
+     "quote": "Online footwear sales in the United Kingdom grew by 6.5% in 2025.",
+     "quote_start": 24,
+     "quote_end": 89,
+     "relation": "supports",
+     "entailment": 0.88,
+     "relevance": 0.753,
+     "scope_issue": null,
+     "note": "States the claim.",
+     "model": "fake-llm"
+    }
+   ]
+  },
+  {
+   "id": "4fd2c18d34144246b391abebe4ec94ad",
+   "key": "C4",
+   "task": "T1",
+   "text": "Competitor Northfold prices its core trainer at £150 and sells direct",
+   "kind": "figure",
+   "status": "partial",
+   "status_reason": "Entailed by a single tier-B/C source; needs corroboration.",
+   "user_flag": null,
+   "user_note": null,
+   "evidence": [
+    {
+     "source_id": "4f5361f81c62422e9b7472f35782e493",
+     "passage": "Fixture text for tests. Online footwear sales in the United Kingdom grew by about 6.5% in 2025, according to our panel. Competitor Northfold prices its core trainer at £150 and sells direct.",
+     "page": null,
+     "quote": "Competitor Northfold prices its core trainer at £150 and sells direct.",
+     "quote_start": 120,
+     "quote_end": 190,
+     "relation": "supports",
+     "entailment": 0.88,
+     "relevance": 1.0,
+     "scope_issue": null,
+     "note": "States the claim.",
+     "model": "fake-llm"
+    }
+   ]
+  },
+  {
+   "id": "3fcb0b01958440f4aa86c0fd49714097",
+   "key": "C5",
+   "task": "T1",
+   "text": "The median acceptable premium for sustainable trainers was 10% among UK respondents;",
+   "kind": "figure",
+   "status": "partial",
+   "status_reason": "Entailed by a single tier-B/C source; needs corroboration.",
+   "user_flag": null,
+   "user_note": null,
+   "evidence": [
+    {
+     "source_id": "e84b85948618437facf6e62b6fc60c1c",
+     "passage": "Fixture text for tests. The median acceptable premium for sustainable trainers was 10% among UK respondents; fewer than one in five accepted a premium above 20%.",
+     "page": null,
+     "quote": "The median acceptable premium for sustainable trainers was 10% among UK respondents;",
+     "quote_start": 24,
+     "quote_end": 108,
+     "relation": "supports",
+     "entailment": 0.88,
+     "relevance": 1.0,
+     "scope_issue": null,
+     "note": "States the claim.",
+     "model": "fake-llm"
+    }
+   ]
+  },
+  {
+   "id": "70eb58a56afd4c85b69239d81a0d7e48",
+   "key": "C6",
+   "task": "T1",
+   "text": "fewer than one in five accepted a premium above 20%",
+   "kind": "figure",
+   "status": "partial",
+   "status_reason": "Entailed by a single tier-B/C source; needs corroboration.",
+   "user_flag": null,
+   "user_note": null,
+   "evidence": [
+    {
+     "source_id": "e84b85948618437facf6e62b6fc60c1c",
+     "passage": "Fixture text for tests. The median acceptable premium for sustainable trainers was 10% among UK respondents; fewer than one in five accepted a premium above 20%.",
+     "page": null,
+     "quote": "fewer than one in five accepted a premium above 20%.",
+     "quote_start": 109,
+     "quote_end": 161,
+     "relation": "supports",
+     "entailment": 0.88,
+     "relevance": 1.0,
+     "scope_issue": null,
+     "note": "States the claim.",
+     "model": "fake-llm"
+    }
+   ]
+  },
+  {
+   "id": "e189c5fed0914ac18e976f5679a47114",
+   "key": "C7",
+   "task": "T2",
+   "text": "Customers will pay a premium of at least 20% for sustainable trainers",
+   "kind": "figure",
+   "status": "contradicted",
+   "status_reason": "Contradicted by 1 passage(s) of equal or higher source tier.",
+   "user_flag": null,
+   "user_note": null,
+   "evidence": [
+    {
+     "source_id": "e84b85948618437facf6e62b6fc60c1c",
+     "passage": "Fixture text for tests. The median acceptable premium for sustainable trainers was 10% among UK respondents; fewer than one in five accepted a premium above 20%.",
+     "page": null,
+     "quote": "The median acceptable premium for sustainable trainers was 10%",
+     "quote_start": 24,
+     "quote_end": 86,
+     "relation": "contradicts",
+     "entailment": 0.9,
+     "relevance": 1.0,
+     "scope_issue": null,
+     "note": "Median is 10%.",
+     "model": "fake-llm"
+    },
+    {
+     "source_id": "e581f586ec464f56ba4297efb90d86dd",
+     "passage": "Fixture text for tests. Eco trainers are booming and shoppers love sustainable brands.",
+     "page": null,
+     "quote": null,
+     "quote_start": null,
+     "quote_end": null,
+     "relation": "related",
+     "entailment": 0.0,
+     "relevance": 0.413,
+     "scope_issue": null,
+     "note": "Topic only.",
+     "model": "fake-llm"
+    },
+    {
+     "source_id": "63b79ac0f2a84d7ea2aea7f6632288a4",
+     "passage": "Fixture text for tests. Online footwear sales in the United Kingdom grew by 6.5% in 2025. Premium trainers accounted for 22% of online footwear spending in 2025.",
+     "page": null,
+     "quote": null,
+     "quote_start": null,
+     "quote_end": null,
+     "relation": "related",
+     "entailment": 0.0,
+     "relevance": 0.324,
+     "scope_issue": null,
+     "note": "Topic only.",
+     "model": "fake-llm"
+    }
+   ]
+  },
+  {
+   "id": "9ebe1a1930e146a09c003f694dd1c5eb",
+   "key": "C8",
+   "task": "T2",
+   "text": "The UK sustainable trainer market will grow 12.4% a year to 2030",
+   "kind": "forecast",
+   "status": "unsupported",
+   "status_reason": "Relevant passages were found, but none states this claim. Relevance is not support.",
+   "user_flag": null,
+   "user_note": null,
+   "evidence": [
+    {
+     "source_id": "e84b85948618437facf6e62b6fc60c1c",
+     "passage": "Fixture text for tests. The median acceptable premium for sustainable trainers was 10% among UK respondents; fewer than one in five accepted a premium above 20%.",
+     "page": null,
+     "quote": null,
+     "quote_start": null,
+     "quote_end": null,
+     "relation": "related",
+     "entailment": 0.0,
+     "relevance": 1.0,
+     "scope_issue": null,
+     "note": "Topic only.",
+     "model": "fake-llm"
+    },
+    {
+     "source_id": "4f5361f81c62422e9b7472f35782e493",
+     "passage": "Fixture text for tests. Online footwear sales in the United Kingdom grew by about 6.5% in 2025, according to our panel. Competitor Northfold prices its core trainer at £150 and sells direct.",
+     "page": null,
+     "quote": null,
+     "quote_start": null,
+     "quote_end": null,
+     "relation": "related",
+     "entailment": 0.0,
+     "relevance": 0.592,
+     "scope_issue": null,
+     "note": "Topic only.",
+     "model": "fake-llm"
+    },
+    {
+     "source_id": "e581f586ec464f56ba4297efb90d86dd",
+     "passage": "Fixture text for tests. Eco trainers are booming and shoppers love sustainable brands.",
+     "page": null,
+     "quote": null,
+     "quote_start": null,
+     "quote_end": null,
+     "relation": "related",
+     "entailment": 0.0,
+     "relevance": 0.467,
+     "scope_issue": null,
+     "note": "Topic only.",
+     "model": "fake-llm"
+    }
+   ]
+  },
+  {
+   "id": "e0a8fb3e029f4b2382b311744b3a50ff",
+   "key": "C9",
+   "task": "T2",
+   "text": "Eco trainers are booming and shoppers love sustainable brands",
+   "kind": "fact",
+   "status": "partial",
+   "status_reason": "Entailed by a single tier-B/C source; needs corroboration.",
+   "user_flag": null,
+   "user_note": null,
+   "evidence": [
+    {
+     "source_id": "e581f586ec464f56ba4297efb90d86dd",
+     "passage": "Fixture text for tests. Eco trainers are booming and shoppers love sustainable brands.",
+     "page": null,
+     "quote": "Eco trainers are booming and shoppers love sustainable brands.",
+     "quote_start": 24,
+     "quote_end": 86,
+     "relation": "supports",
+     "entailment": 0.88,
+     "relevance": 1.0,
+     "scope_issue": null,
+     "note": "States the claim.",
+     "model": "fake-llm"
+    }
+   ]
+  }
+ ],
+ "findings": [
+  {
+   "id": "a7b3a929d2bb48d29d7c083577366347",
+   "severity": "high",
+   "code": "contradicted",
+   "text": "C7: a source of equal or higher tier contradicts this.",
+   "claim_id": "e189c5fed0914ac18e976f5679a47114"
+  },
+  {
+   "id": "1954559d7b0a480f906ae5f17053cf88",
+   "severity": "high",
+   "code": "unsupported",
+   "text": "C8: no retrieved source states this. Excluded from scoring.",
+   "claim_id": "9ebe1a1930e146a09c003f694dd1c5eb"
+  },
+  {
+   "id": "54049eb5ed6d4f5d96eedf535632587c",
+   "severity": "high",
+   "code": "unsourced_number",
+   "text": "The recommendation text uses figures not found in any claim or assumption: 47%, 55.",
+   "claim_id": null
+  },
+  {
+   "id": "632960f68282433baa8c2078aef729b3",
+   "severity": "medium",
+   "code": "low_tier",
+   "text": "C9: only blog or user-generated sources support this.",
+   "claim_id": "e0a8fb3e029f4b2382b311744b3a50ff"
+  },
+  {
+   "id": "1848a45d31b24fb985600d491e0d72a1",
+   "severity": "medium",
+   "code": "bad_citation",
+   "text": "The recommendation cites claims that are not usable evidence: C42.",
+   "claim_id": null
+  },
+  {
+   "id": "95eb7c374a8441bd96e50c33434ff4bf",
+   "severity": "low",
+   "code": "single_source",
+   "text": "C4: rests on a single source; corroborate it.",
+   "claim_id": "4fd2c18d34144246b391abebe4ec94ad"
+  },
+  {
+   "id": "957912f80e554749b1be3c517e1706dd",
+   "severity": "low",
+   "code": "single_source",
+   "text": "C5: rests on a single source; corroborate it.",
+   "claim_id": "3fcb0b01958440f4aa86c0fd49714097"
+  },
+  {
+   "id": "0abb9782318a4310aa85aafc75db545d",
+   "severity": "low",
+   "code": "single_source",
+   "text": "C6: rests on a single source; corroborate it.",
+   "claim_id": "70eb58a56afd4c85b69239d81a0d7e48"
+  },
+  {
+   "id": "46111a307b8d479a9af91ddde72d8ffd",
+   "severity": "low",
+   "code": "single_source",
+   "text": "C9: rests on a single source; corroborate it.",
+   "claim_id": "e0a8fb3e029f4b2382b311744b3a50ff"
+  }
+ ],
+ "missing": [
+  {
+   "item": "Customer acquisition cost for UK trainers",
+   "impact": "High",
+   "plan": "Run a paid pilot"
+  }
+ ],
+ "recommendation": {
+  "verdict": "Insufficient evidence",
+  "rule": "Less than 35% of the weighted case rests on evidence.",
+  "overall": 55.0,
+  "coverage": 0.25,
+  "confidence": 0.225,
+  "confidence_label": "Low",
+  "confidence_method": "Weighted evidence coverage 0.25 × penalty 0.90 for 2 high-severity findings",
+  "headline": "Run a capped pilot before full entry",
+  "summary": "Online growth is evidenced [C1]. Margins of 47% are assumed [C42].",
+  "conditions": [
+   "Measured CAC at or below the assumed 55 by month 4"
+  ],
+  "would_change": [
+   "A survey showing a lower premium"
+  ],
+  "cited": [
+   "C1"
+  ],
+  "unknown_citations": [
+   "C42"
+  ]
+ },
+ "factors": [
+  {
+   "key": "attract",
+   "label": "Market attractiveness",
+   "weight": 0.25,
+   "score": 70,
+   "model_score": 70,
+   "coverage": 1.0,
+   "claims": [
+    "C1"
+   ],
+   "rationale": "Growth",
+   "basis": "evidenced"
+  },
+  {
+   "key": "demand",
+   "label": "Customer demand",
+   "weight": 0.2,
+   "score": 50,
+   "model_score": null,
+   "coverage": 0.0,
+   "claims": [],
+   "rationale": "The analyst gave no assessment.",
+   "basis": "no_evidence"
+  },
+  {
+   "key": "compete",
+   "label": "Competitive room",
+   "weight": 0.15,
+   "score": 50,
+   "model_score": null,
+   "coverage": 0.0,
+   "claims": [],
+   "rationale": "The analyst gave no assessment.",
+   "basis": "no_evidence"
+  },
+  {
+   "key": "econ",
+   "label": "Unit economics",
+   "weight": 0.25,
+   "score": 50,
+   "model_score": 90,
+   "coverage": 0.0,
+   "claims": [],
+   "rationale": "Guess",
+   "basis": "no_evidence"
+  },
+  {
+   "key": "exec",
+   "label": "Execution and compliance",
+   "weight": 0.15,
+   "score": 50,
+   "model_score": null,
+   "coverage": 0.0,
+   "claims": [],
+   "rationale": "The analyst gave no assessment.",
+   "basis": "no_evidence"
+  }
+ ],
+ "swot": {
+  "strengths": [
+   {
+    "text": "Growing online channel",
+    "claims": [
+     "C1"
+    ],
+    "basis": "evidenced",
+    "coverage": 1.0
+   }
+  ],
+  "weaknesses": [
+   {
+    "text": "No UK awareness",
+    "claims": [],
+    "basis": "no_evidence",
+    "coverage": 0.0
+   }
+  ],
+  "opportunities": [
+   {
+    "text": "Premium share",
+    "claims": [
+     "C1"
+    ],
+    "basis": "evidenced",
+    "coverage": 1.0
+   }
+  ],
+  "threats": [
+   {
+    "text": "Price-sensitive buyers",
+    "claims": [
+     "C1"
+    ],
+    "basis": "evidenced",
+    "coverage": 1.0
+   }
+  ]
+ },
+ "pestle": [
+  {
+   "factor": "Economic",
+   "rating": 3,
+   "note": "Growth",
+   "claims": [
+    "C1"
+   ],
+   "basis": "evidenced",
+   "coverage": 1.0
+  }
+ ],
+ "porter": [
+  {
+   "force": "Rivalry",
+   "level": 3.5,
+   "rationale": "Several brands",
+   "claims": [
+    "C9"
+   ],
+   "basis": "evidenced"
+  }
+ ],
+ "competitors": [
+  {
+   "name": "Northfold",
+   "positioning": "Premium D2C",
+   "price_note": "£150",
+   "strengths": "Brand",
+   "weaknesses": "Price",
+   "claims": [
+    "C9"
+   ],
+   "basis": "evidenced"
+  }
+ ],
+ "assumption_suggestions": {
+  "price": {
+   "value": 150.0,
+   "origin": "estimate",
+   "claim": null,
+   "note": "estimate"
+  },
+  "gross_margin": {
+   "value": 0.6,
+   "origin": "estimate",
+   "claim": null,
+   "note": "estimate"
+  },
+  "return_rate": {
+   "value": 0.3,
+   "origin": "estimate",
+   "claim": null,
+   "note": "estimate"
+  },
+  "cac": {
+   "value": 55.0,
+   "origin": "estimate",
+   "claim": null,
+   "note": "estimate"
+  },
+  "marketing": {
+   "value": 30000.0,
+   "origin": "estimate",
+   "claim": null,
+   "note": "estimate"
+  },
+  "repeat_rate": {
+   "value": 0.35,
+   "origin": "estimate",
+   "claim": null,
+   "note": "estimate"
+  },
+  "fixed_costs": {
+   "value": 15000.0,
+   "origin": "estimate",
+   "claim": null,
+   "note": "estimate"
+  },
+  "launch_cost": {
+   "value": 150000.0,
+   "origin": "estimate",
+   "claim": null,
+   "note": "estimate"
+  }
+ },
+ "scenario": {
+  "id": "ce401f43539d44a9b602efdbe5d34f18",
+  "version": 1,
+  "assumptions": {
+   "price": {
+    "value": 150.0,
+    "origin": "estimate",
+    "claim": null,
+    "note": "estimate"
+   },
+   "gross_margin": {
+    "value": 0.6,
+    "origin": "estimate",
+    "claim": null,
+    "note": "estimate"
+   },
+   "return_rate": {
+    "value": 0.3,
+    "origin": "estimate",
+    "claim": null,
+    "note": "estimate"
+   },
+   "cac": {
+    "value": 55.0,
+    "origin": "estimate",
+    "claim": null,
+    "note": "estimate"
+   },
+   "marketing": {
+    "value": 30000.0,
+    "origin": "estimate",
+    "claim": null,
+    "note": "estimate"
+   },
+   "repeat_rate": {
+    "value": 0.35,
+    "origin": "estimate",
+    "claim": null,
+    "note": "estimate"
+   },
+   "fixed_costs": {
+    "value": 15000.0,
+    "origin": "estimate",
+    "claim": null,
+    "note": "estimate"
+   },
+   "launch_cost": {
+    "value": 150000.0,
+    "origin": "estimate",
+    "claim": null,
+    "note": "estimate"
+   }
+  },
+  "results": {
+   "scenarios": {
+    "conservative": {
+     "revenue": [
+      43854.55,
+      44877.82,
+      45901.09,
+      46924.36,
+      47947.64,
+      48970.91,
+      49994.18,
+      51017.45,
+      52040.73,
+      53064.0,
+      54087.27,
+      55110.55,
+      56133.82,
+      57157.09,
+      58180.36,
+      59203.64,
+      60226.91,
+      61250.18,
+      62273.45,
+      63296.73,
+      64320.0,
+      65343.27,
+      66366.55,
+      67389.82,
+      68413.09,
+      69436.36,
+      70459.64,
+      71482.91,
+      72506.18,
+      73529.45,
+      74552.73,
+      75576.0,
+      76599.27,
+      77622.55,
+      78645.82,
+      79669.09
+     ],
+     "ebitda": [
+      -23474.18,
+      -22971.91,
+      -22469.64,
+      -21967.37,
+      -21465.11,
+      -20962.84,
+      -20460.57,
+      -19958.3,
+      -19456.03,
+      -18953.76,
+      -18451.49,
+      -17949.22,
+      -17446.95,
+      -16944.68,
+      -16442.41,
+      -15940.15,
+      -15437.88,
+      -14935.61,
+      -14433.34,
+      -13931.07,
+      -13428.8,
+      -12926.53,
+      -12424.26,
+      -11921.99,
+      -11419.72,
+      -10917.45,
+      -10415.19,
+      -9912.92,
+      -9410.65,
+      -8908.38,
+      -8406.11,
+      -7903.84,
+      -7401.57,
+      -6899.3,
+      -6397.03,
+      -5894.76
+     ],
+     "cumulative_cash": [
+      -173474.18,
+      -196446.09,
+      -218915.74,
+      -240883.11,
+      -262348.22,
+      -283311.05,
+      -303771.62,
+      -323729.92,
+      -343185.95,
+      -362139.71,
+      -380591.2,
+      -398540.42,
+      -415987.37,
+      -432932.06,
+      -449374.47,
+      -465314.62,
+      -480752.49,
+      -495688.1,
+      -510121.44,
+      -524052.51,
+      -537481.31,
+      -550407.84,
+      -562832.1,
+      -574754.09,
+      -586173.82,
+      -597091.27,
+      -607506.46,
+      -617419.37,
+      -626830.02,
+      -635738.4,
+      -644144.51,
+      -652048.35,
+      -659449.92,
+      -666349.22,
+      -672746.25,
+      -678641.02
+     ],
+     "break_even_month": null,
+     "payback_month": null,
+     "peak_funding": -678641.02,
+     "revenue_36": 2223425.46,
+     "cash_36": -678641.02
+    },
+    "base": {
+     "revenue": [
+      57272.73,
+      58943.18,
+      60613.64,
+      62284.09,
+      63954.55,
+      65625.0,
+      67295.45,
+      68965.91,
+      70636.36,
+      72306.82,
+      73977.27,
+      75647.73,
+      77318.18,
+      78988.64,
+      80659.09,
+      82329.55,
+      84000.0,
+      85670.45,
+      87340.91,
+      89011.36,
+      90681.82,
+      92352.27,
+      94022.73,
+      95693.18,
+      97363.64,
+      99034.09,
+      100704.55,
+      102375.0,
+      104045.45,
+      105715.91,
+      107386.36,
+      109056.82,
+      110727.27,
+      112397.73,
+      114068.18,
+      115738.64
+     ],
+     "ebitda": [
+      -16472.73,
+      -15640.68,
+      -14808.64,
+      -13976.59,
+      -13144.55,
+      -12312.5,
+      -11480.45,
+      -10648.41,
+      -9816.36,
+      -8984.32,
+      -8152.27,
+      -7320.23,
+      -6488.18,
+      -5656.14,
+      -4824.09,
+      -3992.05,
+      -3160.0,
+      -2327.95,
+      -1495.91,
+      -663.86,
+      168.18,
+      1000.23,
+      1832.27,
+      2664.32,
+      3496.36,
+      4328.41,
+      5160.45,
+      5992.5,
+      6824.55,
+      7656.59,
+      8488.64,
+      9320.68,
+      10152.73,
+      10984.77,
+      11816.82,
+      12648.86
+     ],
+     "cumulative_cash": [
+      -166472.73,
+      -182113.41,
+      -196922.05,
+      -210898.64,
+      -224043.18,
+      -236355.68,
+      -247836.14,
+      -258484.55,
+      -268300.91,
+      -277285.23,
+      -285437.5,
+      -292757.73,
+      -299245.91,
+      -304902.05,
+      -309726.14,
+      -313718.18,
+      -316878.18,
+      -319206.14,
+      -320702.05,
+      -321365.91,
+      -321197.73,
+      -320197.5,
+      -318365.23,
+      -315700.91,
+      -312204.55,
+      -307876.14,
+      -302715.68,
+      -296723.18,
+      -289898.64,
+      -282242.05,
+      -273753.41,
+      -264432.73,
+      -254280.0,
+      -243295.23,
+      -231478.41,
+      -218829.55
+     ],
+     "break_even_month": 21,
+     "payback_month": null,
+     "peak_funding": -321365.91,
+     "revenue_36": 3114204.55,
+     "cash_36": -218829.55
+    },
+    "optimistic": {
+     "revenue": [
+      74659.09,
+      77272.16,
+      79885.23,
+      82498.3,
+      85111.36,
+      87724.43,
+      90337.5,
+      92950.57,
+      95563.64,
+      98176.7,
+      100789.77,
+      103402.84,
+      106015.91,
+      108628.98,
+      111242.05,
+      113855.11,
+      116468.18,
+      119081.25,
+      121694.32,
+      124307.39,
+      126920.45,
+      129533.52,
+      132146.59,
+      134759.66,
+      137372.73,
+      139985.8,
+      142598.86,
+      145211.93,
+      147825.0,
+      150438.07,
+      153051.14,
+      155664.2,
+      158277.27,
+      160890.34,
+      163503.41,
+      166116.48
+     ],
+     "ebitda": [
+      -7315.91,
+      -5996.97,
+      -4678.02,
+      -3359.08,
+      -2040.14,
+      -721.19,
+      597.75,
+      1916.69,
+      3235.64,
+      4554.58,
+      5873.52,
+      7192.47,
+      8511.41,
+      9830.35,
+      11149.3,
+      12468.24,
+      13787.18,
+      15106.12,
+      16425.07,
+      17744.01,
+      19062.95,
+      20381.9,
+      21700.84,
+      23019.78,
+      24338.73,
+      25657.67,
+      26976.61,
+      28295.56,
+      29614.5,
+      30933.44,
+      32252.39,
+      33571.33,
+      34890.27,
+      36209.22,
+      37528.16,
+      38847.1
+     ],
+     "cumulative_cash": [
+      -157315.91,
+      -163312.88,
+      -167990.9,
+      -171349.98,
+      -173390.11,
+      -174111.31,
+      -173513.56,
+      -171596.86,
+      -168361.23,
+      -163806.65,
+      -157933.13,
+      -150740.66,
+      -142229.25,
+      -132398.9,
+      -121249.6,
+      -108781.36,
+      -94994.18,
+      -79888.06,
+      -63462.99,
+      -45718.98,
+      -26656.02,
+      -6274.13,
+      15426.72,
+      38446.5,
+      62785.23,
+      88442.9,
+      115419.51,
+      143715.07,
+      173329.57,
+      204263.01,
+      236515.4,
+      270086.73,
+      304977.0,
+      341186.22,
+      378714.37,
+      417561.48
+     ],
+     "break_even_month": 7,
+     "payback_month": 23,
+     "peak_funding": -174111.31,
+     "revenue_36": 4333960.23,
+     "cash_36": 417561.48
+    }
+   },
+   "sensitivity": [
+    {
+     "key": "gross_margin",
+     "label": "Gross margin",
+     "low": -373704.54,
+     "high": 373704.55
+    },
+    {
+     "key": "price",
+     "label": "Price per unit",
+     "low": -373704.54,
+     "high": 373704.55
+    },
+    {
+     "key": "cac",
+     "label": "Acquisition cost per customer",
+     "low": 387792.62,
+     "high": -258528.4
+    },
+    {
+     "key": "return_rate",
+     "label": "Return rate",
+     "low": 176175.0,
+     "high": -176175.0
+    },
+    {
+     "key": "fixed_costs",
+     "label": "Fixed costs per month",
+     "low": 108000.0,
+     "high": -108000.0
+    },
+    {
+     "key": "repeat_rate",
+     "label": "Repeat purchase rate (12 months)",
+     "low": -104837.72,
+     "high": 104837.73
+    }
+   ],
+   "constants": {
+    "fulfilment_per_order": 8.0,
+    "return_handling": 9.0
+   },
+   "months": 36
+  },
+  "created_at": "2026-10-22T14:30:02.801865"
+ },
+ "scenario_versions": [
+  {
+   "id": "ce401f43539d44a9b602efdbe5d34f18",
+   "version": 1,
+   "created_at": "2026-10-22T14:30:02.801865"
+  }
+ ],
+ "usage": {
+  "searches": 3
+ },
+ "shared": true,
+ "sample_note": "Illustrative sample. It was produced by the real pipeline running on made-up test sources, so the sources, figures and verdict are not research. It shows how a report reads: every claim links to a checked extract, and unsupported figures are marked."
+}

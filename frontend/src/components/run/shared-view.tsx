@@ -20,24 +20,30 @@ const tabs = [
   { id: "evidence", label: "Evidence" },
 ] as const;
 
-/** The read-only report behind a share link. No sign-in; nothing on this page can change the run. */
-export function SharedView() {
+/** The read-only report behind a share link, or the public sample. No sign-in; nothing here can change a run. */
+export function SharedView({ sample = false }: { sample?: boolean }) {
   const token = useSearchParams().get("t") ?? "";
   const [run, setRun] = useState<RunDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [view, setView] = useState<(typeof tabs)[number]["id"]>("dashboard");
 
   useEffect(() => {
-    if (!token) return;
-    fetch(`${API_URL}/shared/${encodeURIComponent(token)}`)
+    if (!token && !sample) return;
+    fetch(sample ? `${API_URL}/sample` : `${API_URL}/shared/${encodeURIComponent(token)}`)
       .then(async (r) => {
         if (r.ok) return setRun(await r.json());
-        setError(r.status === 429 ? "Too many requests. Wait a minute and reload." : "This link is not valid or has been turned off.");
+        setError(
+          r.status === 429
+            ? "Too many requests. Wait a minute and reload."
+            : sample
+              ? "The sample report is not available right now."
+              : "This link is not valid or has been turned off.",
+        );
       })
       .catch(() => setError("The report could not be loaded. Check your connection and try again."));
-  }, [token]);
+  }, [token, sample]);
 
-  if (!token) return <ErrorNote>This link is incomplete. Ask the sender for the full link.</ErrorNote>;
+  if (!token && !sample) return <ErrorNote>This link is incomplete. Ask the sender for the full link.</ErrorNote>;
   if (error) return <ErrorNote>{error}</ErrorNote>;
   if (!run) return <p className="text-sm text-[var(--muted)]">Loading…</p>;
 
@@ -46,14 +52,19 @@ export function SharedView() {
       <header className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Eyebrow>
-            Shared read-only report · {run.workspace_name}
-            {run.finished_at ? ` · completed ${date(run.finished_at)}` : ""}
+            {run.sample ? "Sample report" : `Shared read-only report · ${run.workspace_name}`}
+            {run.finished_at && !run.sample ? ` · completed ${date(run.finished_at)}` : ""}
           </Eyebrow>
           <Link href="/" className="text-[12.5px] text-[var(--muted)] hover:text-[var(--fg)]">
             Strategic Intelligence Hub
           </Link>
         </div>
         <h1 className="font-disp max-w-[32ch] text-[clamp(26px,3.2vw,40px)] leading-[1.12]">{run.question}</h1>
+        {run.sample && (
+          <p role="note" className="max-w-[80ch] border-l-2 border-[var(--warn)] bg-[var(--warn-bg)] px-3 py-2 text-[13.5px] leading-6 text-[var(--warn)]">
+            {run.sample_note}
+          </p>
+        )}
       </header>
       <nav aria-label="Report views" className="flex gap-1 overflow-x-auto border-b border-[var(--line)]">
         {tabs.map((t) => (

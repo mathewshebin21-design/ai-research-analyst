@@ -166,6 +166,33 @@ export type RunDetail = RunSummary & {
   scenario: ScenarioOut | null;
   scenario_versions: { id: string; version: number; created_at: string }[];
   events: { id: number; at: string; agent: string; message: string }[];
+  previous_run_id: string | null;
+  refresh_monthly: boolean;
+  changes: Changes | null;
+  shared?: boolean;
+  sample?: boolean;
+  sample_note?: string;
+};
+
+export type Usage = { runs_used: number; limit: number; remaining: number; period_start: string; period_end: string };
+
+type ClaimRef = { key: string; text: string; status: ClaimStatus };
+type SourceRef = { key: string; title: string; url: string | null };
+
+export type Changes = {
+  previous_run_id: string;
+  previous_finished_at: string | null;
+  verdict: { before: string | null; after: string | null; score_before: number | null; score_after: number | null };
+  claims_changed: { before: ClaimRef; after: ClaimRef }[];
+  claims_unchanged: number;
+  claims_new: ClaimRef[];
+  claims_dropped: ClaimRef[];
+  sources_new: SourceRef[];
+  sources_dropped: SourceRef[];
+  figures: { key: string; label: string; before: number | null; after: number | null }[];
+  competitors_new: string[];
+  competitors_dropped: string[];
+  method: string;
 };
 
 export type DocumentOut = { id: string; filename: string; pages: number; size_bytes: number; status: string; uploaded_at: string };

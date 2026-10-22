@@ -7,6 +7,7 @@ import { FileUp, Trash2 } from "lucide-react";
 
 import { useSession } from "@/components/app/session";
 import { ErrorNote, Eyebrow, Field, Panel } from "@/components/app/status";
+import { UsageMeter, useUsage } from "@/components/app/usage";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { currencies, date } from "@/lib/format";
@@ -34,6 +35,7 @@ export default function ResearchHome() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const usage = useUsage(workspace.id);
 
   const seq = useRef(0);
   const load = useCallback(async () => {
@@ -144,6 +146,7 @@ export default function ResearchHome() {
               </Button>
               <span className="text-[12px] text-[var(--muted)]">Nothing is searched until you approve the plan.</span>
             </div>
+            <UsageMeter usage={usage} className="max-w-[360px]" />
           </div>
 
           <div className="flex min-w-0 flex-col gap-3">
@@ -180,11 +183,29 @@ export default function ResearchHome() {
         <p className="text-[14px] text-[var(--muted)]">You have view-only access to this workspace.</p>
       )}
 
-      <Panel title="Research history" aside={<Link href="/app/compare" className="text-[12.5px] text-[var(--accent)]">Compare two runs</Link>}>
+      <Panel
+        title="Research history"
+        aside={
+          <span className="flex gap-4 text-[12.5px]">
+            <Link href="/sample" className="text-[var(--muted)] hover:text-[var(--fg)]">
+              Sample report
+            </Link>
+            <Link href="/app/compare" className="text-[var(--accent)]">
+              Compare two runs
+            </Link>
+          </span>
+        }
+      >
         {runs === null ? (
           <p className="text-[13px] text-[var(--muted)]">Loading…</p>
         ) : runs.length === 0 ? (
-          <p className="text-[13.5px] text-[var(--muted)]">Your questions and their results will appear here.</p>
+          <p className="text-[13.5px] text-[var(--muted)]">
+            Your questions and their results will appear here. To see what a finished report looks like first,{" "}
+            <Link href="/sample" className="text-[var(--accent)] underline underline-offset-2">
+              open the sample report
+            </Link>
+            .
+          </p>
         ) : (
           <ul className="flex flex-col">
             {runs.map((r) => (

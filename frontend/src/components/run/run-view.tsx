@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 
@@ -87,6 +88,15 @@ export function RunView() {
         <h1 className="font-disp max-w-[32ch] text-[clamp(26px,3.2vw,40px)] leading-[1.12]">{run.question}</h1>
       </header>
 
+      {run.previous_run_id && run.status === "planned" && (
+        <p className="border-l-2 border-[var(--accent)] pl-3 text-[13.5px] leading-6 text-[var(--muted)]">
+          This refreshes an{" "}
+          <Link href={`/app/run?id=${run.previous_run_id}`} className="text-[var(--accent)] underline underline-offset-2">
+            earlier run
+          </Link>{" "}
+          with the same plan. Edit it if you like; starting it uses one run, and the finished report shows what changed.
+        </p>
+      )}
       {run.status === "planned" && <PlanEditor run={run} canEdit={canEdit} onChange={setRun} />}
       {active && <Progress run={run} events={events} />}
       {run.status === "failed" && (

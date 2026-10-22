@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from intel.config import Settings, get_settings
 from intel.db import session_factory
+from intel.growth import due_refreshes
 from intel.logging_setup import configure_logging
 from intel.models import Job, Run, SearchCache
 from intel.pipeline.orchestrator import execute_run
@@ -90,6 +91,12 @@ def loop(stop: threading.Event, interval: float = 2.0) -> None:
         if time.monotonic() - last_purge > 3600:
             with session_factory()() as s:
                 purge_expired(s)
+                try:
+                    queued = due_refreshes(s, get_settings())
+                    if queued:
+                        log.info("monthly refresh queued", extra={"runs": queued})
+                except Exception:
+                    log.exception("monthly refresh failed")
             last_purge = time.monotonic()
         try:
             worked = process_one()
